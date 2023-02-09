@@ -1,0 +1,60 @@
+{
+  "name": "demo_scene",
+
+  "entities": [
+    {
+      "name": "sphere_lr_entity",
+      "instance_file": "demo_ins",
+      "mesh": "sphere_lr",
+      "material": "demo_phong",
+      "transform": {
+        "translate": [ 0, 0, 0 ],
+        "scale": 1.0,
+        "quat": [1, 0, 0, 0] 
+      }
+    }
+  ],
+
+  "point_lights": [
+    {
+      "name": "demo_point_light",
+      "light_common_attr": {
+        "ambient": [ 0.2, 0.2, 0.2 ],
+        "diffuse": [ 0.5, 0.5, 0.5 ],
+        "specular": [ 1.0, 1.0, 1.0 ]
+      },
+      "transform": {
+        "translate": [ 0, 0, 0 ],
+        "quat": [ 1, 0, 0, 0 ]
+      },
+      "constant": 1.0,
+      "linear": 0.22,
+      "quadratic": 0.2
+    }
+  ],
+
+  "direct_lights": [
+    {
+      "name": "demo_direct_light",
+      "light_common_attr": {
+        "ambient": [ 0.2, 0.2, 0.2 ],
+        "diffuse": [ 0.5, 0.5, 0.5 ],
+        "specular": [ 1.0, 1.0, 1.0 ]
+      },
+      "transform": {
+        "quat": [ 1, 0, 0, 0 ]
+      }
+    }
+  ],
+
+  "camera": {
+    "transform": {
+      "translate": [ 0, 0, 0 ],
+      "scale": 1.0,
+      "quat": [ 1, 0, 0, 0 ]
+    },
+    "near": 0.1,
+    "far": 40.0,
+    "fov_degree": 45
+  }
+}
