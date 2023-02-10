@@ -31,9 +31,9 @@ public:
     glm::quat rotationQ = glm::identity<glm::quat>();
     glm::vec3 center_offset = glm::vec3(0.0f);
 
-    const glm::vec3 ini_front = glm::vec3{ 0,0,-1 };
-    const glm::vec3 ini_up = glm::vec3{ 0,1,0 };
-    const glm::vec3 ini_right = glm::vec3{ 1,0,0 };
+    static const glm::vec3 ini_front;
+    static const glm::vec3 ini_up;
+    static const glm::vec3 ini_right;
 
     Transform() = default;
     Transform(glm::vec3 translate, glm::vec3 scale, glm::quat rotationQ) :

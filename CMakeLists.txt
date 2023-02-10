@@ -56,6 +56,14 @@ FILE(GLOB SHADER_FILES
 "${PROJECT_SOURCE_DIR}/resource/shader/*.fs"
 )
 
+FILE(GLOB MATERIAL_FILES
+"${PROJECT_SOURCE_DIR}/resource/material/*.json"
+)
+
+FILE(GLOB SCENE_FILES
+"${PROJECT_SOURCE_DIR}/resource/scene/*.json"
+)
+
 source_group(TREE "${PROJECT_SOURCE_DIR}/include" PREFIX HEADER FILES ${HEADER_FILES})
 source_group(TREE "${PROJECT_SOURCE_DIR}/src" PREFIX SOURCE FILES ${SOURCE_FILES})
 source_group(TREE "${PROJECT_SOURCE_DIR}/src" PREFIX CUDA_SOURCE FILES ${CU_SOURCE_FILES})
@@ -65,6 +73,8 @@ source_group(
     ${IMGUI_FILES}
  )
 source_group(TREE "${PROJECT_SOURCE_DIR}/resource/shader" PREFIX SHADER FILES ${SHADER_FILES})
+source_group(TREE "${PROJECT_SOURCE_DIR}/resource/material" PREFIX MATERIAL FILES ${MATERIAL_FILES})
+source_group(TREE "${PROJECT_SOURCE_DIR}/resource/scene" PREFIX SCENE FILES ${SCENE_FILES})
 
 add_executable(${CMAKE_PROJECT_NAME}
 "${CU_SOURCE_FILES}"
@@ -93,5 +103,5 @@ target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:-
 target_compile_options(${CMAKE_PROJECT_NAME} PUBLIC $<$<COMPILE_LANGUAGE:CUDA>:--expt-relaxed-constexpr>)
 
 add_custom_target(Asset
-    SOURCES ${SHADER_FILES} ${BACKUP_FILES}
+    SOURCES ${SHADER_FILES} ${MATERIAL_FILES} ${SCENE_FILES} ${BACKUP_FILES} 
 )

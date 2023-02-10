@@ -27,6 +27,7 @@ public:
 };
 
 
+
 class Entity {
 public:
     Snowflake_type mesh_uuid = 0L;
@@ -35,6 +36,9 @@ public:
 
     std::string name = "";
     Transform transform;
+
+    bool wireframe = false;
+    float linewidth = 3.0f;
 
     // single mesh
     Entity() {}

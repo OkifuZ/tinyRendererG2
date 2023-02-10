@@ -19,7 +19,7 @@ public:
 		return false; // if success, return true
 	}
 
-	virtual void render(Snowflake_type scene_uuid, Snowflake_type camera) {
+	virtual void render(Snowflake_type scene_uuid) {
 		// pass begin
 		// 1. clear_render_target
 		// 2. get_culling_result - optional

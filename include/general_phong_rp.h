@@ -58,11 +58,12 @@ class GeneralPhongRenderPipeline : public RenderPipeline {
 			direct_lights.push_back(dl);
 		}
 
+		camera = resource_manager_global.get_camera_by_uuid(scene->camera);
+
 		return true;
 	}
 
-	void render(Snowflake_type scene_uuid, Snowflake_type camera_uuid) override {
-		if (!camera) camera = resource_manager_global.get_camera_by_uuid(camera_uuid);
+	void render(Snowflake_type scene_uuid) override {
 
 		// check if any buffer needs to be updated(dirty)
 		for (auto& entity_tup : entity_tups) {
@@ -85,6 +86,9 @@ class GeneralPhongRenderPipeline : public RenderPipeline {
 			bound_material_to_shader(shader, material);
 			bound_mvp_to_shader(shader, camera, entity);
 
+			if (entity->wireframe) {
+				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			}
 			drawcall_mesh(shader, mesh, entity);
 		}
 		

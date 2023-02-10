@@ -12,10 +12,10 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <filesystem>
 
 
 class ResourceManager {
-
 	Snowflake<snowflake_nonlock> snow_generator;
 
 	std::map<Snowflake_type, MeshDataContainer_ptr> mesh_elements;
@@ -40,6 +40,11 @@ class ResourceManager {
 
 public:
 
+	static const std::filesystem::path material_path;
+	static const std::filesystem::path shader_path;
+	static const std::filesystem::path mesh_path;
+	static const std::filesystem::path scene_path;
+
 	MeshDataContainer_ptr get_mesh_by_uuid(Snowflake_type uuid);
 
 	Shader_ptr get_shader_by_uuid(Snowflake_type uuid);
@@ -55,6 +60,8 @@ public:
 	DirectLight_ptr get_directLight_by_uuid(Snowflake_type uuid);
 
 	Camera_ptr get_camera_by_uuid(Snowflake_type uuid);
+
+	Camera_ptr get_camera_by_name(const std::string& name);
 
 	Snowflake_type add_mesh(MeshDataContainer_ptr mesh);
 
@@ -78,9 +85,11 @@ public:
 
 };
 
-
 extern ResourceManager resource_manager_global;
+
+void init_resource_manager();
 
 bool load_scene(SceneData_ptr scene, const std::string& fname);
 
 bool write_scene(SceneData_ptr scene, const std::string& fname);
+

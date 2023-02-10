@@ -1,5 +1,8 @@
 #include "transform.h"
 
+const glm::vec3 Transform::ini_front = glm::vec3{ 0,0,-1 };
+const glm::vec3 Transform::ini_up = glm::vec3{ 0,1,0 };
+const glm::vec3 Transform::ini_right = glm::vec3{ 1,0,0 };
 
 glm::mat4x4 quat_to_mat4(glm::quat rotationQ) {
     return glm::toMat4(rotationQ);

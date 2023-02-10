@@ -11,6 +11,7 @@ typedef std::shared_ptr<Camera> Camera_ptr;
 
 class Camera {
 public:
+	std::string name = "";
 	Transform transform;
 	float near = 0.1f;
 	float far = 40.0f;

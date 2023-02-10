@@ -16,5 +16,3 @@ public:
 	std::vector<Snowflake_type> direct_lights;
 	Snowflake_type camera;
 };
-
-bool load_scene(const std::string& fname);

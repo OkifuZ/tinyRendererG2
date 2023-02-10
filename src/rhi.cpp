@@ -186,7 +186,8 @@ void _bound_camera_to_shader(Shader_ptr current_shader, Camera_ptr camera) {
 }
 
 void _bound_transform_to_shader(Shader_ptr current_shader, Entity_ptr entity) {
-	glm::mat4 model = entity->transform.get_model_mat();
+	glm::mat4 model;
+	model = entity->transform.get_model_mat();
 	current_shader->setMat4("model", model);
 }
 
@@ -226,12 +227,25 @@ void bound_lights_to_shader(Shader_ptr shader, std::vector<PointLight_ptr>& poin
 
 void drawcall_mesh(Shader_ptr shader, MeshDataContainer_ptr mesh, Entity_ptr entity) {
 	shader->use_shader();
-	if (entity->instance_data.used()) {
-		glDrawElementsInstanced(GL_TRIANGLES, mesh->face_num * 3, GL_UNSIGNED_INT, 0, entity->instance_data.instance_num);
+	
+	if (entity->wireframe) {
+		glLineWidth(entity->linewidth);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glDisable(GL_CULL_FACE);
 	}
-	else {
-		glDrawElements(GL_TRIANGLES, mesh->face_num * 3, GL_UNSIGNED_INT, 0);
+	{
+		if (entity->instance_data.used()) {
+			glDrawElementsInstanced(GL_TRIANGLES, mesh->face_num * 3, GL_UNSIGNED_INT, 0, entity->instance_data.instance_num);
+		}
+		else {
+			glDrawElements(GL_TRIANGLES, mesh->face_num * 3, GL_UNSIGNED_INT, 0);
+		}
 	}
+	if (entity->wireframe) {
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glEnable(GL_CULL_FACE);
+	}
+
 	glBindVertexArray(0);
 }
 

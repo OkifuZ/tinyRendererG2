@@ -1,6 +1,46 @@
 #include "resource_manager.h"
+#include <map>
 
 ResourceManager resource_manager_global;
+
+const std::filesystem::path ResourceManager::material_path = "../resource/material";
+const std::filesystem::path ResourceManager::shader_path = "../resource/shader";
+const std::filesystem::path ResourceManager::mesh_path = "../resource/mesh";
+const std::filesystem::path ResourceManager::scene_path = "../resource/scene";
+
+
+
+void init_resource_manager() {
+	// load all shaders
+	struct ShaderChoice {
+		bool vert = false;
+		bool frag = false;
+	};
+	std::map<std::string, ShaderChoice> shader_name_map;
+	for (const auto& entry : std::filesystem::directory_iterator(ResourceManager::shader_path)) {
+		auto& stem = entry.path().stem();
+		auto& extension = entry.path().extension();
+		if (shader_name_map.find(stem.string()) != shader_name_map.end()) {
+			shader_name_map[stem.string()];
+		}
+		if (extension.string() == ".vert")
+			shader_name_map[stem.string()].vert = true;
+		else if (extension.string() == ".frag")
+			shader_name_map[stem.string()].frag = true;
+	}
+
+	for (const auto& it: shader_name_map) {
+		auto& choice = it.second;
+		if (choice.frag && choice.vert) {
+			auto& name = it.first;
+			Shader_ptr shader = std::make_shared<Shader>();
+			load_shader(shader,
+				(ResourceManager::shader_path / (name + ".vert")).string(),
+				(ResourceManager::shader_path / (name + ".frag")).string());
+			Snowflake_type shader_uuid = resource_manager_global.add_shader(shader, name);
+		}
+	}
+}
 
 MeshDataContainer_ptr ResourceManager::get_mesh_by_uuid(Snowflake_type uuid) {
 	auto it = mesh_elements.find(uuid);
@@ -80,6 +120,15 @@ Camera_ptr ResourceManager::get_camera_by_uuid(Snowflake_type uuid) {
 	return Camera_ptr();
 }
 
+Camera_ptr ResourceManager::get_camera_by_name(const std::string& name) {
+	for (const auto& it : camera_elements) {
+		if (it.second->name == name) {
+			return it.second;
+		}
+	}
+	return nullptr;
+}
+
 Snowflake_type ResourceManager::add_mesh(MeshDataContainer_ptr mesh) {
 	if (!mesh) return SNOWFLAKE_INVALID;
 	Snowflake_type uuid = snow_generator.nextid();
@@ -144,24 +193,275 @@ typedef json11::Json::object map_type;
 typedef json11::Json::array  arr_type;
 typedef json11::Json         json_type;
 
-bool _load_entity(Entity_ptr entity, const json_type& scene_json) {
-	if (scene_json != json_type::OBJECT) return false;
-	return false;
+template<class T>
+std::vector<T> _get_vector(const json_type& arr_json, int desire_length) {
+	if (arr_json.type() != json_type::ARRAY) return std::vector<T>(desire_length, 0);
+	auto& arr = arr_json.array_items();
+	if (arr.size() != desire_length) return std::vector<T>(desire_length, 0);
+	else {
+		std::vector<T> res;
+		for (auto& val : arr) {
+			res.push_back(static_cast<T>(val.number_value()));
+		}
+		return res;
+	}
 }
 
-bool _load_point_light(PointLight_ptr point_light, const json_type& ptl_json) {
-	return false;
+bool _load_transform(Transform& t, const json_type& transform_json) {
+	if (transform_json.type() != json_type::OBJECT) return false;
+	map_type transform_map = transform_json.object_items();
+	for (map_type::iterator it = transform_map.begin(); it != transform_map.end(); it++) {
+		auto& descriptor = it->first;
+		auto& value = it->second;
+		if (descriptor == "quat") {
+			auto& vec4 = _get_vector<float>(value, 4);
+			t.rotationQ.w = vec4[0];
+			t.rotationQ.x = vec4[1];
+			t.rotationQ.y = vec4[2];
+			t.rotationQ.z = vec4[3];
+		}
+		else if (descriptor == "scale") {
+			auto& vec3 = _get_vector<float>(value, 3);
+			t.scale.x = vec3[0];
+			t.scale.y = vec3[1];
+			t.scale.z = vec3[2];
+		}
+		else if (descriptor == "translate") {
+			auto& vec3 = _get_vector<float>(value, 3);
+			t.translate.x = vec3[0];
+			t.translate.y = vec3[1];
+			t.translate.z = vec3[2];
+		}
+	}
+	return true;
+}
+
+bool _load_entity(SceneData_ptr scene, const json_type& entities_json) {
+	if (entities_json.type() != json_type::ARRAY) return false;
+	auto& entities_arr = entities_json.array_items();
+
+	for (auto& entity_json : entities_arr) {
+		if (!entity_json.type() == json_type::OBJECT) continue;
+		Entity_ptr entity = std::make_shared<Entity>();
+
+		map_type entity_map = entity_json.object_items();
+		for (map_type::iterator it = entity_map.begin(); it != entity_map.end(); it++) {
+			auto& descriptor = it->first;
+			auto& value = it->second;
+			if (descriptor == "name") {
+				entity->name = value.string_value();
+			}
+			else if (descriptor == "instance_file") {
+				
+			}
+			else if (descriptor == "material") {
+				RenderMaterial_ptr mat = std::make_shared<RenderMaterial>();
+				load_material(*mat, (ResourceManager::material_path / value.string_value()).string());
+				Snowflake_type mat_uuid = resource_manager_global.add_material(mat);
+				entity->material_uuid = mat_uuid;
+			}
+			else if (descriptor == "mesh") {
+				MeshDataContainer_ptr mesh = std::make_shared<MeshDataContainer>();
+				load_mesh(mesh, (ResourceManager::mesh_path / value.string_value()).string());
+				Snowflake_type mesh_uuid = resource_manager_global.add_mesh(mesh);
+				entity->mesh_uuid = mesh_uuid;
+			}
+			else if (descriptor == "transform") {
+				Transform t;
+				if (!_load_transform(t, value)) return false;
+				entity->transform = t;
+			}
+		}
+
+		Snowflake_type uuid = resource_manager_global.add_entity(entity);
+		scene->entities.push_back(uuid);
+	}
+
+	return true;
+}
+
+
+bool _load_point_light(SceneData_ptr scene, const json_type& ptl_json) {
+	if (!ptl_json.type() == json_type::ARRAY) return false;
+
+	auto& ptl_arr = ptl_json.array_items();
+	for (auto& ptl_json : ptl_arr) {
+		if (ptl_json.type() != json_type::OBJECT) continue;
+		PointLight_ptr ptl = std::make_shared<PointLight>();
+		
+		map_type ptl_map = ptl_json.object_items();
+		for (map_type::iterator it = ptl_map.begin(); it != ptl_map.end(); it++) {
+			auto& descriptor = it->first;
+			auto& value = it->second;
+			if (descriptor == "name") {
+				ptl->name = value.string_value();
+			}
+			else if (descriptor == "light_common_attr") {
+				if (value.type() != json_type::OBJECT) continue;
+				map_type lca_map = value.object_items();
+				for (map_type::iterator it = lca_map.begin(); it != lca_map.end(); it++) {
+					auto& desc = it->first;
+					auto& val = it->second;
+					if (desc == "ambient") {
+						auto& vec3 = _get_vector<float>(val, 3);
+						ptl->light_common_attr.ambient.x = vec3[0];
+						ptl->light_common_attr.ambient.y = vec3[1];
+						ptl->light_common_attr.ambient.z = vec3[2];
+					}
+					else if (desc == "diffuse") {
+						auto& vec3 = _get_vector<float>(val, 3);
+						ptl->light_common_attr.diffuse.x = vec3[0];
+						ptl->light_common_attr.diffuse.y = vec3[1];
+						ptl->light_common_attr.diffuse.z = vec3[2];
+					}
+					else if (desc == "specular") {
+						auto& vec3 = _get_vector<float>(val, 3);
+						ptl->light_common_attr.specular.x = vec3[0];
+						ptl->light_common_attr.specular.y = vec3[1];
+						ptl->light_common_attr.specular.z = vec3[2];
+					}
+				}
+			}
+			else if (descriptor == "transform") {
+				Transform t;
+				if (!_load_transform(t, value)) return false;
+				ptl->transform = t;
+			}
+			else if (descriptor == "constant") {
+				ptl->constant = static_cast<float>(value.number_value());
+			}
+			else if (descriptor == "linear") {
+				ptl->linear = static_cast<float>(value.number_value());
+			}
+			else if (descriptor == "quadratic") {
+				ptl->quadratic = static_cast<float>(value.number_value());
+			}
+		}
+
+		Snowflake_type uuid = resource_manager_global.add_pointLight(ptl);
+		scene->point_lights.push_back(uuid);
+	}
+	return true;
 
 }
 
-bool _load_direct_light (DirectLight_ptr direct_light, const json_type& dl_json) {
-	return false;
+bool _load_direct_light (SceneData_ptr scene, const json_type& dl_json) {
+	if (!dl_json.type() == json_type::ARRAY) return false;
+
+	auto& dl_arr = dl_json.array_items();
+	for (auto& dl_json : dl_arr) {
+		if (dl_json.type() != json_type::OBJECT) continue;
+		DirectLight_ptr dl = std::make_shared<DirectLight>();
+
+		map_type dl_map = dl_json.object_items();
+		for (map_type::iterator it = dl_map.begin(); it != dl_map.end(); it++) {
+			auto& descriptor = it->first;
+			auto& value = it->second;
+			if (descriptor == "name") {
+				dl->name = value.string_value();
+			}
+			else if (descriptor == "light_common_attr") {
+				if (value.type() != json_type::OBJECT) continue;
+				map_type lca_map = value.object_items();
+				for (map_type::iterator it = lca_map.begin(); it != lca_map.end(); it++) {
+					auto& desc = it->first;
+					auto& val = it->second;
+					if (desc == "ambient") {
+						auto& vec3 = _get_vector<float>(val, 3);
+						dl->light_common_attr.ambient.x = vec3[0];
+						dl->light_common_attr.ambient.y = vec3[1];
+						dl->light_common_attr.ambient.z = vec3[2];
+					}
+					else if (desc == "diffuse") {
+						auto& vec3 = _get_vector<float>(val, 3);
+						dl->light_common_attr.diffuse.x = vec3[0];
+						dl->light_common_attr.diffuse.y = vec3[1];
+						dl->light_common_attr.diffuse.z = vec3[2];
+					}
+					else if (desc == "specular") {
+						auto& vec3 = _get_vector<float>(val, 3);
+						dl->light_common_attr.specular.x = vec3[0];
+						dl->light_common_attr.specular.y = vec3[1];
+						dl->light_common_attr.specular.z = vec3[2];
+					}
+				}
+			}
+			else if (descriptor == "transform") {
+				Transform t;
+				if (!_load_transform(t, value)) return false;
+				dl->transform = t;
+			}
+		}
+
+		Snowflake_type uuid = resource_manager_global.add_directLight(dl);
+		scene->direct_lights.push_back(uuid);
+	}
+	return true;
 
 }
 
-bool _load_camera(Camera_ptr camera, const json_type& cam_json) {
-	return false;
+bool _load_camera(SceneData_ptr scene, const json_type& cam_json) {
+	if (cam_json.type() != json_type::OBJECT) return false;
 
+	Camera_ptr camera = std::make_shared<Camera>();
+
+	map_type cam_map = cam_json.object_items();
+	if (cam_map.empty()) return false;
+
+	for (map_type::iterator it = cam_map.begin(); it != cam_map.end(); it++) {
+		auto& descriptor = it->first;
+		auto& value = it->second;
+		if (descriptor == "name") {
+			camera->name = value.string_value();
+		}
+		// else if (descriptor == "transform") {
+		// 	Transform t;
+		// 	if (!_load_transform(t, value)) return false;
+		// 	camera->transform = t;
+		// }
+		else if (descriptor == "lookat") {
+			if (value.type() != json_type::OBJECT) return false;
+			map_type transform_map = value.object_items();
+			glm::vec3 eye{}, target{}, up{};
+			for (map_type::iterator it = transform_map.begin(); it != transform_map.end(); it++) {
+				auto& des = it->first;
+				auto& val = it->second;
+				if (des == "eye") {
+					auto& vec3 = _get_vector<float>(val, 3);
+					eye.x = vec3[0];
+					eye.y = vec3[1];
+					eye.z = vec3[2];
+				}
+				else if (des == "target") {
+					auto& vec3 = _get_vector<float>(val, 3);
+					target.x = vec3[0];
+					target.y = vec3[1];
+					target.z = vec3[2];
+				}
+				else if (des == "up") {
+					auto& vec3 = _get_vector<float>(val, 3);
+					up.x = vec3[0];
+					up.y = vec3[1];
+					up.z = vec3[2];
+				}
+			}
+			camera->cam_look_at(eye, target, up);
+		}
+		else if (descriptor == "near") {
+			camera->near = static_cast<float>(value.number_value());
+		}
+		else if (descriptor == "far") {
+			camera->far = static_cast<float>(value.number_value());
+		}
+		else if (descriptor == "fov_degree") {
+			camera->fov_degree = static_cast<float>(value.number_value());
+		}
+	}
+
+	Snowflake_type uuid = resource_manager_global.add_camera(camera);
+	scene->camera = uuid;
+
+	return true;
 }
 
 bool _load_scene(SceneData_ptr scene, const json_type& scene_json) {
@@ -179,51 +479,16 @@ bool _load_scene(SceneData_ptr scene, const json_type& scene_json) {
 			scene->name = value.string_value();
 		}
 		else if (descriptor == "entities") {
-			if (val_type != json_type::ARRAY) return false;
-
-			auto& entities_arr = value.array_items();
-			for (auto& entity_json : entities_arr) {
-				if (!entity_json.type() == json_type::OBJECT) continue;
-				Entity_ptr entity = std::make_shared<Entity>();
-				if (!_load_entity(entity, entity_json)) continue;
-				
-				Snowflake_type uuid = resource_manager_global.add_entity(entity);
-				scene->entities.push_back(uuid);
-			}
+			if (!_load_entity(scene, value)) return false;
 		}
 		else if (descriptor == "point_lights") {
-			if (val_type != json_type::ARRAY) return false;
-
-			auto& ptl_arr = value.array_items();
-			for (auto& ptl_json : ptl_arr) {
-				if (ptl_json.type() != json_type::OBJECT) continue;
-				PointLight_ptr ptl = std::make_shared<PointLight>();
-				if (!_load_point_light(ptl, ptl_json)) continue;
-
-				Snowflake_type uuid = resource_manager_global.add_pointLight(ptl);
-				scene->point_lights.push_back(uuid);
-			}
+			if (!_load_point_light(scene, value)) return false;
 		}
 		else if (descriptor == "direct_lights") {
-			if (!val_type == json_type::ARRAY) return false;
-
-			auto& dir_arr = value.array_items();
-			for (auto& dir_json : dir_arr) {
-				if (dir_json.type() != json_type::OBJECT) continue;
-				DirectLight_ptr dl = std::make_shared<DirectLight>();
-				if (!_load_direct_light(dl, dir_json)) continue;
-
-				Snowflake_type uuid = resource_manager_global.add_directLight(dl);
-				scene->direct_lights.push_back(uuid);
-			}
+			if (!_load_direct_light(scene, value)) return false;
 		}
 		else if (descriptor == "camera") {
-
-			Camera_ptr camera = std::make_shared<Camera>();
-			if (!_load_camera(camera, value)) return false;
-			
-			Snowflake_type uuid = resource_manager_global.add_camera(camera);
-			scene->camera = uuid;
+			if (!_load_camera(scene, value)) return false;
 		}
 		else {
 			// just ignore it

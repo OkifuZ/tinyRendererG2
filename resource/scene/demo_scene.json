@@ -4,13 +4,24 @@
   "entities": [
     {
       "name": "sphere_lr_entity",
-      "instance_file": "demo_ins",
-      "mesh": "sphere_lr",
-      "material": "demo_phong",
+      "instance_file": "",
+      "mesh": "sphere_smooth.obj",
+      "material": "general_phong.json",
       "transform": {
-        "translate": [ 0, 0, 0 ],
-        "scale": 1.0,
-        "quat": [1, 0, 0, 0] 
+        "quat": [ 1, 0, 0, 0 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "translate": [ 0, 0, 0 ]
+      }
+    },
+    {
+      "name": "sphere_lr_entity2",
+      "instance_file": "",
+      "mesh": "sphere_smooth.obj",
+      "material": "general_phong.json",
+      "transform": {
+        "quat": [ 1, 0, 0, 0 ],
+        "scale": [ 0.5, 0.5, 0.5 ],
+        "translate": [ 2, 0, 0 ]
       }
     }
   ],
@@ -48,11 +59,17 @@
   ],
 
   "camera": {
-    "transform": {
-      "translate": [ 0, 0, 0 ],
-      "scale": 1.0,
-      "quat": [ 1, 0, 0, 0 ]
+    "name": "camera",
+    "lookat": {
+      "eye": [ 3, 3, 3 ],
+      "target": [0,0,0],
+      "up":  [0,1,0]
     },
+    // "transform": {
+    //   "translate": [ 3, 3, 3 ],
+    //   "scale": 1.0,
+    //   "quat": [ 1, 0, 0, 0 ]
+    // },
     "near": 0.1,
     "far": 40.0,
     "fov_degree": 45
