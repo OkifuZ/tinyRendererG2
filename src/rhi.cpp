@@ -7,6 +7,7 @@
 #include "mesh.h"
 #include "camera.h"
 #include "shader.h"
+#include "fps.h"
 #include "entity.h"
 #include "material.h"
 #include "light.h"
@@ -16,8 +17,13 @@
 #include <limits>
 #include <set>
 
+#include "imgui.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
+
 
 bool rhi_init(WindowSystem& win_sys, const RHI_InitConfig& cfg) {
+	// glfw init
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -34,8 +40,8 @@ bool rhi_init(WindowSystem& win_sys, const RHI_InitConfig& cfg) {
 	}
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1);
-	//glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
+	// glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetWindowTitle(window, "tiny Renderer");
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		printf("[render_init()] ERROR: Failed to initialize GLAD\n");
@@ -53,17 +59,59 @@ bool rhi_init(WindowSystem& win_sys, const RHI_InitConfig& cfg) {
 	glClearColor(cfg.background_color.x, cfg.background_color.y, cfg.background_color.z, 1.0f);
 	glClearDepth(cfg.background_depth);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	// imgui init
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+
+	// Setup Dear ImGui style
+	ImGui::StyleColorsDark();
+
+	// Setup Platform/Renderer backends
+	ImGui_ImplGlfw_InitForOpenGL(window_global.window, true);
+	const char* glsl_version = "#version 330";
+	ImGui_ImplOpenGL3_Init(glsl_version);
+
 	return true;
 }
 
-void render_terminate(WindowSystem& win_sys) {
-	if (win_sys.window)	glfwDestroyWindow(win_sys.window);
-	glfwTerminate();
+void render_ui() {
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-bool render_should_quit(WindowSystem& win_sys) {
-	if (win_sys.window)	return glfwWindowShouldClose(win_sys.window);
-	else return true;
+void render_terminate(WindowSystem& win_sys) {
+	// glfw
+	if (win_sys.window)	glfwDestroyWindow(win_sys.window);
+	glfwTerminate();
+
+	// imgui
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+}
+
+bool render_next(WindowSystem& win_sys) {
+	if (win_sys.window) {
+		// glfw
+		glfwSwapBuffers(win_sys.window);
+		glfwPollEvents(); // window(GLFW related events)
+		bool should_close = glfwWindowShouldClose(win_sys.window);
+
+		// imgui
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		// other
+		fps_counter_global.update_fps();
+
+		return !should_close;
+	}
+	else return false;
 }
 
 template<typename ... Args>
@@ -187,8 +235,17 @@ void _bound_camera_to_shader(Shader_ptr current_shader, Camera_ptr camera) {
 
 void _bound_transform_to_shader(Shader_ptr current_shader, Entity_ptr entity) {
 	glm::mat4 model;
-	model = entity->transform.get_model_mat();
-	current_shader->setMat4("model", model);
+	if (!entity->instance_data.used()) {
+		model = entity->transform.get_model_mat();
+		current_shader->setMat4("model", model);
+	}
+	else if (entity->instance_data.bound_entity != "") { // entity is gizmo
+		auto tar_ent = get_bound_entity_for_gizmo(entity);
+		current_shader->setMat4("gizmo_model", tar_ent->transform.get_model_mat());
+	}
+	else { // entity is just instance
+		current_shader->setMat4("gizmo_model", glm::identity<glm::mat4>());
+	}
 }
 
 void bound_mvp_to_shader(Shader_ptr shader, Camera_ptr camera, Entity_ptr entity) {
@@ -233,6 +290,9 @@ void drawcall_mesh(Shader_ptr shader, MeshDataContainer_ptr mesh, Entity_ptr ent
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glDisable(GL_CULL_FACE);
 	}
+	else if (!entity->cullface) {
+		glDisable(GL_CULL_FACE);
+	}
 	{
 		if (entity->instance_data.used()) {
 			glDrawElementsInstanced(GL_TRIANGLES, mesh->face_num * 3, GL_UNSIGNED_INT, 0, entity->instance_data.instance_num);
@@ -243,6 +303,9 @@ void drawcall_mesh(Shader_ptr shader, MeshDataContainer_ptr mesh, Entity_ptr ent
 	}
 	if (entity->wireframe) {
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		glEnable(GL_CULL_FACE);
+	}
+	else if (!entity->cullface) {
 		glEnable(GL_CULL_FACE);
 	}
 

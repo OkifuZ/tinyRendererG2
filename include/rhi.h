@@ -19,13 +19,16 @@ struct RHI_InitConfig {
 	glm::vec3 background_color{ 0.6f, 0.5f, 0.6f };
 	float background_depth = 1.0f;
 
+	// TODO: imgui
 };
 
 bool rhi_init(WindowSystem& win_sys, const RHI_InitConfig&);
 
+void render_ui();
+
 void render_terminate(WindowSystem& win_sys);
 
-bool render_should_quit(WindowSystem& win_sys);
+bool render_next(WindowSystem& win_sys);
 
 VAO_ptr mesh_to_VAO(MeshDataContainer_const_ptr mesh);
 

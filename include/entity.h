@@ -9,6 +9,7 @@
 
 class Entity;
 typedef std::shared_ptr<Entity> Entity_ptr;
+typedef std::shared_ptr<const Entity> Entity_const_ptr;
 class InstanceData;
 typedef std::shared_ptr<InstanceData> InstanceData_ptr;
 
@@ -21,6 +22,8 @@ public:
     bool offset_dirty = false;
     bool color_dirty = false;
     bool scale_dirty = false;
+
+    std::string bound_entity = "";
 
     size_t instance_num = 0;
     bool used() { return !offset.empty() || !color.empty() || !scale.empty(); }
@@ -39,6 +42,7 @@ public:
 
     bool wireframe = false;
     float linewidth = 3.0f;
+    bool cullface = true;
 
     // single mesh
     Entity() {}
@@ -52,5 +56,16 @@ public:
 
     void centerlize();
 
+    std::vector<float>& vdata();
+    std::vector<float>& ndata();
+    std::vector<float>& odata(); // instacne.offset
+
+    const std::vector<float>& vdata_c() const;
+    const std::vector<float>& ndata_c() const;
+    const std::vector<float>& odata_c() const;
 };
 
+std::vector<float> transformed_data(Entity_const_ptr entity);
+
+Entity_ptr get_bound_gizmo(Entity_const_ptr entity);
+Entity_ptr get_bound_entity_for_gizmo(Entity_const_ptr gizmo);

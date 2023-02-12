@@ -3,22 +3,22 @@
 
   "entities": [
     {
-      "name": "sphere_lr_entity",
+      "name": "sphere_tet_entity",
       "instance_data": null,
-      "mesh": "sphere_smooth.obj",
-      "material": "general_phong.json",
+      "mesh": "sphere_tet_tri.obj",
+      "material": "simple.json",
       "transform": {
         "quat": [ 1, 0, 0, 0 ],
         "scale": [ 1.0, 1.0, 1.0 ],
         "translate": [ 0, 3, 0 ]
       },
-      "wireframe": 3.0,
+      "wireframe": 1.0,
       "cullface": true
     },
     {
       "name": "gizmo",
       "instance_data": {
-        "offset": "sphere_lr_entity->vert",
+        "offset": "sphere_tet_entity->vert",
         "scale": 0.03,
         "color": [ 0.6, 0.2, 0.6 ]
       },
@@ -39,7 +39,7 @@
         "translate": [ 0, 0, 0 ]
       },
       "wireframe": null,
-      "cullface":  false
+      "cullface": false
     }
   ],
 
@@ -107,5 +107,5 @@
     "fov_degree": 45
   },
 
-  "background": [0.5, 0.46, 0.5] 
+  "background": [ 0.5, 0.46, 0.5 ]
 }

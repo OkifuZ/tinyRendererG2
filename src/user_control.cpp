@@ -1,7 +1,12 @@
 #include <glad/glad.h>
 #include <glfw/glfw3.h>
 
+#include "imgui.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
+
 #include "user_control.h"
+
 
 void ControllSystem::process_input()
 {
@@ -11,6 +16,13 @@ void ControllSystem::process_input()
 
 	static double last_X = 0, last_Y = 0;
 	static bool firstMouse_left = true;
+
+	// if mouse on imgui windows, don't process this event; so as keyboard
+	auto& io = ImGui::GetIO();
+	if (io.WantCaptureMouse || io.WantCaptureKeyboard) {
+		return;
+	}
+
 	int state_left = (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT));
 	double current_X = 0, current_Y = 0;
 	double x_off = 0, y_off = 0;

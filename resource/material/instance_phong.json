@@ -1,11 +1,6 @@
 {
   "shader": "instance_phong",
 
-  "material.color": {
-    "type": "vec3",
-    "data": [ 0.7, 0.3, 0.7 ]
-  },
-
   "material.shininess": {
     "type": "float",
     "data": 16

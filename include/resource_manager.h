@@ -13,6 +13,7 @@
 #include <map>
 #include <string>
 #include <filesystem>
+#include <functional>
 
 
 class ResourceManager {
@@ -53,6 +54,8 @@ public:
 
 	Entity_ptr get_entity_by_uuid(Snowflake_type uuid);
 
+	Entity_ptr get_entity_by_name(const std::string& shader_name);
+
 	SceneData_ptr get_scene_by_uuid(Snowflake_type uuid);
 	
 	PointLight_ptr get_pointLight_by_uuid(Snowflake_type uuid);
@@ -83,13 +86,16 @@ public:
 
 	Shader_ptr get_shader_by_name(const std::string& shader_name);
 
+	std::vector<Entity_ptr> filter_entities(std::function<bool(Entity_const_ptr)> filter_foo);
+
+
 };
 
 extern ResourceManager resource_manager_global;
 
 void init_resource_manager();
 
-bool load_scene(SceneData_ptr scene, const std::string& fname);
+Snowflake_type load_scene(const std::filesystem::path& fpath);
 
 bool write_scene(SceneData_ptr scene, const std::string& fname);
 

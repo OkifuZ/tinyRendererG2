@@ -1,0 +1,13 @@
+{
+	"shader": "general_phong",
+
+	"material.color": {
+		"type": "vec3",
+		"data": [ 0.6, 0.55, 0.6 ]
+	},
+
+	"material.shininess": {
+		"type": "float",
+		"data": 4
+	}
+}

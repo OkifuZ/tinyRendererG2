@@ -163,7 +163,7 @@ bool Scene::should_quit() {
 
 // time
 #include <chrono>
-float get_FPS() {
+static float _get_FPS() {
     static std::chrono::time_point<std::chrono::steady_clock> oldTime = std::chrono::high_resolution_clock::now();
     auto interval = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - oldTime);
     oldTime = std::chrono::high_resolution_clock::now();
@@ -175,7 +175,7 @@ void Scene::display_fps() {
     static std::chrono::time_point<std::chrono::steady_clock> oldTime = std::chrono::high_resolution_clock::now();
     auto interval = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - oldTime);
 
-    float fps = get_FPS();
+    float fps = _get_FPS();
     if (interval.count() > 1e6f) { // display fps every second
         char title[256];
         title[255] = '\0';

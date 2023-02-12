@@ -11,14 +11,16 @@ out vec3 Normal;
 out vec3 Color;
 // out vec2 TexCoords;
 
-// uniform mat4 model;
+uniform mat4 gizmo_model;
 uniform mat4 view;
 uniform mat4 projection;
 
 void main()
 {
+    vec4 real_offset = gizmo_model * vec4(aOffset, 1.0f);
+
     mat4 model = mat4(1.0f) * aScale;
-    model[3] = vec4(aOffset, 1.0f);
+    model[3] = real_offset;
 
     FragPos = vec3(model * vec4(aPos, 1.0));
     Normal = mat3(transpose(inverse(model))) * aNormal;  

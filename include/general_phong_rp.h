@@ -28,7 +28,6 @@ class GeneralPhongRenderPipeline : public RenderPipeline {
 			Snowflake_type mesh_uuid = entity->mesh_uuid;
 			MeshDataContainer_ptr mesh = resource_manager_global.get_mesh_by_uuid(mesh_uuid);
 			if (!mesh || !mesh->loaded()) continue;
-			if (mesh->norms.size() != mesh->verts_num * 3) continue;
 			
 			VAO_ptr vao = mesh_to_VAO(mesh);
 			if (!bound_instance_to_VAO(vao, entity)) continue;
@@ -71,7 +70,8 @@ class GeneralPhongRenderPipeline : public RenderPipeline {
 			update_entity_if_dirty(entity, mesh, vao);
 		}
 
-		clear_render_target({0.2f, 0.2f, 0.2f, 1.0f});
+		SceneData_ptr scene = resource_manager_global.get_scene_by_uuid(scene_uuid);
+		clear_render_target({scene->background_color, 1.0f});
 
 		for (auto& entity_tup : entity_tups) {
 			auto& [entity, mesh, vao] = entity_tup;

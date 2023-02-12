@@ -7,76 +7,29 @@
 #include "entity.h"
 #include "resource_manager.h"
 #include "rhi.h"
+#include "fps.h"
+#include "UI_layout.h"
 #include "user_control.h"
 
-#include "imgui.h"
-#include "backends/imgui_impl_glfw.h"
-#include "backends/imgui_impl_opengl3.h"
 
 #include <filesystem>
 #include <random>
 
 
-void init_particles_pos(Entity_ptr entity) {
-	std::random_device rd;
-	std::mt19937 gen(rd());
-	std::uniform_real_distribution<> dis(0, 1);//uniform distribution between 0 and 1
-	
-	entity->instance_data.instance_num = 30 * 30 * 30;
-	for (size_t i = 0; i < 30; i++) {
-		for (size_t j = 0; j < 30; j++) {
-			for (size_t k = 0; k < 30; k++) {
-				float x = float(dis(gen)) * 10;
-				float y = float(dis(gen)) * 10;
-				float z = float(dis(gen)) * 10;
-				entity->instance_data.offset.insert(entity->instance_data.offset.end(),
-					{ x,y,z });
-				entity->instance_data.scale.push_back(0.2f + float(dis(gen))*0.1f);
-				entity->instance_data.color.insert(entity->instance_data.color.end(),
-					{ 0.6f, 0.5f, 0.9f });
-			}
-		}
+
+void update_mesh_vert(Entity_ptr ent) {
+	if (ui_flags.pause) return;
+	auto& verts = ent->vdata();
+	size_t vert_num = verts.size() / 3;
+	for (size_t i = 0; i < vert_num; i++) {
+		verts[i * 3 + 0] *= 1.005f;
+		verts[i * 3 + 1] *= 1.005f;
+		verts[i * 3 + 2] *= 1.005f;
 	}
+	auto gizmo = get_bound_gizmo(ent);
+	if (gizmo) gizmo->odata() = verts;
 }
 
-void init_particle_with_data(std::vector<float>& instance_offset_data, Entity_ptr entity) {
-	entity->instance_data.instance_num = instance_offset_data.size() / 3;
-	entity->instance_data.offset = instance_offset_data;
-	entity->instance_data.scale = std::vector<float>(entity->instance_data.instance_num, 0.05f);
-	for (size_t i = 0; i < entity->instance_data.instance_num; i++) {
-		entity->instance_data.color.insert(entity->instance_data.color.end(), { 0.6f, 0.5f, 0.9f });
-	}
-}
-
-void update_particle_with_data(std::vector<float>& instance_offset_data, Entity_ptr entity) {
-	entity->instance_data.instance_num = instance_offset_data.size();
-	entity->instance_data.offset = instance_offset_data;
-	entity->instance_data.offset_dirty = true;
-}
-
-void mesh_to_instance(MeshDataContainer_ptr mesh, Entity_ptr entity) {
-	entity->instance_data.instance_num = mesh->verts_num;
-	entity->instance_data.offset = mesh->verts;
-}
-
-void update_particles_pos(Entity_ptr entity) {
-	for (size_t i = 0; i < entity->instance_data.instance_num; i++) {
-		entity->instance_data.offset[i * 3 + 0] += 0.01f;
-		entity->instance_data.offset[i * 3 + 1] += 0.01f;
-		entity->instance_data.offset[i * 3 + 2] += 0.01f;
-	}
-	entity->instance_data.offset_dirty = true;
-}
-
-void update_mesh_vert(MeshDataContainer_ptr mesh) {
-
-	for (size_t i = 0; i < mesh->verts_num; i++) {
-		mesh->verts[i * 3 + 0] *= 1.005f;
-		mesh->verts[i * 3 + 1] *= 1.005f;
-		mesh->verts[i * 3 + 2] *= 1.005f;
-	}
-	mesh->verts_dirty = true;
-}
 
 int main()
 {
@@ -84,125 +37,12 @@ int main()
 	RHI_InitConfig rhi_cfg;
 	rhi_init(window_global, rhi_cfg);
 
-	{
-		init_resource_manager();
-		SceneData_ptr scene_demo = std::make_shared<SceneData>();
-		if (!load_scene(scene_demo, (ResourceManager::scene_path / "demo_scene.json").string())) 
-			exit(-1);
-		Snowflake_type scene_demo_uuid = resource_manager_global.add_scene(scene_demo);
+	init_resource_manager();
 
-		ControllSystem controller;
-		controller.register_camera(resource_manager_global.get_camera_by_name("camera"));
-
-		// render
-		RenderPipeline_ptr render_pipeline = std::make_shared<GeneralPhongRenderPipeline>();
-		bool render_prepared = render_pipeline->prepare(scene_demo_uuid);
-		if (!render_prepared) {
-			printf("Render pipeline preparation failed\n");
-			exit(-1);
-		}
-
-		while (!render_should_quit(window_global)) {
-			glfwPollEvents(); // window(GLFW related events)
-
-			 controller.process_input();
-
-			//update_particles_pos(entity);
-			// update_mesh_vert(mesh);
-			// update_particle_with_data(mesh->verts, gizmo_ent);
-
-			render_pipeline->render(scene_demo_uuid);
-
-			glfwSwapBuffers(window_global.window);
-		}
-
-
-		render_terminate(window_global);
-		exit(0);
-	}
-
-
-	// asset loading
-	RenderMaterial_ptr mat = std::make_shared<RenderMaterial>();
-	load_material(*mat, (ResourceManager::material_path / "general_phong.json").string());
-	Snowflake_type mat_uuid = resource_manager_global.add_material(mat);
-
-	RenderMaterial_ptr gizmo_mat = std::make_shared<RenderMaterial>();
-	load_material(*gizmo_mat, (ResourceManager::material_path / "instance_phong.json").string());
-	Snowflake_type gizmo_mat_uuid = resource_manager_global.add_material(gizmo_mat);
-
-	Shader_ptr shader = std::make_shared<Shader>();
-	load_shader(shader, 
-		(ResourceManager::shader_path / "general_phong.vert").string(),
-		(ResourceManager::shader_path / "general_phong.frag").string());
-	Snowflake_type shader_uuid = resource_manager_global.add_shader(shader, "general_phong");
-
-	Shader_ptr gizmo_shader = std::make_shared<Shader>();
-	load_shader(gizmo_shader,
-		(ResourceManager::shader_path / "instance_phong.vert").string(),
-		(ResourceManager::shader_path / "instance_phong.frag").string());
-	Snowflake_type gizmo_shader_uuid = resource_manager_global.add_shader(gizmo_shader, "instance_phong");
-
-	// Shader_ptr instance_shader = std::make_shared<Shader>();
-	// load_shader(instance_shader,
-	// 	(shader_path / "instance_phong.vert").string(),
-	// 	(shader_path / "instance_phong.frag").string());
-	// Snowflake_type instance_shader_uuid = resource_manager_global.add_shader(instance_shader, "instance_phong");
-
-	MeshDataContainer_ptr mesh = std::make_shared<MeshDataContainer>();
-	load_mesh(mesh, (ResourceManager::mesh_path / "sphere_smooth.obj").string());
-	Snowflake_type mesh_uuid = resource_manager_global.add_mesh(mesh);
-
-	MeshDataContainer_ptr gizmo_mesh = std::make_shared<MeshDataContainer>();
-	load_mesh(gizmo_mesh, (ResourceManager::mesh_path / "sphere_smooth.obj").string());
-	Snowflake_type gizmo_mesh_uuid = resource_manager_global.add_mesh(gizmo_mesh);
-
-	Entity_ptr entity = std::make_shared<Entity>();
-	entity->name = "sphere";
-	entity->mesh_uuid = mesh_uuid;
-	entity->material_uuid = mat_uuid;
-	entity->transform.scale = {1.0f, 1.0f, 1.0f};
-	entity->wireframe = true;
-	Snowflake_type entity_uuid = resource_manager_global.add_entity(entity);
-
-	// draw gizmo
-	Entity_ptr gizmo_ent = std::make_shared<Entity>();
-	gizmo_ent->name = "gizmo";
-	gizmo_ent->mesh_uuid = gizmo_mesh_uuid;
-	gizmo_ent->material_uuid = gizmo_mat_uuid;
-	Snowflake_type gizmo_ent_uuid = resource_manager_global.add_entity(gizmo_ent);
-
-
-	DirectLight_ptr direct_light = std::make_shared<DirectLight>();
-	direct_light->transform.look_at(glm::vec3{ 3, 3, 3 }, glm::vec3{0, 0, 0});
-	direct_light->light_common_attr.specular = glm::vec3(0.2f);
-	Snowflake_type dir_light_uuid = resource_manager_global.add_directLight(direct_light);
-	PointLight_ptr point_light = std::make_shared<PointLight>();
-	point_light->transform.translate = {2, 2, -2};
-	Snowflake_type pt_light_uuid = resource_manager_global.add_pointLight(point_light);
-
-	Camera_ptr camera = std::make_shared<Camera>();
-	bool camera_ini_valid = camera->cam_look_at({ 3, 3, 3 }, {0, 0, 0}, { 0, 1, 0 });
-	if (!camera_ini_valid) {
-		printf("Invalid initial camera direction\n");
-		exit(-1);
-	}
-	Snowflake_type camera_uuid = resource_manager_global.add_camera(camera);
-
-
-	SceneData_ptr scene = std::make_shared<SceneData>();
-	Snowflake_type scene_uuid = resource_manager_global.add_scene(scene);
-	scene->entities.push_back(entity_uuid);
-	scene->entities.push_back(gizmo_ent_uuid);
-	scene->direct_lights.push_back(dir_light_uuid);
-	//scene->point_lights.push_back(pt_light_uuid);
-	scene->camera = camera_uuid;
+	auto scene_uuid = load_scene(ResourceManager::scene_path / "scene.json");
 
 	ControllSystem controller;
-	controller.register_camera(camera);
-
-	//init_particles_pos(entity);
-	init_particle_with_data(mesh->verts, gizmo_ent);
+	controller.register_camera(resource_manager_global.get_camera_by_name("camera"));
 
 	// render
 	RenderPipeline_ptr render_pipeline = std::make_shared<GeneralPhongRenderPipeline>();
@@ -212,25 +52,39 @@ int main()
 		exit(-1);
 	}
 
-	while (!render_should_quit(window_global)) {
-		glfwPollEvents(); // window(GLFW related events)
-		
+	Entity_ptr sphere = resource_manager_global.get_entity_by_name("sphere_tet_entity");
+	std::vector<float> vdata_ori = sphere->vdata_c();
+	std::vector<float> ndata_ori = sphere->ndata_c();
+
+	while (render_next(window_global)) {
+		// app input process
 		controller.process_input();
 
-		 //update_particles_pos(entity);
-		 update_mesh_vert(mesh);
-		 update_particle_with_data(mesh->verts, gizmo_ent);
+		// prerender UI
+		UI_layout_update();
 
+		// physics tick
+		update_mesh_vert(sphere);
+
+		// render tick
 		render_pipeline->render(scene_uuid);
 
-		glfwSwapBuffers(window_global.window);
+		// render UI
+		render_ui();
+
+		// if reset
+		if (ui_flags.reset) {
+			sphere->vdata() = vdata_ori;
+			sphere->ndata() = ndata_ori;
+			auto gizmo = get_bound_gizmo(sphere);
+			if (gizmo) gizmo->odata() = vdata_ori;
+			ui_flags.pause = true;
+			ui_flags.reset = false;
+		}
 	}
 
-
 	render_terminate(window_global);
-	exit(0);
 
-	
 	return 0;
 }
 
@@ -426,4 +280,143 @@ Scene3D scene("mpm99", 800u, 800u);
 
 	return 0;
 
+*/
+
+
+/*
+void init_particles_pos(Entity_ptr entity) {
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<> dis(0, 1);//uniform distribution between 0 and 1
+
+	entity->instance_data.instance_num = 30 * 30 * 30;
+	for (size_t i = 0; i < 30; i++) {
+		for (size_t j = 0; j < 30; j++) {
+			for (size_t k = 0; k < 30; k++) {
+				float x = float(dis(gen)) * 10;
+				float y = float(dis(gen)) * 10;
+				float z = float(dis(gen)) * 10;
+				entity->instance_data.offset.insert(entity->instance_data.offset.end(),
+					{ x,y,z });
+				entity->instance_data.scale.push_back(0.2f + float(dis(gen))*0.1f);
+				entity->instance_data.color.insert(entity->instance_data.color.end(),
+					{ 0.6f, 0.5f, 0.9f });
+			}
+		}
+	}
+}
+*/
+
+/*
+* 
+	// asset loading
+	RenderMaterial_ptr mat = std::make_shared<RenderMaterial>();
+	load_material(*mat, (ResourceManager::material_path / "general_phong.json").string());
+	Snowflake_type mat_uuid = resource_manager_global.add_material(mat);
+
+	RenderMaterial_ptr gizmo_mat = std::make_shared<RenderMaterial>();
+	load_material(*gizmo_mat, (ResourceManager::material_path / "instance_phong.json").string());
+	Snowflake_type gizmo_mat_uuid = resource_manager_global.add_material(gizmo_mat);
+
+	Shader_ptr shader = std::make_shared<Shader>();
+	load_shader(shader, 
+		(ResourceManager::shader_path / "general_phong.vert").string(),
+		(ResourceManager::shader_path / "general_phong.frag").string());
+	Snowflake_type shader_uuid = resource_manager_global.add_shader(shader, "general_phong");
+
+	Shader_ptr gizmo_shader = std::make_shared<Shader>();
+	load_shader(gizmo_shader,
+		(ResourceManager::shader_path / "instance_phong.vert").string(),
+		(ResourceManager::shader_path / "instance_phong.frag").string());
+	Snowflake_type gizmo_shader_uuid = resource_manager_global.add_shader(gizmo_shader, "instance_phong");
+
+	// Shader_ptr instance_shader = std::make_shared<Shader>();
+	// load_shader(instance_shader,
+	// 	(shader_path / "instance_phong.vert").string(),
+	// 	(shader_path / "instance_phong.frag").string());
+	// Snowflake_type instance_shader_uuid = resource_manager_global.add_shader(instance_shader, "instance_phong");
+
+	MeshDataContainer_ptr mesh = std::make_shared<MeshDataContainer>();
+	load_mesh(mesh, (ResourceManager::mesh_path / "sphere_smooth.obj").string());
+	Snowflake_type mesh_uuid = resource_manager_global.add_mesh(mesh);
+
+	MeshDataContainer_ptr gizmo_mesh = std::make_shared<MeshDataContainer>();
+	load_mesh(gizmo_mesh, (ResourceManager::mesh_path / "sphere_smooth.obj").string());
+	Snowflake_type gizmo_mesh_uuid = resource_manager_global.add_mesh(gizmo_mesh);
+
+	Entity_ptr entity = std::make_shared<Entity>();
+	entity->name = "sphere";
+	entity->mesh_uuid = mesh_uuid;
+	entity->material_uuid = mat_uuid;
+	entity->transform.scale = {1.0f, 1.0f, 1.0f};
+	entity->wireframe = true;
+	Snowflake_type entity_uuid = resource_manager_global.add_entity(entity);
+
+	// draw gizmo
+	Entity_ptr gizmo_ent = std::make_shared<Entity>();
+	gizmo_ent->name = "gizmo";
+	gizmo_ent->mesh_uuid = gizmo_mesh_uuid;
+	gizmo_ent->material_uuid = gizmo_mat_uuid;
+	Snowflake_type gizmo_ent_uuid = resource_manager_global.add_entity(gizmo_ent);
+
+
+	DirectLight_ptr direct_light = std::make_shared<DirectLight>();
+	direct_light->transform.look_at(glm::vec3{ 3, 3, 3 }, glm::vec3{0, 0, 0});
+	direct_light->light_common_attr.specular = glm::vec3(0.2f);
+	Snowflake_type dir_light_uuid = resource_manager_global.add_directLight(direct_light);
+	PointLight_ptr point_light = std::make_shared<PointLight>();
+	point_light->transform.translate = {2, 2, -2};
+	Snowflake_type pt_light_uuid = resource_manager_global.add_pointLight(point_light);
+
+	Camera_ptr camera = std::make_shared<Camera>();
+	bool camera_ini_valid = camera->cam_look_at({ 3, 3, 3 }, {0, 0, 0}, { 0, 1, 0 });
+	if (!camera_ini_valid) {
+		printf("Invalid initial camera direction\n");
+		exit(-1);
+	}
+	Snowflake_type camera_uuid = resource_manager_global.add_camera(camera);
+
+
+	SceneData_ptr scene = std::make_shared<SceneData>();
+	Snowflake_type scene_uuid = resource_manager_global.add_scene(scene);
+	scene->entities.push_back(entity_uuid);
+	scene->entities.push_back(gizmo_ent_uuid);
+	scene->direct_lights.push_back(dir_light_uuid);
+	//scene->point_lights.push_back(pt_light_uuid);
+	scene->camera = camera_uuid;
+
+	ControllSystem controller;
+	controller.register_camera(camera);
+
+	//init_particles_pos(entity);
+	init_particle_with_data(mesh->verts, gizmo_ent);
+
+	// render
+	RenderPipeline_ptr render_pipeline = std::make_shared<GeneralPhongRenderPipeline>();
+	bool render_prepared = render_pipeline->prepare(scene_uuid);
+	if (!render_prepared) {
+		printf("Render pipeline preparation failed\n");
+		exit(-1);
+	}
+
+	while (!render_should_quit(window_global)) {
+		glfwPollEvents(); // window(GLFW related events)
+		
+		controller.process_input();
+
+		 //update_particles_pos(entity);
+		 // update_mesh_vert(mesh);
+		 // update_particle_with_data(mesh->verts, gizmo_ent);
+
+		render_pipeline->render(scene_uuid);
+
+		glfwSwapBuffers(window_global.window);
+	}
+
+
+	render_terminate(window_global);
+	exit(0);
+
+	
+	return 0;
 */
