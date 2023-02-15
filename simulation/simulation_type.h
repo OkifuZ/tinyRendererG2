@@ -11,11 +11,14 @@
 #elif defined(PREC_FLOAT)
 	using Size_type = size_t;
 	using Scalar_type = float;
-	using Index_type = size_t;
+	using Index_type = int;
 	using Mat3_type = Eigen::Matrix3f;
+	using Vec3_type = Eigen::Vector3f;
 	using Vector_type = Eigen::VectorXf;
-	using Elements_type = std::vector<size_t>;
+	using Elements4_type = std::vector<std::tuple<Index_type, Index_type, Index_type, Index_type>>;
+	using Elements3_type = std::vector<std::tuple<Index_type, Index_type, Index_type>>;
 	using Triplet_type = Eigen::Triplet<Scalar_type>;
+	using SparseMat_type = Eigen::SparseMatrix<Scalar_type>;
 
 #elif defined(USER_MODE)
 

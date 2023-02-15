@@ -20,6 +20,8 @@ void ControllSystem::process_input()
 	// if mouse on imgui windows, don't process this event; so as keyboard
 	auto& io = ImGui::GetIO();
 	if (io.WantCaptureMouse || io.WantCaptureKeyboard) {
+		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+			glfwSetWindowShouldClose(window, true);
 		return;
 	}
 

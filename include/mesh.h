@@ -31,7 +31,10 @@ struct MeshDataContainer {
     std::vector<uint32_t> faces_textID;
     std::vector<uint32_t> faces_normID;
     size_t face_num = 0;
+    std::vector<uint32_t> tets_vertID;
+    size_t tet_num = 0;
     std::string name_in_objfile = "";
+
 
     bool verts_dirty = false;
     bool texts_dirty = false;
@@ -44,7 +47,8 @@ struct MeshDataContainer {
     MeshDataContainer() {}
 
     MeshDataContainer(std::vector<float>& verts, std::vector<float>& texts, std::vector<float>& norms,
-        std::vector<uint32_t>& faces_vertID, std::vector<uint32_t>& faces_textID, std::vector<uint32_t>& faces_normID,
+        std::vector<uint32_t>& faces_vertID, std::vector<uint32_t>& faces_textID, std::vector<uint32_t>& faces_normID, 
+        std::vector<uint32_t>& tets_vertID,
         std::string& name_in_objfile);
 
     bool loaded() { return verts_num > 0 && face_num > 0 && verts.size() == verts_num * 3; }

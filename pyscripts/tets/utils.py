@@ -27,7 +27,7 @@ def wirte_objfile(obj_name:str, **kwargs):
     if triangles is not None: content.append('')
 
     if tetrahedrons is not None:
-        content += ['t ' + f'{tet[0]} {tet[1]} {tet[2]} {tet[3]}' for tet in tetrahedrons]
+        content += ['tet ' + f'{tet[0]} {tet[1]} {tet[2]} {tet[3]}' for tet in tetrahedrons]
     if tetrahedrons is not None: content.append('')
 
     with open(out_na, 'w') as fp:

@@ -8,13 +8,15 @@
 
 MeshDataContainer::MeshDataContainer(std::vector<float>& verts, std::vector<float>& texts, std::vector<float>& norms,
     std::vector<uint32_t>& faces_vertID, std::vector<uint32_t>& faces_textID, std::vector<uint32_t>& faces_normID,
+    std::vector<uint32_t>& tets_vertID,
     std::string& name_in_objfile) :
     verts(verts), texts(texts), norms(norms),
-    faces_vertID(faces_vertID), faces_textID(faces_textID), faces_normID(faces_normID),
+    faces_vertID(faces_vertID), faces_textID(faces_textID), faces_normID(faces_normID), tets_vertID(tets_vertID),
     name_in_objfile(name_in_objfile)
 {
     verts_num = verts.size() / 3;
     face_num = faces_vertID.size() / 3;
+    tet_num = tets_vertID.size() / 4;
 }
 
 bool save_mesh(MeshDataContainer_ptr mesh, const std::string& fpath) {
@@ -42,6 +44,13 @@ bool save_mesh(MeshDataContainer_ptr mesh, const std::string& fpath) {
                     << mesh->faces_vertID[i * 3 + 1] << "\\\\" << mesh->faces_vertID[i * 3 + 1] << " "
                     << mesh->faces_vertID[i * 3 + 2] << "\\\\" << mesh->faces_vertID[i * 3 + 2] << "\n";
             }
+            for (size_t i = 0; i < mesh->tet_num; i++) {
+                of << "tet "
+                    << mesh->tets_vertID[i * 4 + 0] << " "
+                    << mesh->tets_vertID[i * 4 + 1] << " "
+                    << mesh->tets_vertID[i * 4 + 2] << " "
+                    << mesh->tets_vertID[i * 4 + 3] << "\n";
+            }
         }
         else return false;
     }
@@ -68,6 +77,7 @@ void load_mesh(MeshDataContainer_ptr mesh, const std::string& fpath) {
     std::vector<uint32_t> faces_vertID;
     std::vector<uint32_t> faces_textID;
     std::vector<uint32_t> faces_normID;
+    std::vector<uint32_t> tet_vertID;
     std::string objname = "";
 
     std::string head = "";
@@ -75,12 +85,14 @@ void load_mesh(MeshDataContainer_ptr mesh, const std::string& fpath) {
     uint32_t a1 = 0, b1 = 0, c1 = 0;
     uint32_t a2 = 0, b2 = 0, c2 = 0;
     uint32_t a3 = 0, b3 = 0, c3 = 0;
+    uint32_t tet1{}, tet2{}, tet3{}, tet4{};
     char split;
 
     size_t vert_num = 0;
     size_t face_num = 0;
     size_t uv_num = 0;
     size_t norm_num = 0;
+    size_t tet_num = 0;
 
     while (std::getline(inf, line)) {
         if (loop_cnt > max_loop_cnt) {
@@ -135,6 +147,11 @@ void load_mesh(MeshDataContainer_ptr mesh, const std::string& fpath) {
             }
             face_num++;
         }
+        else if (head == "tet") {
+            if (!(isf >> tet1 >> tet2 >> tet3 >> tet4)) continue;
+            tet_vertID.insert(tet_vertID.end(), { tet1, tet2, tet3, tet4 });
+            tet_num++;
+        }
         loop_cnt++;
     }
 
@@ -154,13 +171,20 @@ void load_mesh(MeshDataContainer_ptr mesh, const std::string& fpath) {
     if (!has_zero_textID)
         for (auto& id : faces_textID) id -= 1;
 
+    bool has_zero_tetID = false;
+    for (auto& id : tet_vertID) has_zero_tetID = (id == 0);
+    if (!has_zero_tetID)
+        for (auto& id : tet_vertID) id -= 1;
+
     mesh->faces_normID = faces_normID;
     mesh->faces_textID = faces_textID;
     mesh->faces_vertID = faces_vertID;
+    mesh->tets_vertID = tet_vertID;
     mesh->name_in_objfile = objname;
     mesh->face_num = face_num;
     mesh->verts_num = vert_num;
     mesh->uv_num = uv_num;
+    mesh->tet_num = tet_num;
     mesh->norm_num = norm_num;
     mesh->verts = verts;
     mesh->norms = norms;

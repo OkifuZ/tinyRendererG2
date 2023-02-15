@@ -61,11 +61,6 @@ public:
         return q;
     }
 
-    glm::vec3 make_euler_unique(glm::vec3 euler) {
-        
-        
-    }
-
     void yaw(float degrees) {
         // right-hand rule
         // positive degree -> left

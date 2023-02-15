@@ -29,5 +29,6 @@ print("triangle num: {}".format(len(triangles)))
 
 wirte_objfile(file_na[:-4]+'_triangles_only', **{
         'vertices': vertices, 
-        'triangles':triangles
+        'triangles':triangles,
+        'tetrahedrons': tetrahedrons
         })

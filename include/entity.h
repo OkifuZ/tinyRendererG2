@@ -54,7 +54,10 @@ public:
         printf("Entity[%s] deleted...\n", name.c_str());
     }
 
-    void centerlize();
+    void centerlize_transform();
+    glm::vec3 get_center() const;
+    // for simulation
+    void centerlize_vert(); 
 
     std::vector<float>& vdata();
     std::vector<float>& ndata();
@@ -63,9 +66,12 @@ public:
     const std::vector<float>& vdata_c() const;
     const std::vector<float>& ndata_c() const;
     const std::vector<float>& odata_c() const;
+    const std::vector<uint32_t>& tetdata_c() const;
 };
 
 std::vector<float> transformed_data(Entity_const_ptr entity);
 
 Entity_ptr get_bound_gizmo(Entity_const_ptr entity);
 Entity_ptr get_bound_entity_for_gizmo(Entity_const_ptr gizmo);
+
+void update_ent_mesh_vert(Entity_ptr& ent, float* data, size_t size);
