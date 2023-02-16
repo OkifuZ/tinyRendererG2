@@ -6,10 +6,17 @@
 
 #include <memory>
 
+class PD_solver;
+typedef std::unique_ptr<PD_solver> PD_solver_uptr;
+
 class PD_solver {
 private:
 	std::unique_ptr<Eigen::SimplicialCholesky<SparseMat_type>> cholesky_decomp_ptr;
 	Scalar_type dt{}, dt2{}, dt_inv{}, dt2_inv{};
+
+	Scalar_type ground_height = 0.05f;
+	Scalar_type small_value = 1e-4f;
+	Scalar_type dampen = 0.99f;
 
 public:
 
@@ -93,7 +100,7 @@ public:
 		for (size_t i = 0; i < N; i++) {
 			auto y_ = i * 3 + 1;
 			auto& y_pos = y_inertia[y_];
-			if (y_pos < 0) y_pos = 0;
+			if (y_pos < ground_height) y_pos = 0;
 		}
 
 		// f_inertia = M/dt^2 * y
@@ -120,6 +127,15 @@ public:
 		}
 		
 		phymesh_ptr->velocity = (q - phymesh_ptr->position) * dt_inv; // v_n+1 = q_n+1 - q_n
+		for (size_t i = 0; i < N; i++) {
+			auto y_ = i * 3 + 1;
+			auto& y_pos = y_inertia[y_];
+			if (std::abs(y_pos-ground_height) < small_value) {
+				// damp velo
+				phymesh_ptr->velocity[i * 3 + 0] *= dampen;
+				phymesh_ptr->velocity[i * 3 + 2] *= dampen;
+			}
+		}
 		phymesh_ptr->position = q;
 
 	}

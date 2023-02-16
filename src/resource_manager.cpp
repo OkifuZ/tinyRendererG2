@@ -7,6 +7,7 @@ const std::filesystem::path ResourceManager::material_path = "../resource/materi
 const std::filesystem::path ResourceManager::shader_path = "../resource/shader";
 const std::filesystem::path ResourceManager::mesh_path = "../resource/mesh";
 const std::filesystem::path ResourceManager::scene_path = "../resource/scene";
+const std::filesystem::path ResourceManager::simulation_path = "../resource/simulation";
 
 
 

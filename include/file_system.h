@@ -1,6 +1,9 @@
 #pragma once
 #include <string>
+#include <filesystem>
 #include "json11.hpp"
+
+bool save_str_to_file(const std::filesystem::path& fpath, const std::string& content);
 
 bool exist_file(const std::string& fpath);
 

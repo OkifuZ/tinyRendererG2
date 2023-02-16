@@ -45,7 +45,7 @@ int main()
 	controller.register_camera(resource_manager_global.get_camera_by_name("camera"));
 
 	// render
-	RenderPipeline_ptr render_pipeline = std::make_shared<GeneralPhongRenderPipeline>();
+	RenderPipeline_sptr render_pipeline = std::make_shared<GeneralPhongRenderPipeline>();
 	bool render_prepared = render_pipeline->prepare(scene_uuid);
 	if (!render_prepared) {
 		printf("Render pipeline preparation failed\n");

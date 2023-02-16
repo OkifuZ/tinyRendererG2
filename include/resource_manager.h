@@ -45,6 +45,7 @@ public:
 	static const std::filesystem::path shader_path;
 	static const std::filesystem::path mesh_path;
 	static const std::filesystem::path scene_path;
+	static const std::filesystem::path simulation_path;
 
 	MeshDataContainer_ptr get_mesh_by_uuid(Snowflake_type uuid);
 

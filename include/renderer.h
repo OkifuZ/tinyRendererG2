@@ -4,7 +4,8 @@
 #include <memory>
 
 class RenderPipeline;
-typedef std::shared_ptr<RenderPipeline> RenderPipeline_ptr;
+typedef std::shared_ptr<RenderPipeline> RenderPipeline_sptr;
+typedef RenderPipeline* RenderPipeline_rptr;
 
 
 class RenderPipeline {

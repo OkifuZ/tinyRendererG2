@@ -1,6 +1,12 @@
 #pragma once
 #include "window_sys.h"
 #include "camera.h"
+#include <memory>
+
+class ControllSystem;
+typedef ControllSystem* ControllSystem_rptr;
+typedef std::unique_ptr<ControllSystem> ControllSystem_uptr;
+typedef std::shared_ptr<ControllSystem> ControllSystem_sptr;
 
 
 class ControllSystem {

@@ -5,6 +5,16 @@
 #include <sstream>
 #include <exception>
 
+bool save_str_to_file(const std::filesystem::path& fpath, const std::string& content) {
+    try {
+        std::ofstream of(fpath, std::ios::trunc);
+        if (!of.is_open()) return false;
+        of << content << std::endl;
+        of.close();
+    }
+    catch (...) { return false; }
+    return true;
+}
 
 std::string read_file_as_str(const std::string& fpath) {
     std::filesystem::path fp(fpath);
