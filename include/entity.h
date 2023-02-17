@@ -66,6 +66,7 @@ public:
     const std::vector<float>& vdata_c() const;
     const std::vector<float>& ndata_c() const;
     const std::vector<float>& odata_c() const;
+    const std::vector<uint32_t>& edgedata_c() const;
     const std::vector<uint32_t>& tetdata_c() const;
 };
 

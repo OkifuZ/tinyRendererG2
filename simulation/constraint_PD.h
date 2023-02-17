@@ -3,6 +3,8 @@
 #include <Eigen/Dense>
 
 
+namespace SimPD {
+
 class StrainConstraint {
 public:
 	std::vector<Index_type> indices{}; // tet ijkl
@@ -21,3 +23,5 @@ public:
 	void get_v_k_G_ST_p(const Vector_type& q, Vector_type& b) const;
 
 };
+
+}

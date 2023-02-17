@@ -5751,7 +5751,7 @@ static ImVec2 CalcWindowAutoFitSize(ImGuiWindow* window, const ImVec2& size_cont
             avail_size = g.PlatformIO.Monitors[monitor_idx].WorkSize;
         ImVec2 size_auto_fit = ImClamp(size_desired, size_min, ImMax(size_min, avail_size - style.DisplaySafeAreaPadding * 2.0f));
 
-        // When the window cannot fit all contents (either because of constraints, either because screen is too small),
+        // When the window cannot fit all contents (either because of constraints_PD, either because screen is too small),
         // we are growing the size on the other axis to compensate for expected scrollbar. FIXME: Might turn bigger than ViewportSize-WindowPadding.
         ImVec2 size_auto_fit_after_constraint = CalcWindowSizeAfterConstraint(window, size_auto_fit);
         bool will_have_scrollbar_x = (size_auto_fit_after_constraint.x - size_pad.x - decoration_w_without_scrollbars < size_contents.x  && !(window->Flags & ImGuiWindowFlags_NoScrollbar) && (window->Flags & ImGuiWindowFlags_HorizontalScrollbar)) || (window->Flags & ImGuiWindowFlags_AlwaysHorizontalScrollbar);
@@ -5990,7 +5990,7 @@ static bool ImGui::UpdateWindowManualResize(ImGuiWindow* window, const ImVec2& s
             ImVec2 accum_floored = ImFloor(g.NavWindowingAccumDeltaSize);
             if (accum_floored.x != 0.0f || accum_floored.y != 0.0f)
             {
-                // FIXME-NAV: Should store and accumulate into a separate size buffer to handle sizing constraints properly, right now a constraint will make us stuck.
+                // FIXME-NAV: Should store and accumulate into a separate size buffer to handle sizing constraints_PD properly, right now a constraint will make us stuck.
                 size_target = CalcWindowSizeAfterConstraint(window, window->SizeFull + accum_floored);
                 g.NavWindowingAccumDeltaSize -= accum_floored;
             }
@@ -6410,7 +6410,7 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
             if (window->DockIsActive)
             {
                 IM_ASSERT(window->DockNode != NULL);
-                g.NextWindowData.Flags &= ~ImGuiNextWindowDataFlags_HasSizeConstraint; // Docking currently override constraints
+                g.NextWindowData.Flags &= ~ImGuiNextWindowDataFlags_HasSizeConstraint; // Docking currently override constraints_PD
             }
 
             // Amend the Appearing flag
@@ -6685,7 +6685,7 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
                 MarkIniSettingsDirty(window);
         }
 
-        // Apply minimum/maximum window size constraints and final size
+        // Apply minimum/maximum window size constraints_PD and final size
         window->SizeFull = CalcWindowSizeAfterConstraint(window, window->SizeFull);
         window->Size = window->Collapsed && !(flags & ImGuiWindowFlags_ChildWindow) ? window->TitleBarRect().GetSize() : window->SizeFull;
 
@@ -6845,7 +6845,7 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
         // Update scrollbar visibility (based on the Size that was effective during last frame or the auto-resized Size).
         if (!window->Collapsed)
         {
-            // When reading the current size we need to read it after size constraints have been applied.
+            // When reading the current size we need to read it after size constraints_PD have been applied.
             // Intentionally use previous frame values for InnerRect and ScrollbarSizes.
             // And when we use window->DecorationUp here it doesn't have ScrollbarSizes.y applied yet.
             ImVec2 avail_size_from_current_frame = ImVec2(window->SizeFull.x, window->SizeFull.y - (window->DecoOuterSizeY1 + window->DecoOuterSizeY2));
@@ -12776,7 +12776,7 @@ const ImGuiPayload* ImGui::AcceptDragDropPayload(const char* type, ImGuiDragDrop
     if (type != NULL && !payload.IsDataType(type))
         return NULL;
 
-    // Accept smallest drag target bounding box, this allows us to nest drag targets conveniently without ordering constraints.
+    // Accept smallest drag target bounding box, this allows us to nest drag targets conveniently without ordering constraints_PD.
     // NB: We currently accept NULL id as target. However, overlapping targets requires a unique ID to function!
     const bool was_accepted_previously = (g.DragDropAcceptIdPrev == g.DragDropTargetId);
     ImRect r = g.DragDropTargetRect;

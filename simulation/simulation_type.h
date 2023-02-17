@@ -13,10 +13,12 @@
 	using Scalar_type = float;
 	using Index_type = int;
 	using Mat3_type = Eigen::Matrix3f;
+	using Vec2_type = Eigen::Vector2f;
 	using Vec3_type = Eigen::Vector3f;
 	using Vector_type = Eigen::VectorXf;
 	using Elements4_type = std::vector<std::tuple<Index_type, Index_type, Index_type, Index_type>>;
 	using Elements3_type = std::vector<std::tuple<Index_type, Index_type, Index_type>>;
+	using Edges_type = std::vector<std::tuple<Index_type, Index_type>>;
 	using Triplet_type = Eigen::Triplet<Scalar_type>;
 	using SparseMat_type = Eigen::SparseMatrix<Scalar_type>;
 

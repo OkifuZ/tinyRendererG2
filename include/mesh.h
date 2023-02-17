@@ -33,6 +33,8 @@ struct MeshDataContainer {
     size_t face_num = 0;
     std::vector<uint32_t> tets_vertID;
     size_t tet_num = 0;
+    std::vector<uint32_t> edges_vertID;
+    size_t edge_num = 0;
     std::string name_in_objfile = "";
 
 
@@ -63,4 +65,3 @@ bool save_mesh(MeshDataContainer_ptr mesh, const std::string& fpath);
 
 void load_mesh(MeshDataContainer_ptr mesh, const std::string& fpath);
 
-void rearrange_meshdata(MeshDataContainer_ptr);

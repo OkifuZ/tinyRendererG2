@@ -44,7 +44,7 @@ public:
 		}
 	}
 
-	void loop() {
+	void loop(bool& need_break_loop) {
 		while (render_next(window_global)) {
 			// app input process
 			controller->process_input();
@@ -63,6 +63,11 @@ public:
 
 			// if reset
 			functions._reset();
+
+			if (need_break_loop) {
+				need_break_loop = false;
+				break;
+			}
 
 		}
 	}

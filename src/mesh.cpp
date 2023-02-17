@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <set>
+#include <unordered_set>
 
 
 MeshDataContainer::MeshDataContainer(std::vector<float>& verts, std::vector<float>& texts, std::vector<float>& norms,
@@ -18,6 +19,10 @@ MeshDataContainer::MeshDataContainer(std::vector<float>& verts, std::vector<floa
     face_num = faces_vertID.size() / 3;
     tet_num = tets_vertID.size() / 4;
 }
+
+
+void rearrange_meshdata(MeshDataContainer_ptr);
+void set_edges(MeshDataContainer_ptr mesh);
 
 bool save_mesh(MeshDataContainer_ptr mesh, const std::string& fpath) {
     try {
@@ -58,6 +63,42 @@ bool save_mesh(MeshDataContainer_ptr mesh, const std::string& fpath) {
         return false;
     }
 
+}
+
+void set_edges(MeshDataContainer_ptr mesh) {
+    using edge_type = std::tuple<size_t, size_t>;
+    auto my_hash = [](const edge_type& e) {
+        auto& [e1, e2] = e;
+        return std::hash<float>{}(e1) / 2 + std::hash<float>{}(e2) / 2;
+    };
+    
+    std::unordered_set<edge_type, decltype(my_hash)> edges_set(0, my_hash);
+    
+    const auto& face_ids = mesh->faces_vertID;
+    size_t e1{}, e2{};
+    for (size_t i = 0; i < mesh->face_num; i++) {
+        e1 = mesh->faces_vertID[i * 3 + 0];
+        e2 = mesh->faces_vertID[i * 3 + 1];
+        if (e1 > e2) std::swap(e1, e2);
+        edges_set.insert(std::tuple{ e1, e2 });
+        e1 = mesh->faces_vertID[i * 3 + 1];
+        e2 = mesh->faces_vertID[i * 3 + 2];
+        if (e1 > e2) std::swap(e1, e2);
+        edges_set.insert(std::tuple{ e1, e2 });
+        e1 = mesh->faces_vertID[i * 3 + 0];
+        e2 = mesh->faces_vertID[i * 3 + 2];
+        if (e1 > e2) std::swap(e1, e2);
+        edges_set.insert(std::tuple{ e1, e2 });
+    }
+    std::vector <uint32_t> edges; edges.reserve(2 * edges_set.size());
+    for (auto& e : edges_set) {
+        auto& [e1, e2] = e;
+        edges.push_back(e1);
+        edges.push_back(e2);
+    }
+
+    mesh->edges_vertID = edges;
+    mesh->edge_num = edges.size() / 2;
 }
 
 void load_mesh(MeshDataContainer_ptr mesh, const std::string& fpath) {
@@ -190,6 +231,9 @@ void load_mesh(MeshDataContainer_ptr mesh, const std::string& fpath) {
     mesh->norms = norms;
     mesh->texts = texts;
     rearrange_meshdata(mesh);
+
+    set_edges(mesh);
+
     printf("load_mesh() %s completed\n", fpath.c_str());
 }
 

@@ -7353,13 +7353,13 @@ static void ShowExampleAppAutoResize(bool* p_open)
 // [SECTION] Example App: Constrained Resize / ShowExampleAppConstrainedResize()
 //-----------------------------------------------------------------------------
 
-// Demonstrate creating a window with custom resize constraints.
-// Note that size constraints currently don't work on a docked window (when in 'docking' branch)
+// Demonstrate creating a window with custom resize constraints_PD.
+// Note that size constraints_PD currently don't work on a docked window (when in 'docking' branch)
 static void ShowExampleAppConstrainedResize(bool* p_open)
 {
     struct CustomConstraints
     {
-        // Helper functions to demonstrate programmatic constraints
+        // Helper functions to demonstrate programmatic constraints_PD
         // FIXME: This doesn't take account of decoration size (e.g. title bar), library should make this easier.
         static void AspectRatio(ImGuiSizeCallbackData* data)    { float aspect_ratio = *(float*)data->UserData; data->DesiredSize.x = IM_MAX(data->CurrentSize.x, data->CurrentSize.y); data->DesiredSize.y = (float)(int)(data->DesiredSize.x / aspect_ratio); }
         static void Square(ImGuiSizeCallbackData* data)         { data->DesiredSize.x = data->DesiredSize.y = IM_MAX(data->CurrentSize.x, data->CurrentSize.y); }

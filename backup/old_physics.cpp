@@ -9,14 +9,14 @@
 #include <random>
 
 
-class TinyPhyxSole {
+class TinyPhyxSole_PD {
 
 public:
 
 	PhyMesh_uptr entity_phymesh = nullptr;
 	Entity_ptr entity = nullptr;
 
-	void use_PD() {
+	void use() {
 		entity->centerlize_vert(); // deliminate transform
 		std::vector<float> vdata_ori = entity->vdata_c();
 		//std::vector<float> ndata_ori = sphere->ndata_c();
@@ -25,14 +25,14 @@ public:
 		// model->phymesh
 		entity_phymesh = std::move(std::make_unique<PhyMesh>(
 			entity->vdata_c(), entity->vdata_c().size() / 3,
-			PD_param::g, PD_param::m,
+			SimPD::g, SimPD::m,
 			entity->tetdata_c(), entity->tetdata_c().size() / 4));
 
-		entity_phymesh->setup_constraint(PD_param::sigma_min, PD_param::sigma_max, PD_param::k);
+		entity_phymesh->setup_constraint_PD(SimPD::sigma_min, SimPD::sigma_max, SimPD::k);
 
 		// solver
-		PD_solver solver(PD_param::dt, entity_phymesh.get());
-		solver.prefactor();
+		PD_solver solver(SimPD::dt, entity_phymesh.get());
+		solver.init();
 	}
 };
 
@@ -52,18 +52,18 @@ int main()
 	// model->phymesh
 	PhyMesh_uptr sphere_phymesh = std::make_unique<PhyMesh>(
 		sphere->vdata_c(), sphere->vdata_c().size() / 3,
-		PD_param::g, PD_param::m,
+		SimPD::g, SimPD::m,
 		sphere->tetdata_c(), sphere->tetdata_c().size() / 4);
-	sphere_phymesh->setup_constraint(PD_param::sigma_min, PD_param::sigma_max, PD_param::k);
+	sphere_phymesh->setup_constraint_PD(SimPD::sigma_min, SimPD::sigma_max, SimPD::k);
 	// solver
-	PD_solver solver(PD_param::dt, sphere_phymesh.get());
-	solver.prefactor();
+	PD_solver solver(SimPD::dt, sphere_phymesh.get());
+	solver.init();
 
 	std::function<void()> reset = [&sphere, &vdata_ori, &sphere_phymesh, &solver]() {
 		if (!ui_flags.reset) {
 			return;
 		}
-		PD_param::UI_to_params();
+		SimPD::UI_to_params();
 		// reset entity
 		sphere->vdata() = vdata_ori;
 		//sphere->ndata() = ndata_ori;
@@ -73,11 +73,11 @@ int main()
 		// renew phymesh of entity
 		sphere_phymesh = std::make_unique<PhyMesh>(
 			sphere->vdata_c(), sphere->vdata_c().size() / 3,
-			PD_param::g, PD_param::m,
+			SimPD::g, SimPD::m,
 			sphere->tetdata_c(), sphere->tetdata_c().size() / 4);
-		sphere_phymesh->setup_constraint(PD_param::sigma_min, PD_param::sigma_max, PD_param::k);
+		sphere_phymesh->setup_constraint_PD(SimPD::sigma_min, SimPD::sigma_max, SimPD::k);
 		// reset solver
-		solver.reset(PD_param::dt, sphere_phymesh.get());
+		solver.reset(SimPD::dt, sphere_phymesh.get());
 
 		ui_flags.pause = true;
 		ui_flags.reset = false;
@@ -85,7 +85,7 @@ int main()
 
 	std::function<void()> physics_tick = [&solver, &sphere, &sphere_phymesh]() {
 		if (ui_flags.pause) return;
-		solver.step(PD_param::iter_num);
+		solver.step(SimPD::iter_num);
 		update_ent_mesh_vert(sphere, sphere_phymesh->position.data(), sphere_phymesh->position.size());
 	};
 

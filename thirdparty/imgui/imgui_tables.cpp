@@ -2112,7 +2112,7 @@ void ImGui::TableSetColumnWidth(int column_n, float width)
     ImGuiTableColumn* column_0 = &table->Columns[column_n];
     float column_0_width = width;
 
-    // Apply constraints early
+    // Apply constraints_PD early
     // Compare both requested and actual given width to avoid overwriting requested width when column is stuck (minimum size, bounded)
     IM_ASSERT(table->MinColumnWidth > 0.0f);
     const float min_width = table->MinColumnWidth;

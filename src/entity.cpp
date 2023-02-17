@@ -3,6 +3,8 @@
 
 #include <glm/glm.hpp>
 
+#include <unordered_set>
+
 
 std::vector<float> transformed_data(Entity_const_ptr entity) {
     auto& verts = entity->vdata_c();
@@ -146,6 +148,16 @@ const std::vector<uint32_t>& Entity::tetdata_c() const {
     }
     return mesh->tets_vertID;
 }
+
+const std::vector<uint32_t>& Entity::edgedata_c() const {
+    MeshDataContainer_const_ptr mesh = resource_manager_global.get_mesh_by_uuid(this->mesh_uuid);
+    if (!mesh) {
+        printf("oops... I don;t wanna use std::optional\n");
+        exit(-1);
+    }
+    return mesh->edges_vertID;
+}
+
 
 void update_ent_mesh_vert(Entity_ptr& ent, float* data, size_t size) {
     auto& verts = ent->vdata();
