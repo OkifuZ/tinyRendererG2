@@ -76,7 +76,7 @@ void Entity::centerlize_vert() {
     MeshDataContainer_ptr mesh = resource_manager_global.get_mesh_by_uuid(this->mesh_uuid);
     if (!mesh) return;
     
-    this->centerlize_transform();
+    // this->centerlize_transform();
     glm::mat4 model = this->transform.get_model_mat();
     
     auto& verts = this->vdata();

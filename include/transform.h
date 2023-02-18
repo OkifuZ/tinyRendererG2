@@ -167,21 +167,26 @@ public:
         model_mat = glm::translate(model_mat, this->translate); // right multiply
         model_mat = model_mat * glm::toMat4(rotationQ);
         model_mat = glm::scale(model_mat, this->scale);
-        model_mat = glm::translate(model_mat, -this->center_offset);
+        // centerlize should be done in python
+        // model_mat = glm::translate(model_mat, -this->center_offset);
         return model_mat;
     }
 
     glm::vec3 get_front() const {
-        return glm::toMat3(rotationQ) * this->ini_front;
+        return glm::vec3(glm::rotate(rotationQ, glm::vec4(this->ini_front, 0)));
+        //return glm::toMat3(rotationQ) * this->ini_front;
     }
     glm::vec3 get_up() const {
-        return glm::toMat3(rotationQ) * this->ini_up;
+        return glm::vec3(glm::rotate(rotationQ, glm::vec4(this->ini_up, 0)));
+        //return glm::toMat3(rotationQ) * this->ini_up;
     }
     glm::vec3 get_right() const {
-        return glm::toMat3(rotationQ) * this->ini_right;
+        return glm::vec3(glm::rotate(rotationQ, glm::vec4(this->ini_right, 0)));
+        //return glm::toMat3(rotationQ) * this->ini_right;
     }
 
     glm::vec3 get_pyr() const {
+
         glm::vec3 euler_angles_r = glm::eulerAngles(rotationQ);
         return glm::degrees(euler_angles_r);
     }

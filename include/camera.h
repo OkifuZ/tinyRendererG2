@@ -40,8 +40,6 @@ public:
 		//transform.yaw_pitch_roll(-x_off * 0.005, -y_off * 0.005, 0);
 		transform.yaw_add(-x_off * scale);
 		transform.pitch_add(-y_off * scale);
-		glm::vec3 eu = transform.get_pyr();
-		glm::quat q = transform.rotationQ;
 	}
 
 };

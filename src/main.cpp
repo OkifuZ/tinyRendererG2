@@ -18,27 +18,26 @@ int main()
 
 	//TinyPhyxSole_uptr tiny_physics = std::make_unique<TinyPhyxSole_PD>();
 	TinyPhyxSole_uptr tiny_physics = nullptr;
-	// TODO: make this work
-	while (true)
-	{
-		if (ui_flags.current_choice == static_cast<int>(UI_Flags::SIM_TYPE::PD)) 
-			tiny_physics = std::make_unique<TinyPhyxSole_PBD>();
+	//tiny_physics = std::make_unique<TinyPhyxSole_PD>();
+	tiny_physics = std::make_unique<TinyPhyxSole_PBD>();
 
-		if (ui_flags.current_choice == static_cast<int>(UI_Flags::SIM_TYPE::PBD))
-			tiny_physics = std::make_unique<TinyPhyxSole_PBD>();
+	/*if (ui_flags.current_choice == static_cast<int>(UI_Flags::SIM_TYPE::PD)) 
+		tiny_physics = std::make_unique<TinyPhyxSole_PD>();
 
-		tiny_physics->entity = sphere;
+	if (ui_flags.current_choice == static_cast<int>(UI_Flags::SIM_TYPE::PBD))
+		tiny_physics = std::make_unique<TinyPhyxSole_PBD>();*/
 
-		tiny_physics->use();
-		auto reset_foo = tiny_physics->get_reset_foo();
-		auto physics_tick_foo = tiny_physics->get_physics_tick_foo();
+	tiny_physics->entity = sphere;
 
-		renderer.register_ui_layout_update(UI_layout_update);
-		renderer.register_reset(reset_foo);
-		renderer.register_physics_tick(physics_tick_foo);
+	tiny_physics->use();
+	auto reset_foo = tiny_physics->get_reset_foo();
+	auto physics_tick_foo = tiny_physics->get_physics_tick_foo();
 
-		renderer.loop(ui_flags.need_break_loop);
-	}
+	renderer.register_ui_layout_update(UI_layout_update);
+	renderer.register_reset(reset_foo);
+	renderer.register_physics_tick(physics_tick_foo);
+
+	renderer.loop();
 
 	renderer.terminate();
 
