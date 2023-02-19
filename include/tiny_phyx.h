@@ -19,6 +19,8 @@ public:
 	Entity_ptr entity = nullptr;
 	std::vector<float> vdata_ori; // initial vertice data
 
+	bool paused = false;
+
 	TinyPhyxSole() = default;
 	TinyPhyxSole(const TinyPhyxSole&) = delete;
 	TinyPhyxSole& operator=(const TinyPhyxSole&) = delete;
@@ -37,6 +39,7 @@ public:
 	PD_solver_uptr pd_solver;
 
 	void use() override {
+		if (!entity) return;
 		entity->centerlize_vert(); // deliminate transform
 		vdata_ori = entity->vdata_c();
 		//std::vector<float> ndata_ori = sphere->ndata_c();
@@ -57,10 +60,12 @@ public:
 	}
 
 	std::function<void()> get_reset_foo() override {
+		// if we need polymorphic, we need std::bind instead of lambda capture
 		return [this]() {
-			if (!ui_flags.reset) {
+			if (!entity || !entity_phymesh) return;
+			/*if (!ui_flags.reset) {
 				return;
-			}
+			}*/
 			SimPD::UI_to_params();
 			// reset entity
 			entity->vdata() = vdata_ori;
@@ -78,14 +83,15 @@ public:
 			// reset solver
 			pd_solver->reset(SimPD::dt, entity_phymesh.get());
 
-			ui_flags.pause = true;
-			ui_flags.reset = false;
+			/*ui_flags.pause = true;
+			ui_flags.reset = false;*/
 		};
 	}
 
 	std::function<void()> get_physics_tick_foo() override {
 		return  [this]() {
-			if (ui_flags.pause) return;
+			if (!entity || !entity_phymesh) return;
+			if (paused) return;
 			pd_solver->step(SimPD::iter_num);
 			update_ent_mesh_vert(entity, entity_phymesh->position.data(), entity_phymesh->position.size());
 		};
@@ -102,6 +108,7 @@ public:
 	PBD_solver_uptr pbd_solver;
 
 	void use() override {
+		if (!entity) return;
 		entity->centerlize_vert(); // deliminate transform
 		vdata_ori = entity->vdata_c();
 		//std::vector<float> ndata_ori = sphere->ndata_c();
@@ -123,9 +130,10 @@ public:
 
 	std::function<void()> get_reset_foo() override {
 		return [this]() {
-			if (!ui_flags.reset) {
+			if (!entity || !entity_phymesh) return;
+			/*if (!ui_flags.reset) {
 				return;
-			}
+			}*/
 
 			SimPBD::UI_to_params();
 			// reset entity
@@ -145,14 +153,14 @@ public:
 			pbd_solver->reset(SimPBD::dt, entity_phymesh.get());
 
 
-			ui_flags.pause = true;
-			ui_flags.reset = false;
+			/*ui_flags.pause = true;
+			ui_flags.reset = false;*/
 		};
 	}
 
 	std::function<void()> get_physics_tick_foo() override {
 		return  [this]() {
-			if (ui_flags.pause) return;
+			if (paused) return;
 			pbd_solver->step();
 			update_ent_mesh_vert(entity, entity_phymesh->position.data(), entity_phymesh->position.size());
 		};

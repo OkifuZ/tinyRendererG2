@@ -3,8 +3,9 @@
 #include "transform.h"
 
 #include <glm/glm.hpp>
-#include <memory>
 
+#include <memory>
+#include <string>
 
 class Camera;
 typedef std::shared_ptr<Camera> Camera_ptr;
@@ -16,6 +17,8 @@ public:
 	float near = 0.1f;
 	float far = 40.0f;
 	float fov_degree = 45.0f;
+
+	bool freezed = false;
 
 	bool cam_look_at(glm::vec3 source, glm::vec3 target, glm::vec3 up) {
 		glm::vec3 dir = target - source;
@@ -38,6 +41,7 @@ public:
 	
 	void update_xy_offset(float x_off, float y_off, float scale) {
 		//transform.yaw_pitch_roll(-x_off * 0.005, -y_off * 0.005, 0);
+		if (this->freezed) return;
 		transform.yaw_add(-x_off * scale);
 		transform.pitch_add(-y_off * scale);
 	}

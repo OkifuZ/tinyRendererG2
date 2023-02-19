@@ -241,19 +241,19 @@ void SimPD::StrainConstraint::get_v_k_G_ST_p(const Vector_type& q, Vector_type& 
 
     Vec3_type sigma = SVD.singularValues();
 
-    if (is_tet_inverted)
-    {
-        sigma(2) = -sigma(2);
-    } // put this where?
+    //if (is_tet_inverted)
+    //{
+    //    sigma(2) = -sigma(2);
+    //} // if invert before clamp, would be useless for avoiding collapse
 
     sigma(0) = std::clamp(sigma(0), this->sigma_min, this->sigma_max);
     sigma(1) = std::clamp(sigma(1), this->sigma_min, this->sigma_max);
     sigma(2) = std::clamp(sigma(2), this->sigma_min, this->sigma_max);
 
-    /*if (is_tet_inverted)
+    if (is_tet_inverted)
     {
         sigma(2) = -sigma(2);
-    }*/ // put this where?
+    } // Question: why invert after clamp?
 
     // p_j
     Mat3_type const Fhat = U * sigma.asDiagonal() * V.transpose();

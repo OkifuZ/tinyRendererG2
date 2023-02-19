@@ -1,6 +1,7 @@
 #pragma once
 #include "window_sys.h"
 #include "camera.h"
+#include "grabber.h"
 #include <memory>
 
 class ControllSystem;
@@ -12,6 +13,8 @@ typedef std::shared_ptr<ControllSystem> ControllSystem_sptr;
 class ControllSystem {
 	WindowSystem& window_sys = window_global;
 	Camera_ptr camera = nullptr;
+	Grabber_rptr grabber = nullptr;
+
 public:
 	ControllSystem() {}
 	ControllSystem(const ControllSystem&) = delete;
@@ -22,4 +25,6 @@ public:
 	}
 
 	void process_input();
+	void process_mouse();
+	void process_keyboard();
 };
