@@ -1,4 +1,8 @@
 #pragma once
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 #include "renderer.h"
 #include "resource_manager.h"
 #include "snowflake.h"
@@ -7,7 +11,7 @@
 
 #include <vector>
 
-class GeneralPhongRenderPipeline : public RenderPipeline {
+class AuxiliaryRenderPipeline : public RenderPipeline {
 	typedef std::tuple<Entity_ptr, MeshDataContainer_ptr, VAO_ptr> entity_tup_type;
 
 	Camera_ptr camera = nullptr;
@@ -18,37 +22,32 @@ class GeneralPhongRenderPipeline : public RenderPipeline {
 
 public:
 
-	GeneralPhongRenderPipeline(const std::string& name) : RenderPipeline(name) {}
-
-	bool add_entity(Snowflake_type entity_uuid) {
-		Entity_ptr entity = resource_manager_global.get_entity_by_uuid(entity_uuid);
-		if (!entity) return false;
-
-		Snowflake_type mesh_uuid = entity->mesh_uuid;
-		MeshDataContainer_ptr mesh = resource_manager_global.get_mesh_by_uuid(mesh_uuid);
-		if (!mesh || !mesh->loaded()) return false;
-
-		VAO_ptr vao = mesh_to_VAO(mesh);
-		if (!bound_instance_to_VAO(vao, entity)) return false;
-
-		Snowflake_type material_uuid = entity->material_uuid;
-		RenderMaterial_ptr material = resource_manager_global.get_material_by_uuid(material_uuid);
-		if (!material || !material->loaded) return false;
-
-		Shader_ptr shader = resource_manager_global.get_shader_by_name(material->shader_name);
-		if (!shader) return false;
-		compile_shader(shader);
-
-		entity_tups.push_back({ entity, mesh, vao });
-		return true;
-	}
+	AuxiliaryRenderPipeline(const std::string& name) : RenderPipeline(name) {}
 
 	bool prepare(Snowflake_type scene_uuid) override {
 		SceneData_ptr scene = resource_manager_global.get_scene_by_uuid(scene_uuid);
 		if (!scene) return false;
 		auto& entities_uuid = scene->entities;
 		for (Snowflake_type entity_uuid : entities_uuid) {
-			if (!this->add_entity(entity_uuid)) continue;
+			Entity_ptr entity = resource_manager_global.get_entity_by_uuid(entity_uuid);
+			if (!entity) continue;
+
+			Snowflake_type mesh_uuid = entity->mesh_uuid;
+			MeshDataContainer_ptr mesh = resource_manager_global.get_mesh_by_uuid(mesh_uuid);
+			if (!mesh || !mesh->loaded()) continue;
+
+			VAO_ptr vao = mesh_to_VAO(mesh);
+			if (!bound_instance_to_VAO(vao, entity)) continue;
+
+			Snowflake_type material_uuid = entity->material_uuid;
+			RenderMaterial_ptr material = resource_manager_global.get_material_by_uuid(material_uuid);
+			if (!material || !material->loaded) continue;
+
+			Shader_ptr shader = resource_manager_global.get_shader_by_name(material->shader_name);
+			if (!shader) continue;
+			compile_shader(shader);
+
+			entity_tups.push_back({ entity, mesh, vao });
 		}
 		if (entity_tups.empty()) return false;
 
@@ -79,7 +78,7 @@ public:
 		}
 
 		SceneData_ptr scene = resource_manager_global.get_scene_by_uuid(scene_uuid);
-		clear_render_target({scene->background_color, 1.0f});
+		clear_render_target({ scene->background_color, 1.0f });
 
 		for (auto& entity_tup : entity_tups) {
 			auto& [entity, mesh, vao] = entity_tup;
@@ -99,7 +98,7 @@ public:
 			}
 			drawcall_mesh(shader, mesh, entity);
 		}
-		
+
 	}
 
 };

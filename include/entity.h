@@ -29,7 +29,10 @@ public:
     bool used() { return !offset.empty() || !color.empty() || !scale.empty(); }
 };
 
-
+struct AABB_data {
+    glm::vec3 min_pos;
+    glm::vec3 max_pos;
+};
 
 class Entity {
 public:
@@ -68,6 +71,8 @@ public:
     const std::vector<float>& odata_c() const;
     const std::vector<uint32_t>& edgedata_c() const;
     const std::vector<uint32_t>& tetdata_c() const;
+
+    const AABB_data get_AABB_no_transform() const;
 };
 
 std::vector<float> transformed_data(Entity_const_ptr entity);
@@ -76,3 +81,5 @@ Entity_ptr get_bound_gizmo(Entity_const_ptr entity);
 Entity_ptr get_bound_entity_for_gizmo(Entity_const_ptr gizmo);
 
 void update_ent_mesh_vert(Entity_ptr& ent, float* data, size_t size);
+
+Snowflake_type generate_lines_entity(std::vector<std::tuple<glm::vec3, glm::vec3>>& lines, const std::string&);

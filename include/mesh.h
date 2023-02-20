@@ -65,3 +65,4 @@ bool save_mesh(MeshDataContainer_ptr mesh, const std::string& fpath);
 
 void load_mesh(MeshDataContainer_ptr mesh, const std::string& fpath);
 
+MeshDataContainer_ptr generate_lines_mesh(std::vector<std::tuple<glm::vec3, glm::vec3>> lines);

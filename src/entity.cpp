@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 
 #include <unordered_set>
+#include <limits>
 
 
 std::vector<float> transformed_data(Entity_const_ptr entity) {
@@ -158,6 +159,23 @@ const std::vector<uint32_t>& Entity::edgedata_c() const {
     return mesh->edges_vertID;
 }
 
+const AABB_data Entity::get_AABB_no_transform() const {
+    const auto& verts = this->vdata_c();
+    size_t N = verts.size() / 3;
+    glm::vec3 min_pos{ std::numeric_limits<float>::max() };
+    glm::vec3 max_pos{ std::numeric_limits<float>::min(), };
+    glm::vec3 pos{};
+    for (size_t i = 0; i < N; i++) {
+        pos = { verts[i * 3 + 0],verts[i * 3 + 1] ,verts[i * 3 + 2] };
+        if (min_pos.x > pos.x) min_pos.x = pos.x;
+        if (min_pos.y > pos.y) min_pos.y = pos.y;
+        if (min_pos.z > pos.z) min_pos.z = pos.z;
+        if (max_pos.x < pos.x) max_pos.x = pos.x;
+        if (max_pos.y < pos.y) max_pos.y = pos.y;
+        if (max_pos.z < pos.z) max_pos.z = pos.z;
+    }
+    return AABB_data{min_pos, max_pos};
+}
 
 void update_ent_mesh_vert(Entity_ptr& ent, float* data, size_t size) {
     auto& verts = ent->vdata();
@@ -165,3 +183,28 @@ void update_ent_mesh_vert(Entity_ptr& ent, float* data, size_t size) {
     auto gizmo = get_bound_gizmo(ent);
     if (gizmo) gizmo->odata() = verts;
 }
+
+
+Entity_ptr _generate_lines_entity(std::vector<std::tuple<glm::vec3, glm::vec3>>& lines, const std::string& name) {
+    Entity_ptr lines_entity = std::make_shared<Entity>();
+    lines_entity->name = name;
+
+    auto& lines_mesh = generate_lines_mesh(lines);
+    Snowflake_type mesh_uuid = resource_manager_global.add_mesh(lines_mesh);
+    lines_entity->mesh_uuid = mesh_uuid;
+    
+    RenderMaterial_ptr mat = std::make_shared<RenderMaterial>();
+    load_material(*mat, (ResourceManager::material_path / "line.json").string() );
+    Snowflake_type mat_uuid = resource_manager_global.add_material(mat);
+    lines_entity->material_uuid = mat_uuid;
+
+    return lines_entity;
+}
+
+Snowflake_type generate_lines_entity(std::vector<std::tuple<glm::vec3, glm::vec3>>& lines, const std::string& name) {
+    auto& ent = _generate_lines_entity(lines, name);
+    Snowflake_type ent_uuid = resource_manager_global.add_entity(ent);
+    return ent_uuid;
+}
+
+

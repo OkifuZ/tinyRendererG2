@@ -226,7 +226,7 @@ void bound_vao_to_shader(Shader_ptr shader, VAO_ptr vao) {
 }
 
 void _bound_camera_to_shader(Shader_ptr current_shader, Camera_ptr camera) {
-	glm::mat4 projection = camera->get_proj_mat((float)window_global.width, (float)window_global.height);
+	glm::mat4 projection = camera->get_proj_mat();
 	glm::mat4 view = camera->get_view_mat();
 	current_shader->setMat4("projection", projection);
 	current_shader->setMat4("view", view);

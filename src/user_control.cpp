@@ -93,6 +93,9 @@ void ControllSystem::process_mouse() {
 		}
 	}
 
+	if (mouse_state.botton_pressed == MOUSE_BOTTON::LEFT) {
+		generate_lines_entity(std::vector{ std::tuple{glm::vec3{0,0,0}, glm::vec3{0,3,0}} }, "line");
+	}
 	// test 
 	/*if (mouse_state.botton_pressed == MOUSE_BOTTON::LEFT) {
 		glm::vec4 v{};

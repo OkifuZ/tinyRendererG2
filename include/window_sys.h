@@ -2,6 +2,11 @@
 #include <GLFW/glfw3.h>
 
 #include <string>
+#include <memory>
+class WindowSystem;
+using WindowSystem_rptr = WindowSystem*;
+using WindowSystem_uptr = std::unique_ptr<WindowSystem>;
+using WindowSystem_sptr = std::shared_ptr<WindowSystem>;
 
 class WindowSystem {
 public:

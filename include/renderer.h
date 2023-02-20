@@ -10,6 +10,9 @@ typedef RenderPipeline* RenderPipeline_rptr;
 
 class RenderPipeline {
 public:
+	std::string name = "";
+
+	RenderPipeline(const std::string& name) : name(name) {}
 
 	virtual bool prepare(Snowflake_type scene_uuid) {
 		// validation & set everything of scene onload

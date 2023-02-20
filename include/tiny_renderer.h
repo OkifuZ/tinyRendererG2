@@ -1,20 +1,23 @@
 #pragma once
+#include "rhi.h"
 #include "material.h"
 #include "scene_ele.h"
 #include "renderer.h"
 #include "general_phong_rp.h"
 #include "entity.h"
 #include "resource_manager.h"
-#include "rhi.h"
 #include "fps.h"
 #include "user_control.h"
 
 #include <functional>
+#include <vector>
 
 #include "UI_layout.h"
 
 class TinyRenderer {
-	RenderPipeline_sptr render_pipeline;
+
+	std::vector<RenderPipeline_sptr> render_pipelines;
+
 	ControllSystem_sptr controller;
 
 	Snowflake_type scene_uuid{};
@@ -37,11 +40,14 @@ public:
 		controller = std::make_shared<ControllSystem>();
 		controller->register_camera(resource_manager_global.get_camera_by_name("camera"));
 		// render
-		render_pipeline = std::make_shared<GeneralPhongRenderPipeline>();
-		bool render_prepared = render_pipeline->prepare(scene_uuid);
-		if (!render_prepared) {
-			printf("Render pipeline preparation failed\n");
-			exit(-1);
+		render_pipelines.push_back(std::make_shared<GeneralPhongRenderPipeline>("GeneralPhong"));
+
+		for (auto& rp : render_pipelines) {
+			bool render_prepared = rp->prepare(scene_uuid);
+			if (!render_prepared) {
+				printf("Render pipeline \"%s\" preparation failed\n", rp->name);
+				exit(-1);
+			}
 		}
 	}
 
@@ -59,7 +65,8 @@ public:
 			if (functions._physics_tick) functions._physics_tick();
 
 			// render tick
-			render_pipeline->render(scene_uuid);
+			for (auto& rp: render_pipelines) 
+				rp->render(scene_uuid);
 
 			// render UI
 			render_ui(); 

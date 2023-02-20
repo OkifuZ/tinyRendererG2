@@ -89,7 +89,13 @@ public:
 
 	std::vector<Entity_ptr> filter_entities(std::function<bool(Entity_const_ptr)> filter_foo);
 
-
+	std::vector<Entity_const_ptr> get_all_entities() {
+		std::vector<Entity_const_ptr> res;
+		for (const auto& it : entity_elements) {
+			res.push_back(it.second);
+		}
+		return res;
+	}
 };
 
 extern ResourceManager resource_manager_global;

@@ -582,6 +582,7 @@ bool _load_camera(SceneData_ptr scene, const json_type& cam_json) {
 
 	Snowflake_type uuid = resource_manager_global.add_camera(camera);
 	scene->camera = uuid;
+	camera->current_window = &window_global;
 
 	return true;
 }

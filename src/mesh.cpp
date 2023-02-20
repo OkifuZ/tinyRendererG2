@@ -337,3 +337,26 @@ void rearrange_meshdata(MeshDataContainer_ptr mesh) {
     }
 
 }
+
+
+MeshDataContainer_ptr generate_lines_mesh(std::vector<std::tuple<glm::vec3, glm::vec3>> lines) {
+    std::vector<float> verts;
+    verts.reserve(6 * lines.size());
+
+    std::vector<uint32_t> faces_vertID;
+    faces_vertID.reserve(2 * lines.size());
+
+    uint32_t idx = 0;
+    for (auto& seg : lines) {
+        auto& [begin, end] = seg;
+        verts.insert(verts.begin(), { begin.x, begin.y, begin.z, end.x, end.y, end.z });
+        faces_vertID.insert(faces_vertID.begin(), { idx, idx + 1 });
+        idx += 2;
+    }
+    auto& res = std::make_shared<MeshDataContainer>();
+    res->faces_vertID = faces_vertID;
+    res->verts = verts;
+    res->name_in_objfile = "generated";
+
+    return res;
+}

@@ -19,6 +19,7 @@ void load_shader(Shader_ptr shader, const std::string& vert_shader_path, const s
 
 bool compile_shader(Shader_ptr shader) {
     if (!shader) return false;
+    if (shader->shader_id != 0) return true; // compiled
     auto vertexShaderSource_cstr = shader->shader_vertex_src.c_str();
     auto fragmentShaderSource_cstr = shader->shader_fragment_src.c_str();
     unsigned int shader_id = _compile_shader(vertexShaderSource_cstr, fragmentShaderSource_cstr);

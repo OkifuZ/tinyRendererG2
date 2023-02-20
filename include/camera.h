@@ -1,6 +1,7 @@
 #pragma once
 
 #include "transform.h"
+#include "window_sys.h"
 
 #include <glm/glm.hpp>
 
@@ -12,13 +13,19 @@ typedef std::shared_ptr<Camera> Camera_ptr;
 
 class Camera {
 public:
+	
 	std::string name = "";
 	Transform transform;
 	float near = 0.1f;
 	float far = 40.0f;
 	float fov_degree = 45.0f;
+	
+	float scr_width = 0;
+	float scr_height = 0;
 
 	bool freezed = false;
+
+	WindowSystem_rptr current_window;
 
 	bool cam_look_at(glm::vec3 source, glm::vec3 target, glm::vec3 up) {
 		glm::vec3 dir = target - source;
@@ -35,8 +42,8 @@ public:
 			glm::vec3{0, 1, 0});
 	}
 
-	glm::mat4 get_proj_mat(float scr_w, float scr_h) {
-		return glm::perspective(glm::radians(fov_degree), scr_w / scr_h, near, far);
+	glm::mat4 get_proj_mat() {
+		return glm::perspective(glm::radians(fov_degree), (float)current_window->width / (float)current_window->height, near, far);
 	}
 	
 	void update_xy_offset(float x_off, float y_off, float scale) {
