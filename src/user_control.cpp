@@ -93,8 +93,19 @@ void ControllSystem::process_mouse() {
 		}
 	}
 
+	static RayCaster_uptr ray_caster;
+
 	if (mouse_state.botton_pressed == MOUSE_BOTTON::LEFT) {
-		generate_lines_entity(std::vector{ std::tuple{glm::vec3{0,0,0}, glm::vec3{0,3,0}} }, "line");
+		//generate_lines_entity(std::vector{ std::tuple{glm::vec3{0,0,0}, glm::vec3{0,3,0}} }, "line");
+		ray_caster->cast_ray_from_camera(camera, mouse_state.cursor_x, mouse_state.cursor_y);
+		if (ray_caster->ray->intersects.entity != nullptr) {
+			printf("hit entity %s\n", ray_caster->ray->intersects.entity->name.c_str());
+		}
+		else {
+			printf("miss\n");
+		}
+
+
 	}
 	// test 
 	/*if (mouse_state.botton_pressed == MOUSE_BOTTON::LEFT) {

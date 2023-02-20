@@ -150,6 +150,15 @@ const std::vector<uint32_t>& Entity::tetdata_c() const {
     return mesh->tets_vertID;
 }
 
+const std::vector<uint32_t>& Entity::facedata_c() const {
+    MeshDataContainer_const_ptr mesh = resource_manager_global.get_mesh_by_uuid(this->mesh_uuid);
+    if (!mesh) {
+        printf("oops... I don;t wanna use std::optional\n");
+        exit(-1);
+    }
+    return mesh->faces_vertID;
+}
+
 const std::vector<uint32_t>& Entity::edgedata_c() const {
     MeshDataContainer_const_ptr mesh = resource_manager_global.get_mesh_by_uuid(this->mesh_uuid);
     if (!mesh) {

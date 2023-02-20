@@ -71,6 +71,7 @@ public:
     const std::vector<float>& odata_c() const;
     const std::vector<uint32_t>& edgedata_c() const;
     const std::vector<uint32_t>& tetdata_c() const;
+    const std::vector<uint32_t>& facedata_c() const;
 
     const AABB_data get_AABB_no_transform() const;
 };
