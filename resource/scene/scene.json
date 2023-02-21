@@ -16,6 +16,19 @@
       "cullface": true
     },
     {
+      "name": "sphere_just_hint",
+      "instance_data": null,
+      "mesh": "sphere_smooth.obj",
+      "material": "simple.json",
+      "transform": {
+        "quat": [ 1, 0, 0, 0 ],
+        "scale": [ 0.05, 0.05, 0.05 ],
+        "translate": [ 0, 0, 0 ]
+      },
+      "wireframe": null,
+      "cullface": true
+    },
+    {
       "name": "gizmo",
       "instance_data": {
         "offset": "sphere_tet_entity->vert",
@@ -93,8 +106,8 @@
   "camera": {
     "name": "camera",
     "lookat": {
-      "eye": [ 6, 5, 6 ],
-      "target": [ 0, 2, 0 ],
+      "eye": [ 6, 6, 6 ],
+      "target": [ 0, 0, 0 ],
       "up": [ 0, 1, 0 ]
     },
     // "transform": {

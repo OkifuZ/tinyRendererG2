@@ -9,6 +9,7 @@
 #include "camera.h"
 #include "snowflake.h"
 #include "window_sys.h"
+#include "grabber.h"
 #include <vector>
 #include <map>
 #include <string>
@@ -39,6 +40,7 @@ class ResourceManager {
 	std::map<std::string, Snowflake_type> shader_name_uuid_map;
 	typedef std::map<std::string, Snowflake_type> shader_name_uuid_map_type;
 
+
 public:
 
 	static const std::filesystem::path material_path;
@@ -46,6 +48,8 @@ public:
 	static const std::filesystem::path mesh_path;
 	static const std::filesystem::path scene_path;
 	static const std::filesystem::path simulation_path;
+
+	Grabber_sptr grabber = nullptr;
 
 	MeshDataContainer_ptr get_mesh_by_uuid(Snowflake_type uuid);
 

@@ -61,7 +61,8 @@ void reload_physics_scene(TinyRenderer& renderer, Entity_ptr& sphere, TinyPhyxSo
 		else if (ui_flags.sim_choice == static_cast<int>(UI_Flags::SIM_TYPE::PBD))
 			tiny_physics = std::make_unique<TinyPhyxSole_PBD>();
 
-		tiny_physics->entity = sphere;
+		tiny_physics->register_entity(sphere);
+
 		tiny_physics->use();
 
 		renderer.register_reset(tiny_physics->get_reset_foo());

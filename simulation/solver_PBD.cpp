@@ -50,7 +50,7 @@ void PBD_solver::step() {
 
 		// solve constraints
 		for (auto& constraint : constraints) {
-			constraint->resolve(y, this->dt_s);
+			constraint->resolve(y, this->phymesh_ptr->inv_mass, this->dt_s);
 		}
 
 		// update velocity & position

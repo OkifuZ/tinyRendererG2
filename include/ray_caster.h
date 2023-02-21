@@ -3,7 +3,6 @@
 #include "entity.h"
 #include "window_sys.h"
 #include "camera.h"
-#include "resource_manager.h"
 
 #include <glm/glm.hpp>
 
@@ -18,11 +17,12 @@ using RayCaster_sptr = std::shared_ptr<RayCaster>;
 using RayCaster_uptr = std::unique_ptr<RayCaster>;
 using RayCaster_rptr = RayCaster*;
 
-using Ray_uptr = std::unique_ptr<Ray>;
+typedef std::unique_ptr<Ray> Ray_uptr;
+//using Ray_uptr = std::unique_ptr<Ray>;
 using Ray_rptr = Ray*;
 
 
-bool is_ray_intersect_with_aabb(const Entity_const_ptr& entity, const Ray_rptr ray);
+bool is_ray_intersect_with_aabb(const AABB_data& aabb, const Ray_rptr ray);
 bool is_ray_intersect_with_mesh(const Entity_const_ptr& entity, const Ray_rptr ray, Triangle_raycaster&);
 
 struct Triangle_raycaster
@@ -40,6 +40,7 @@ struct Triangle_raycaster
 struct Intersect {
 	Entity_ptr entity = nullptr;
 	Triangle_raycaster triangle{};
+	Intersect() {}
 };
 
 
@@ -48,7 +49,10 @@ struct Ray {
 	glm::vec3 direction{};
 	Intersect intersects;
 
-	Ray() = default;
+
+	Ray() {
+		printf("default ray\n");
+	}
 	Ray(const glm::vec3& ori, const glm::vec3& direction) : ori(ori), direction(direction) {}
 };
 
@@ -57,8 +61,10 @@ class RayCaster {
 
 public:
 	Ray_uptr ray = nullptr;
+	RayCaster() = default;
 
 	void cast_ray_from_camera(Camera_ptr camera, float x, float y);
+	void intersect_ray_with_entities();
 
 private:
 

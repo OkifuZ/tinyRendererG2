@@ -1,18 +1,19 @@
 #include "constraint_PBD.h"
 
-SimPBD::EdgeConstraint::EdgeConstraint(std::initializer_list<Index_type> indices, std::initializer_list<Scalar_type> k, Scalar_type stiff,
+SimPBD::EdgeConstraint::EdgeConstraint(std::initializer_list<Index_type> indices, Scalar_type stiff,
 	const Vector_type& pos)
-	: Constraint(indices, k, stiff) {
+	: Constraint(indices, stiff) {
 	const auto& v1 = pos.block<3, 1>(this->indices[0] * 3, 0);
 	const auto& v2 = pos.block<3, 1>(this->indices[1] * 3, 0);
 	this->l_0 = (v1 - v2).norm();
 }
 
-void SimPBD::EdgeConstraint::resolve(Vector_type& position, Scalar_type dt) {
+void SimPBD::EdgeConstraint::resolve(Vector_type& position, const Vector_type& inv_mass, Scalar_type dt) {
 	Index_type v1_ind = this->indices[0];
 	Index_type v2_ind = this->indices[1];
 	auto& x1 = position.block<3, 1>(v1_ind * 3, 0);
 	auto& x2 = position.block<3, 1>(v2_ind * 3, 0);
+
 	Scalar_type l = (x1 - x2).norm();
 
 	// C
@@ -23,8 +24,8 @@ void SimPBD::EdgeConstraint::resolve(Vector_type& position, Scalar_type dt) {
 	Vec3_type grad_C_x2 = (x2 - x1) / l;
 
 	// lambda
-	Scalar_type k1 = this->k[0];
-	Scalar_type k2 = this->k[1];
+	Scalar_type k1 = inv_mass[v1_ind];
+	Scalar_type k2 = inv_mass[v2_ind];
 	Scalar_type lambda = -C / (k1 + k2 + this->alpha / (dt * dt));
 
 	// delta X & update X
@@ -32,9 +33,9 @@ void SimPBD::EdgeConstraint::resolve(Vector_type& position, Scalar_type dt) {
 	x2 += (lambda * k2 * grad_C_x2);
 }
 
-SimPBD::TetVolumeConstraint::TetVolumeConstraint(std::initializer_list<Index_type> indices, std::initializer_list<Scalar_type> k, Scalar_type stiff,
+SimPBD::TetVolumeConstraint::TetVolumeConstraint(std::initializer_list<Index_type> indices, Scalar_type stiff,
 	const Vector_type& pos)
-	: Constraint(indices, k, stiff) {
+	: Constraint(indices, stiff) {
 	const Vec3_type& v1 = pos.block<3, 1>(this->indices[0] * 3, 0);
 	const Vec3_type& v2 = pos.block<3, 1>(this->indices[1] * 3, 0);
 	const Vec3_type& v3 = pos.block<3, 1>(this->indices[2] * 3, 0);
@@ -42,7 +43,7 @@ SimPBD::TetVolumeConstraint::TetVolumeConstraint(std::initializer_list<Index_typ
 	this->v_0 = (v2 - v1).cross(v3 - v1).dot(v4 - v1);
 }
 
-void SimPBD::TetVolumeConstraint::resolve(Vector_type& position, Scalar_type dt) {
+void SimPBD::TetVolumeConstraint::resolve(Vector_type& position, const Vector_type& inv_mass, Scalar_type dt) {
 	Index_type v1_ind = this->indices[0];
 	Index_type v2_ind = this->indices[1];
 	Index_type v3_ind = this->indices[2];
@@ -63,10 +64,10 @@ void SimPBD::TetVolumeConstraint::resolve(Vector_type& position, Scalar_type dt)
 	Vec3_type grad_C_x4 = (v2 - v1).cross(v3 - v1);
 
 	// lambda
-	Scalar_type k1 = this->k[0];
-	Scalar_type k2 = this->k[1];
-	Scalar_type k3 = this->k[2];
-	Scalar_type k4 = this->k[3];
+	Scalar_type k1 = inv_mass[v1_ind];
+	Scalar_type k2 = inv_mass[v2_ind];
+	Scalar_type k3 = inv_mass[v3_ind];
+	Scalar_type k4 = inv_mass[v4_ind];
 	Scalar_type grad_C_x1_sq = grad_C_x1.dot(grad_C_x1);
 	Scalar_type grad_C_x2_sq = grad_C_x2.dot(grad_C_x2);
 	Scalar_type grad_C_x3_sq = grad_C_x3.dot(grad_C_x3);

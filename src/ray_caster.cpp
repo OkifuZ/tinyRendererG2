@@ -1,33 +1,41 @@
 #include "ray_caster.h"
-
+#include "resource_manager.h"
 
 void RayCaster::cast_ray_from_camera(Camera_ptr camera, float x, float y) {
 
+	// screen space to world space
 	glm::vec4 v{
 		2.0f * x / (float)camera->current_window->width - 1.0f,
-		1.0f - 2.0f * y / (float)camera->current_window->height,
+		1.0 - 2.0f * y / (float)camera->current_window->height,
 		1.0f,
-		0.05f
+		1.0f
 	};
 
 	glm::mat4 v_inv_p_inv = glm::inverse(camera->get_proj_mat() * camera->get_view_mat());
 	v = v_inv_p_inv * v;
 	v /= v.w; // v now stands for world coordinates
 
+	// cast ray
 	glm::vec3 origin = camera->transform.translate;
 	glm::vec3 direction = glm::normalize(glm::vec3(v) - origin);
 
 	this->ray = std::move(std::make_unique<Ray>(origin, direction));
 
+}
+
+void RayCaster::intersect_ray_with_entities() {
+
+	// intersect
 	Triangle_raycaster tri_closest{};
 	tri_closest.dis = std::numeric_limits<float>::max();
 	Entity_ptr ent_closest = nullptr;
 
-	// intersect
 	auto& entities = resource_manager_global.get_all_entities();
 	for (auto& entity : entities) {
+		if (entity->instance_data.used()) continue; // not supported yet
+
 		AABB_data aabb = entity->get_AABB_no_transform();
-		if (!is_ray_intersect_with_aabb(entity, this->ray.get())) continue;
+		if (!is_ray_intersect_with_aabb(aabb, this->ray.get())) continue;
 
 		Triangle_raycaster tri_intersect;
 		if (!is_ray_intersect_with_mesh(entity, this->ray.get(), tri_intersect)) continue;
@@ -43,9 +51,7 @@ void RayCaster::cast_ray_from_camera(Camera_ptr camera, float x, float y) {
 	this->ray->intersects.triangle = tri_closest;
 }
 
-
-bool is_ray_intersect_with_aabb(const Entity_const_ptr& entity, const Ray_rptr ray) {
-	if (!entity) return false;
+bool is_ray_intersect_with_aabb(const AABB_data& aabb, const Ray_rptr ray) {
 	if (ray->direction == glm::zero<glm::vec3>()) return false;
 
 	static auto check_x = [](const AABB_data& aabb, const Ray_rptr ray) {
@@ -53,9 +59,9 @@ bool is_ray_intersect_with_aabb(const Entity_const_ptr& entity, const Ray_rptr r
 		float p_x_max = aabb.max_pos.x;
 		float o_x = ray->ori.x;
 		float d_x = ray->direction.x;
-		float t_x_min = (p_x_min - o_x) / d_x;
-		float t_x_max = (p_x_max - o_x) / d_x;
-		return std::tuple{ t_x_min, t_x_max };
+		float t_x_1 = (p_x_min - o_x) / d_x;
+		float t_x_2 = (p_x_max - o_x) / d_x;
+		return std::tuple{ std::min(t_x_1, t_x_2), std::max(t_x_1, t_x_2) };
 	};
 
 	static auto check_y = [](const AABB_data& aabb, const Ray_rptr ray) {
@@ -63,9 +69,9 @@ bool is_ray_intersect_with_aabb(const Entity_const_ptr& entity, const Ray_rptr r
 		float p_y_max = aabb.max_pos.y;
 		float o_y = ray->ori.y;
 		float d_y = ray->direction.y;
-		float t_y_min = (p_y_min - o_y) / d_y;
-		float t_y_max = (p_y_max - o_y) / d_y;
-		return std::tuple{ t_y_min, t_y_max };
+		float t_y_1 = (p_y_min - o_y) / d_y;
+		float t_y_2 = (p_y_max - o_y) / d_y;
+		return std::tuple{ std::min(t_y_1, t_y_2), std::max(t_y_1, t_y_2) };
 	};
 
 	static auto check_z = [](const AABB_data& aabb, const Ray_rptr ray) {
@@ -73,13 +79,10 @@ bool is_ray_intersect_with_aabb(const Entity_const_ptr& entity, const Ray_rptr r
 		float p_z_max = aabb.max_pos.z;
 		float o_z = ray->ori.z;
 		float d_z = ray->direction.z;
-		float t_z_min = (p_z_min - o_z) / d_z;
-		float t_z_max = (p_z_max - o_z) / d_z;
-		return std::tuple{ t_z_min, t_z_max };
+		float t_z_1 = (p_z_min - o_z) / d_z;
+		float t_z_2 = (p_z_max - o_z) / d_z;
+		return std::tuple{ std::min(t_z_1, t_z_2), std::max(t_z_1, t_z_2) };
 	};
-
-
-	AABB_data aabb = entity->get_AABB_no_transform();
 
 	if (ray->direction.x == 0 && ray->direction.y == 0) {
 		if (ray->ori.x < aabb.max_pos.x && ray->ori.x > aabb.min_pos.x &&

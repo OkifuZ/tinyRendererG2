@@ -2,11 +2,13 @@
 
 #include "transform.h"
 #include "window_sys.h"
+#include "user_control.h"
 
 #include <glm/glm.hpp>
 
 #include <memory>
 #include <string>
+#include <functional>
 
 class Camera;
 typedef std::shared_ptr<Camera> Camera_ptr;
@@ -48,9 +50,43 @@ public:
 	
 	void update_xy_offset(float x_off, float y_off, float scale) {
 		//transform.yaw_pitch_roll(-x_off * 0.005, -y_off * 0.005, 0);
-		if (this->freezed) return;
 		transform.yaw_add(-x_off * scale);
 		transform.pitch_add(-y_off * scale);
+	}
+
+	void register_event_to_controller(ControllSystem& ctr_sys) {
+		auto on_move_event = [this](const MouseState& mouse_state) {
+			if (freezed) return;
+			update_xy_offset(mouse_state.cursor_delta_x, mouse_state.cursor_delta_y, 0.1);
+		};
+		ctr_sys.register_mouse_event_function(ControllSystem::MOUSE_EVENT::ON_LEFT_POINTER_MOVE, on_move_event);
+	}
+
+	void register_keyboard_to_controller(ControllSystem& ctr_sys) {
+		auto on_key_handler = [this](const KeyboardState& keyboard_state) {
+			if (freezed) return;
+
+			if (keyboard_state.W == KEYBOARD_STAT::DOWN) {
+				transform.translate += transform.get_front() * 0.1f;
+			}
+			if (keyboard_state.S == KEYBOARD_STAT::DOWN) {
+				transform.translate += -transform.get_front() * 0.1f;
+			}
+			if (keyboard_state.D == KEYBOARD_STAT::DOWN) {
+				transform.translate += transform.get_right() * 0.1f;
+			}
+			if (keyboard_state.A == KEYBOARD_STAT::DOWN) {
+				transform.translate += -transform.get_right() * 0.1f;
+			}
+
+			if (keyboard_state.SPACE == KEYBOARD_STAT::DOWN) {
+				transform.translate += glm::vec3{ 0,1,0 } *0.1f;
+			}
+			if (keyboard_state.LEFT_CTRL == KEYBOARD_STAT::DOWN) {
+				transform.translate += -glm::vec3{ 0,1,0 } *0.1f;
+			}
+		};
+		ctr_sys.register_keyboard_function(on_key_handler);
 	}
 
 };

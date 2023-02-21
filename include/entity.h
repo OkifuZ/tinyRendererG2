@@ -3,10 +3,13 @@
 #include "material.h"
 #include "transform.h"
 #include "snowflake.h"
+#include "tiny_phyx.h"
 
 #include <vector>
 #include <memory>
 
+class TinyPhyxSole;
+using TinyPhyxSole_uptr = std::unique_ptr<TinyPhyxSole>;
 class Entity;
 typedef std::shared_ptr<Entity> Entity_ptr;
 typedef std::shared_ptr<const Entity> Entity_const_ptr;
@@ -46,6 +49,8 @@ public:
     bool wireframe = false;
     float linewidth = 3.0f;
     bool cullface = true;
+
+    TinyPhyxSole* phy_object = nullptr;
 
     // single mesh
     Entity() {}

@@ -8,55 +8,69 @@
 #include "user_control.h"
 
 
-enum class MOUSE_BOTTON {
-	LEFT,
-	RIGHT,
-	MIDDLE,
-	NONE
-};
-
-struct MouseState {
-	MOUSE_BOTTON botton_down_lasttime = MOUSE_BOTTON::NONE;
-	MOUSE_BOTTON botton_down = MOUSE_BOTTON::NONE;
-	MOUSE_BOTTON botton_pressed = MOUSE_BOTTON::NONE;
-	MOUSE_BOTTON botton_released = MOUSE_BOTTON::NONE;
-	float cursor_x = 0;
-	float cursor_y = 0;
-	float cursor_delta_x = 0;
-	float cursor_delta_y = 0;
-	bool captured_by_app = false;
-	bool pos_valid = false;
-
-	static void get_mouse_state(MouseState& mouse_state) {
-		mouse_state.pos_valid = ImGui::IsMousePosValid();
-		if (ImGui::IsMouseDown(0)) mouse_state.botton_down = MOUSE_BOTTON::LEFT;
-		else if (ImGui::IsMouseDown(1)) mouse_state.botton_down = MOUSE_BOTTON::RIGHT;
-		else if (ImGui::IsMouseDown(2)) mouse_state.botton_down = MOUSE_BOTTON::MIDDLE;
-		else                            mouse_state.botton_down = MOUSE_BOTTON::NONE;
-		if (mouse_state.botton_down != mouse_state.botton_down_lasttime) {
-			mouse_state.botton_pressed = mouse_state.botton_down;
-			mouse_state.botton_released = mouse_state.botton_down_lasttime;
-		}
-		else {
-			mouse_state.botton_pressed = MOUSE_BOTTON::NONE;
-			mouse_state.botton_released = MOUSE_BOTTON::NONE;
-		}
-		mouse_state.botton_down_lasttime = mouse_state.botton_down;
-
-		auto& io = ImGui::GetIO();
-		mouse_state.cursor_x = io.MousePos.x;
-		mouse_state.cursor_y = io.MousePos.y;
-		mouse_state.cursor_delta_x = io.MouseDelta.x;
-		mouse_state.cursor_delta_y = io.MouseDelta.y;
-
-		mouse_state.captured_by_app = !io.WantCaptureMouse;
-	}
-};
-
-
-
 static MouseState mouse_state{};
+static KeyboardState keyboard_state{};
 
+void MouseState::get_mouse_state(MouseState & mouse_state) {
+	mouse_state.pos_valid = ImGui::IsMousePosValid();
+	if (ImGui::IsMouseDown(0)) mouse_state.botton_down = MOUSE_BOTTON::LEFT;
+	else if (ImGui::IsMouseDown(1)) mouse_state.botton_down = MOUSE_BOTTON::RIGHT;
+	else if (ImGui::IsMouseDown(2)) mouse_state.botton_down = MOUSE_BOTTON::MIDDLE;
+	else                            mouse_state.botton_down = MOUSE_BOTTON::NONE;
+	if (mouse_state.botton_down != mouse_state.botton_down_lasttime) {
+		mouse_state.botton_pressed = mouse_state.botton_down;
+		mouse_state.botton_released = mouse_state.botton_down_lasttime;
+	}
+	else {
+		mouse_state.botton_pressed = MOUSE_BOTTON::NONE;
+		mouse_state.botton_released = MOUSE_BOTTON::NONE;
+	}
+	mouse_state.botton_down_lasttime = mouse_state.botton_down;
+
+	auto& io = ImGui::GetIO();
+	mouse_state.cursor_x = io.MousePos.x;
+	mouse_state.cursor_y = io.MousePos.y;
+	mouse_state.cursor_delta_x = io.MouseDelta.x;
+	mouse_state.cursor_delta_y = io.MouseDelta.y;
+
+	mouse_state.captured_by_app = !io.WantCaptureMouse;
+}
+
+void KeyboardState::get_keyboard_state(KeyboardState& keyboard_state) {
+
+	keyboard_state.W = KEYBOARD_STAT::NONE;
+	keyboard_state.A= KEYBOARD_STAT::NONE;
+	keyboard_state.S = KEYBOARD_STAT::NONE;
+	keyboard_state.D = KEYBOARD_STAT::NONE;
+	keyboard_state.ESC = KEYBOARD_STAT::NONE;
+	keyboard_state.SPACE = KEYBOARD_STAT::NONE;
+	keyboard_state.LEFT_CTRL = KEYBOARD_STAT::NONE;
+
+	if      (ImGui::IsKeyDown(ImGuiKey_W)) keyboard_state.W = KEYBOARD_STAT::DOWN;
+	if      (ImGui::IsKeyPressed(ImGuiKey_W)) keyboard_state.W = KEYBOARD_STAT::PRESS;
+
+	if (ImGui::IsKeyDown(ImGuiKey_A)) keyboard_state.A = KEYBOARD_STAT::DOWN;
+	if (ImGui::IsKeyPressed(ImGuiKey_A)) keyboard_state.A = KEYBOARD_STAT::PRESS;
+
+	if (ImGui::IsKeyDown(ImGuiKey_S)) keyboard_state.S = KEYBOARD_STAT::DOWN;
+	if (ImGui::IsKeyPressed(ImGuiKey_S)) keyboard_state.S = KEYBOARD_STAT::PRESS;
+
+	if (ImGui::IsKeyDown(ImGuiKey_D)) keyboard_state.D = KEYBOARD_STAT::DOWN;
+	if (ImGui::IsKeyPressed(ImGuiKey_D)) keyboard_state.D = KEYBOARD_STAT::PRESS;
+
+	if (ImGui::IsKeyDown(ImGuiKey_Escape)) keyboard_state.ESC = KEYBOARD_STAT::DOWN;
+	if (ImGui::IsKeyPressed(ImGuiKey_Escape)) keyboard_state.ESC = KEYBOARD_STAT::PRESS;
+	
+	if (ImGui::IsKeyDown(ImGuiKey_Space)) keyboard_state.SPACE = KEYBOARD_STAT::DOWN;
+	if (ImGui::IsKeyPressed(ImGuiKey_Space)) keyboard_state.SPACE = KEYBOARD_STAT::PRESS;
+ 
+	if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) keyboard_state.LEFT_CTRL = KEYBOARD_STAT::DOWN;
+	if (ImGui::IsKeyPressed(ImGuiKey_LeftCtrl)) keyboard_state.LEFT_CTRL = KEYBOARD_STAT::PRESS;
+
+
+	auto& io = ImGui::GetIO();
+	keyboard_state.captured = io.WantCaptureKeyboard;
+}
 
 void ControllSystem::process_mouse() {
 	
@@ -67,105 +81,62 @@ void ControllSystem::process_mouse() {
 	if (!mouse_state.captured_by_app) return;
 	
 	// TODO: we can make this callback style: onPointerLeftDown...
-	
-	// cursor not on widget
-	// camera movement
-	if (camera) {
-		if (mouse_state.botton_down == MOUSE_BOTTON::LEFT) {
-			camera->update_xy_offset(mouse_state.cursor_delta_x, mouse_state.cursor_delta_y, 0.1);
-		}
+
+	// onLeftPointerDown
+	if (mouse_state.botton_down == MOUSE_BOTTON::LEFT) {
+		const auto& foos = this->event_functions[MOUSE_EVENT::ON_LEFT_POINTER_DOWN];
+		for (auto& foo : foos) { foo(mouse_state); }
 	}
 
-	// grabber dragging
-	if (grabber) {
-		// on mouse pressed
-		if (mouse_state.botton_pressed == MOUSE_BOTTON::LEFT) {
-		}
-
-		// on mouse grab&move
-		if (mouse_state.botton_down == MOUSE_BOTTON::LEFT &&
-			mouse_state.botton_pressed != MOUSE_BOTTON::LEFT &&
-			(mouse_state.cursor_delta_x != 0 || mouse_state.cursor_delta_y != 0)) {
-		}
-
-		// on mouse leave
-		if (mouse_state.botton_released == MOUSE_BOTTON::LEFT) {
-		}
-	}
-
-	static RayCaster_uptr ray_caster;
-
+	// onLeftPointerPressed
 	if (mouse_state.botton_pressed == MOUSE_BOTTON::LEFT) {
-		//generate_lines_entity(std::vector{ std::tuple{glm::vec3{0,0,0}, glm::vec3{0,3,0}} }, "line");
-		ray_caster->cast_ray_from_camera(camera, mouse_state.cursor_x, mouse_state.cursor_y);
-		if (ray_caster->ray->intersects.entity != nullptr) {
-			printf("hit entity %s\n", ray_caster->ray->intersects.entity->name.c_str());
-		}
-		else {
-			printf("miss\n");
-		}
-
-
+		const auto& foos = this->event_functions[MOUSE_EVENT::ON_LEFT_POINTER_PRESS];
+		for (auto& foo : foos) { foo(mouse_state); }
 	}
-	// test 
-	/*if (mouse_state.botton_pressed == MOUSE_BOTTON::LEFT) {
-		glm::vec4 v{};
-		
-		v.x = 2.0f * mouse_state.cursor_x / window_sys.width - 1.0f;
-		v.y = 1.0f - 2.0f * (mouse_state.cursor_y) / window_sys.height;
-		v.z = 1.0f;
-		v.w = 0.05f;
-		glm::mat4 mat_view = camera->get_view_mat();
-		glm::mat4 mat_proj = camera->get_proj_mat(window_sys.width, window_sys.height);
-		glm::mat4 v_inv_p_inv = glm::inverse(mat_proj * mat_view);
 
-		v = v_inv_p_inv * v;
-		v /= v.w;
-		printf("pos: %.4f, %.4f, %.4f (%.4f)\n", v.x, v.y, v.z, v.w);
-	}*/
+	// onLEftPointerMove
+	if (mouse_state.botton_down == MOUSE_BOTTON::LEFT &&
+		mouse_state.botton_pressed != MOUSE_BOTTON::LEFT &&
+		(mouse_state.cursor_delta_x != 0 || mouse_state.cursor_delta_y != 0)) {
+		const auto& foos = this->event_functions[MOUSE_EVENT::ON_LEFT_POINTER_MOVE];
+		for (auto& foo : foos) { foo(mouse_state); }
+	}
+
+	// onLeftPointerRelease
+	if (mouse_state.botton_released == MOUSE_BOTTON::LEFT) {
+		const auto& foos = this->event_functions[MOUSE_EVENT::ON_LEFT_POINTER_RELEASE];
+		for (auto& foo : foos) { foo(mouse_state); }
+	}
+
 }
 
 
 void ControllSystem::process_keyboard() {
-	// TODO
-	auto& io = ImGui::GetIO();
 
-	if (io.WantCaptureKeyboard) {
-		if (ImGui::IsKeyPressed(ImGuiKey_Escape))
+	KeyboardState::get_keyboard_state(keyboard_state);
+
+
+	if (keyboard_state.captured) {
+		if (keyboard_state.ESC == KEYBOARD_STAT::PRESS)
 			glfwSetWindowShouldClose(window_sys.window, true);
 		return;
 	}
 
-	if (ImGui::IsKeyPressed(ImGuiKey_Escape)) {
+	if (keyboard_state.ESC == KEYBOARD_STAT::PRESS) {
 		glfwSetWindowShouldClose(window_sys.window, true);
 		return;
 	}
-	if (ImGui::IsKeyDown(ImGuiKey_W)) {
-		if (camera) camera->transform.translate += camera->transform.get_front() * 0.1f;
+
+	for (auto& foo : keyboard_functions) {
+		foo(keyboard_state);
 	}
-	if (ImGui::IsKeyDown(ImGuiKey_S)) {
-		if (camera) camera->transform.translate += -camera->transform.get_front() * 0.1f;
-	}
-	if (ImGui::IsKeyDown(ImGuiKey_D)) {
-		if (camera) camera->transform.translate += camera->transform.get_right() * 0.1f;
-	}
-	if (ImGui::IsKeyDown(ImGuiKey_A)) {
-		if (camera) camera->transform.translate += -camera->transform.get_right() * 0.1f;
-	}
-	if (ImGui::IsKeyDown(ImGuiKey_R)) {}
-	if (ImGui::IsKeyDown(ImGuiKey_P)) {}
-	if (ImGui::IsKeyDown(ImGuiKey_Space)) {
-		if (camera) camera->transform.translate += glm::vec3{ 0,1,0 } *0.1f;
-	}
-	if (ImGui::IsKeyDown(ImGuiKey_LeftCtrl)) {
-		if (camera) camera->transform.translate += -glm::vec3{ 0,1,0 } *0.1f;
-	}
+
 }
 
 void ControllSystem::process_input()
 {
 	
-	if (!camera) return;
+	// if (!camera) return;
 
 	this->process_mouse();
 

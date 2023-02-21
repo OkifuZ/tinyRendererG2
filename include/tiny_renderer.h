@@ -8,6 +8,7 @@
 #include "resource_manager.h"
 #include "fps.h"
 #include "user_control.h"
+#include "grabber.h"
 
 #include <functional>
 #include <vector>
@@ -30,6 +31,7 @@ class TinyRenderer {
 
 	} functions;
 
+
 public:
 	void init() {
 		// runtime environment
@@ -38,7 +40,14 @@ public:
 		init_resource_manager();
 		scene_uuid = load_scene(ResourceManager::scene_path / "scene.json");
 		controller = std::make_shared<ControllSystem>();
-		controller->register_camera(resource_manager_global.get_camera_by_name("camera"));
+
+		auto& camera = resource_manager_global.get_camera_by_name("camera");
+		camera->register_event_to_controller(*controller);
+		camera->register_keyboard_to_controller(*controller);
+
+		resource_manager_global.grabber = std::make_shared<Grabber>(camera);
+		resource_manager_global.grabber->register_grabber_to_controller(*controller);
+
 		// render
 		render_pipelines.push_back(std::make_shared<GeneralPhongRenderPipeline>("GeneralPhong"));
 

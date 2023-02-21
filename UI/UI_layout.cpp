@@ -115,7 +115,7 @@ void PBD_UI_layout() {
 
 void UI_layout_update() {
 
-	ImGui::ShowDemoWindow();
+	//ImGui::ShowDemoWindow();
 
 	ImGui::Begin("Simulation Viewer");
 	{

@@ -25,6 +25,7 @@ public:
 	Vector_type f_ext{}; // 3*N
 	Vector_type velocity{}; // 3*N
 	Vector_type mass{}; // N
+	Vector_type inv_mass{}; // N
 
 	std::vector<std::unique_ptr<SimPD::StrainConstraint>> constraints_PD;
 	std::vector<std::unique_ptr<SimPBD::Constraint>> constraints_PBD;
@@ -34,10 +35,12 @@ public:
 		const std::vector<uint32_t>& elements, Size_type T,
 		Scalar_type g, Scalar_type m) {
 		this->mass.resize(N); this->mass.setZero();
+		this->inv_mass.resize(N); this->inv_mass.setZero();
 		this->f_ext.resize(N * 3); this->f_ext.setZero();
 		for (Size_type i = 0; i < N; i++) {
 			this->f_ext.block<3, 1>(i * 3, 0) = Vec3_type{ 0, -g * m, 0 };
 			this->mass[i] = m;
+			if (m != 0) this->inv_mass[i] = 1.0 / m;
 		}
 		this->velocity.resize(N * 3); this->velocity.setZero();
 		setup_position(position, N);
@@ -90,7 +93,6 @@ public:
 			Scalar_type mass_2 = this->mass[e2];
 			auto constraint = std::make_unique<SimPBD::EdgeConstraint>(
 				std::initializer_list<Index_type>{e1, e2}, 
-				std::initializer_list<Scalar_type>{1.0f/mass_1, 1.0f/mass_2}, 
 				stiff, this->position);
 			this->constraints_PBD.push_back(std::move(constraint));
 			this->constraint_PBD_size++;
@@ -104,13 +106,10 @@ public:
 			Scalar_type mass_4 = this->mass[v4];
 			auto constraint = std::make_unique<SimPBD::TetVolumeConstraint>(
 				std::initializer_list<Index_type>{v1, v2, v3, v4},
-				std::initializer_list<Scalar_type>{1.0f / mass_1, 1.0f / mass_2, 1.0f / mass_3, 1.0f / mass_4},
 				stiff, this->position);
 			this->constraints_PBD.push_back(std::move(constraint));
 			this->constraint_PBD_size++;
 		}
-
-		
 	}
 
 };
