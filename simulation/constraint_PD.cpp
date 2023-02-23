@@ -3,7 +3,7 @@
 
 SimPD::StrainConstraint::StrainConstraint(
 	std::initializer_list<Index_type> indices, Scalar_type k,
-	const Vector_type& pos, Scalar_type sigma_min, Scalar_type sigma_max)
+	const VectorX_type& pos, Scalar_type sigma_min, Scalar_type sigma_max)
 	: indices(indices), k(k), sigma_min(sigma_min), sigma_max(sigma_max)
 {
 	if (indices.size() != 4) {
@@ -30,7 +30,7 @@ SimPD::StrainConstraint::StrainConstraint(
 	this->Dm_inv = Dm.inverse();
 }
 
-std::vector<Triplet_type> SimPD::StrainConstraint::get_v_k_G_GT(const Vector_type& p) const {
+std::vector<Triplet_type> SimPD::StrainConstraint::get_v_k_G_GT(const VectorX_type& p) const {
     // G_j*G_j^T
     auto const N = p.rows() / 3;
     const Size_type vi = this->indices.at(0) * 3;
@@ -209,7 +209,7 @@ std::vector<Triplet_type> SimPD::StrainConstraint::get_v_k_G_GT(const Vector_typ
     return std::vector<Triplet_type>{triplets.begin(), triplets.end()};
 }
 
-void SimPD::StrainConstraint::get_v_k_G_ST_p(const Vector_type& q, Vector_type& b) const {
+void SimPD::StrainConstraint::get_v_k_G_ST_p(const VectorX_type& q, VectorX_type& b) const {
     // G_j*S_j^T*P
 
     // project -> p

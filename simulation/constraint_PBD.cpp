@@ -1,14 +1,14 @@
 #include "constraint_PBD.h"
 
 SimPBD::EdgeConstraint::EdgeConstraint(std::initializer_list<Index_type> indices, Scalar_type stiff,
-	const Vector_type& pos)
+	const VectorX_type& pos)
 	: Constraint(indices, stiff) {
 	const auto& v1 = pos.block<3, 1>(this->indices[0] * 3, 0);
 	const auto& v2 = pos.block<3, 1>(this->indices[1] * 3, 0);
 	this->l_0 = (v1 - v2).norm();
 }
 
-void SimPBD::EdgeConstraint::resolve(Vector_type& position, const Vector_type& inv_mass, Scalar_type dt) {
+void SimPBD::EdgeConstraint::resolve(VectorX_type& position, const VectorX_type& inv_mass, Scalar_type dt) {
 	Index_type v1_ind = this->indices[0];
 	Index_type v2_ind = this->indices[1];
 	auto& x1 = position.block<3, 1>(v1_ind * 3, 0);
@@ -34,7 +34,7 @@ void SimPBD::EdgeConstraint::resolve(Vector_type& position, const Vector_type& i
 }
 
 SimPBD::TetVolumeConstraint::TetVolumeConstraint(std::initializer_list<Index_type> indices, Scalar_type stiff,
-	const Vector_type& pos)
+	const VectorX_type& pos)
 	: Constraint(indices, stiff) {
 	const Vec3_type& v1 = pos.block<3, 1>(this->indices[0] * 3, 0);
 	const Vec3_type& v2 = pos.block<3, 1>(this->indices[1] * 3, 0);
@@ -43,7 +43,7 @@ SimPBD::TetVolumeConstraint::TetVolumeConstraint(std::initializer_list<Index_typ
 	this->v_0 = (v2 - v1).cross(v3 - v1).dot(v4 - v1);
 }
 
-void SimPBD::TetVolumeConstraint::resolve(Vector_type& position, const Vector_type& inv_mass, Scalar_type dt) {
+void SimPBD::TetVolumeConstraint::resolve(VectorX_type& position, const VectorX_type& inv_mass, Scalar_type dt) {
 	Index_type v1_ind = this->indices[0];
 	Index_type v2_ind = this->indices[1];
 	Index_type v3_ind = this->indices[2];

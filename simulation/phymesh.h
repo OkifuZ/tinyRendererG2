@@ -19,13 +19,13 @@ public:
 	Size_type constraint_PD_size;
 	Size_type constraint_PBD_size;
 
-	Vector_type position{}; // 3*N
+	VectorX_type position{}; // 3*N
 	Elements4_type elements{}; // 4*M_ele
 	Edges_type edges{}; // 2*M_edge
-	Vector_type f_ext{}; // 3*N
-	Vector_type velocity{}; // 3*N
-	Vector_type mass{}; // N
-	Vector_type inv_mass{}; // N
+	VectorX_type f_ext{}; // 3*N
+	VectorX_type velocity{}; // 3*N
+	VectorX_type mass{}; // N
+	VectorX_type inv_mass{}; // N
 
 	std::vector<std::unique_ptr<SimPD::StrainConstraint>> constraints_PD;
 	std::vector<std::unique_ptr<SimPBD::Constraint>> constraints_PBD;
@@ -86,18 +86,19 @@ public:
 		}
 	}
 
-	void setup_constraint_PBD(Scalar_type stiff) {
+	void setup_constraint_Edge_PBD(Scalar_type stiff) {
 		for (size_t i = 0; i < edge_size; i++) {
 			auto [e1, e2] = this->edges[i];
 			Scalar_type mass_1 = this->mass[e1];
 			Scalar_type mass_2 = this->mass[e2];
 			auto constraint = std::make_unique<SimPBD::EdgeConstraint>(
-				std::initializer_list<Index_type>{e1, e2}, 
+				std::initializer_list<Index_type>{e1, e2},
 				stiff, this->position);
 			this->constraints_PBD.push_back(std::move(constraint));
 			this->constraint_PBD_size++;
 		}
-
+	}
+	void setup_constraint_Volume_PBD(Scalar_type stiff) {
 		for (size_t i = 0; i < ele_size; i++) {
 			auto [v1, v2, v3, v4] = this->elements[i];
 			Scalar_type mass_1 = this->mass[v1];
@@ -105,6 +106,20 @@ public:
 			Scalar_type mass_3 = this->mass[v3];
 			Scalar_type mass_4 = this->mass[v4];
 			auto constraint = std::make_unique<SimPBD::TetVolumeConstraint>(
+				std::initializer_list<Index_type>{v1, v2, v3, v4},
+				stiff, this->position);
+			this->constraints_PBD.push_back(std::move(constraint));
+			this->constraint_PBD_size++;
+		}
+	}
+	void setup_constraint_Corotated_PBD(Scalar_type stiff) {
+		for (size_t i = 0; i < ele_size; i++) {
+			auto [v1, v2, v3, v4] = this->elements[i];
+			Scalar_type mass_1 = this->mass[v1];
+			Scalar_type mass_2 = this->mass[v2];
+			Scalar_type mass_3 = this->mass[v3];
+			Scalar_type mass_4 = this->mass[v4];
+			auto constraint = std::make_unique<SimPBD::CorotatedConstraint>(
 				std::initializer_list<Index_type>{v1, v2, v3, v4},
 				stiff, this->position);
 			this->constraints_PBD.push_back(std::move(constraint));

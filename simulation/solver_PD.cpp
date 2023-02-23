@@ -63,7 +63,7 @@ void PD_solver::step(int iter_num) {
 	Size_type N = phymesh_ptr->vert_size;
 
 	// y = q_t + dt*v_t + dt^2 * 1.0/M * fext_t
-	Vector_type y_inertia(N * 3);
+	VectorX_type y_inertia(N * 3);
 	for (size_t i = 0; i < N; i++) {
 		auto x_ = i * 3 + 0;
 		auto y_ = i * 3 + 1;
@@ -81,7 +81,7 @@ void PD_solver::step(int iter_num) {
 	//}
 
 	// f_inertia = M/dt^2 * y
-	Vector_type f_inertia(N * 3);
+	VectorX_type f_inertia(N * 3);
 	Mat3_type M;
 	for (size_t i = 0; i < N; i++) {
 		M.setZero();
@@ -91,8 +91,8 @@ void PD_solver::step(int iter_num) {
 	}
 
 	// TODO: figure out why here needs an iterative-style solver
-	Vector_type q = y_inertia; // x
-	Vector_type b(N * 3); // b = M/dt^2 y + J * p = f_inertia + Jp
+	VectorX_type q = y_inertia; // x
+	VectorX_type b(N * 3); // b = M/dt^2 y + J * p = f_inertia + Jp
 	for (int iter = 0; iter < iter_num; iter++) {
 		b.setZero();
 		for (const auto& constraint : constraints_PD) {

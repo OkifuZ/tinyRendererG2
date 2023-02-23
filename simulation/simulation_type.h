@@ -15,7 +15,15 @@
 	using Mat3_type = Eigen::Matrix3f;
 	using Vec2_type = Eigen::Vector2f;
 	using Vec3_type = Eigen::Vector3f;
-	using Vector_type = Eigen::VectorXf;
+	using VectorX_type = Eigen::VectorXf;
+	using MatrixX_type = Eigen::MatrixXf;
+
+	template <int row, int col>
+	using Matrix_type = Eigen::Matrix<Scalar_type, row, col>;
+
+	template <int length>
+	using Vector_type = Eigen::Vector<Scalar_type, length>;
+
 	using Elements4_type = std::vector<std::tuple<Index_type, Index_type, Index_type, Index_type>>;
 	using Elements3_type = std::vector<std::tuple<Index_type, Index_type, Index_type>>;
 	using Edges_type = std::vector<std::tuple<Index_type, Index_type>>;

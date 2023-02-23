@@ -26,6 +26,11 @@ struct UI_Flags {
 		std::string show_str_load = "";
 	} file_;
 
+	enum class PBD_CONSTRAINT_TYPE {
+		Edge_Volume, 
+		Edge_Corotated
+	};
+
 	struct PD_UI_Flags {
 		float k{ 100.0f };
 		float sigmas[2]{ 0.97f, 1.03f };
@@ -49,6 +54,8 @@ struct UI_Flags {
 		float dt{ 0.02f };
 		float m{ 0.01f };
 		float g{ 9.8f };
+
+		int constraint_type = static_cast<int>(PBD_CONSTRAINT_TYPE::Edge_Volume);
 	} pbd_;
 	
 	

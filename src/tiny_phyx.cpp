@@ -89,8 +89,17 @@ void TinyPhyxSole_PBD::use() {
 		entity->tetdata_c(), entity->tetdata_c().size() / 4,
 		SimPBD::g, SimPBD::m));
 
-	entity_phymesh->setup_constraint_PBD(SimPBD::stiff);
-
+	if (ui_flags.pbd_.constraint_type == static_cast<int>(UI_Flags::PBD_CONSTRAINT_TYPE::Edge_Volume)) {
+		entity_phymesh->setup_constraint_Edge_PBD(SimPBD::stiff);
+		entity_phymesh->setup_constraint_Volume_PBD(SimPBD::stiff);
+	}
+	else if (ui_flags.pbd_.constraint_type == static_cast<int>(UI_Flags::PBD_CONSTRAINT_TYPE::Edge_Corotated)) {
+		entity_phymesh->setup_constraint_Edge_PBD(SimPBD::stiff);
+		entity_phymesh->setup_constraint_Corotated_PBD(SimPBD::stiff);
+	}
+	else {
+		entity_phymesh->setup_constraint_Edge_PBD(SimPBD::stiff);
+	}
 	// solver
 	pbd_solver = std::move(std::make_unique<PBD_solver>(SimPBD::dt, SimPBD::substep_num, entity_phymesh.get()));
 	pbd_solver->init();
@@ -110,13 +119,28 @@ std::function<void()> TinyPhyxSole_PBD::get_reset_foo() {
 		auto gizmo = get_bound_gizmo(entity);
 		if (gizmo) gizmo->odata() = vdata_ori;
 
+
+		
+
 		// renew phymesh of entity
 		entity_phymesh = std::make_unique<PhyMesh>(
 			entity->vdata_c(), entity->vdata_c().size() / 3,
 			entity->edgedata_c(), entity->edgedata_c().size() / 2,
 			entity->tetdata_c(), entity->tetdata_c().size() / 4,
 			SimPBD::g, SimPBD::m);
-		entity_phymesh->setup_constraint_PBD(SimPBD::stiff);
+
+		if (ui_flags.pbd_.constraint_type == static_cast<int>(UI_Flags::PBD_CONSTRAINT_TYPE::Edge_Volume)) {
+			entity_phymesh->setup_constraint_Edge_PBD(SimPBD::stiff);
+			entity_phymesh->setup_constraint_Volume_PBD(SimPBD::stiff);
+		}
+		else if (ui_flags.pbd_.constraint_type == static_cast<int>(UI_Flags::PBD_CONSTRAINT_TYPE::Edge_Corotated)) {
+			entity_phymesh->setup_constraint_Edge_PBD(SimPBD::stiff);
+			entity_phymesh->setup_constraint_Corotated_PBD(SimPBD::stiff);
+		}
+		else {
+			entity_phymesh->setup_constraint_Edge_PBD(SimPBD::stiff);
+		}
+
 		// reset solver
 		pbd_solver->reset(SimPBD::dt, entity_phymesh.get());
 
@@ -136,7 +160,7 @@ std::function<void()> TinyPhyxSole_PBD::get_physics_tick_foo() {
 
 
 void TinyPhyxSole_PBD::start_grab(const glm::vec3& intersect_pos) {
-	Vector_type& verts  = this->entity_phymesh->position;
+	VectorX_type& verts  = this->entity_phymesh->position;
 	Size_type N = this->entity_phymesh->vert_size;
 
 	Scalar_type dis_min = std::numeric_limits<Scalar_type>::max();
@@ -169,7 +193,7 @@ void TinyPhyxSole_PBD::start_grab(const glm::vec3& intersect_pos) {
 
 void TinyPhyxSole_PBD::move_grab(const glm::vec3& pos) {
 	if (grabbed_id == -1) return;
-	Vector_type& verts = this->entity_phymesh->position;
+	VectorX_type& verts = this->entity_phymesh->position;
 	verts.block<3, 1>(grabbed_id * 3, 0) = Eigen::Vector3f{ pos.x, pos.y, pos.z };
 }
 

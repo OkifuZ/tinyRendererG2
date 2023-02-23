@@ -36,7 +36,7 @@ void PBD_solver::step() {
 	const auto& fext = phymesh_ptr->f_ext;
 	Size_type N = phymesh_ptr->vert_size;
 
-	Vector_type y(N * 3); // new position
+	VectorX_type y(N * 3); // new position
 	for (int substep = 0; substep < this->substep_num; substep++) {
 		// explicit integration
 		for (size_t i = 0; i < N; i++) {

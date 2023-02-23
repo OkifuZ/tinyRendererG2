@@ -16,11 +16,11 @@ public:
 
 	StrainConstraint(
 		std::initializer_list<Index_type> indices, Scalar_type k,
-		const Vector_type& pos, Scalar_type sigma_min, Scalar_type sigma_max);
+		const VectorX_type& pos, Scalar_type sigma_min, Scalar_type sigma_max);
 
-	std::vector<Triplet_type> get_v_k_G_GT(const Vector_type& p) const;
+	std::vector<Triplet_type> get_v_k_G_GT(const VectorX_type& p) const;
 
-	void get_v_k_G_ST_p(const Vector_type& q, Vector_type& b) const;
+	void get_v_k_G_ST_p(const VectorX_type& q, VectorX_type& b) const;
 
 };
 

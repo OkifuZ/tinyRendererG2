@@ -41,6 +41,7 @@ void play_and_pause_bar() {
 }
 
 void save_and_load_block() {
+	ImGui::Text("File save&load");
 	{
 		ImGui::InputText("file to save", ui_flags.file_.fname_save, IM_ARRAYSIZE(ui_flags.file_.fname_save));
 		if (ImGui::Button("Save")) ui_flags.file_.to_save_params = true;
@@ -49,7 +50,6 @@ void save_and_load_block() {
 		ImGui::Text(ui_flags.file_.show_str_save.c_str());
 	}
 
-	ImGui::Separator();
 	{
 		ImGui::InputText("file to load", ui_flags.file_.fname_load, IM_ARRAYSIZE(ui_flags.file_.fname_load));
 		if (ImGui::Button("Load")) ui_flags.file_.to_load_params = true;
@@ -104,6 +104,11 @@ void PBD_UI_layout() {
 
 		ImGui::Separator();
 		ImGui::Text("Constraints");
+		const char* constraint_items[] = {
+			"Volume + Edge length",
+			"Corotated + Edge length"
+		};
+		ImGui::Combo("constraint type", &(ui_flags.pbd_.constraint_type), constraint_items, IM_ARRAYSIZE(constraint_items));
 		ImGui::DragFloat("stiff", &(ui_flags.pbd_.stiff), 0.05f, 0.0f, 10000.0f);
 
 		ImGui::Separator();
