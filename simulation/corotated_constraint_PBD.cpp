@@ -45,35 +45,36 @@ void SimPBD::CorotatedConstraint::resolve(VectorX_type& position, const VectorX_
 	Scalar_type det_f = F.determinant();
 	bool const is_tet_inverted = F.determinant() < Scalar_type{ 0 };
 
-	if (is_tet_inverted) {
-		Eigen::JacobiSVD<Mat3_type> SVD(F, Eigen::ComputeFullU | Eigen::ComputeFullV);
-		Mat3_type const& U = SVD.matrixU();
-		Mat3_type const& V = SVD.matrixV();
-		Vec3_type sigma = SVD.singularValues();
-		
-		/*
-		sigma(0) = std::clamp(sigma(0), 0.75f, 1.25f);
-		sigma(1) = std::clamp(sigma(1), 0.75f, 1.25f);
-		sigma(2) = std::clamp(sigma(2), 0.75f, 1.25f);
-		*/
-
-		Scalar_type min_sigma = std::numeric_limits<Scalar_type>::max();
-		int min_idx = -1;
-		for (int i = 0; i < 3; i++) {
-			if (sigma[i] < 0 && min_sigma > std::abs(sigma[i])) {
-				min_sigma = std::abs(sigma[i]);
-				min_idx = i;
-			}
-		}
-		sigma[min_idx] *= -1.0f;
-
-		F = U * sigma.asDiagonal() * V.transpose();;
-	}
 
 	Eigen::JacobiSVD<Mat3_type> SVD(F, Eigen::ComputeFullU | Eigen::ComputeFullV);
-	Mat3_type const& U = SVD.matrixU();
-	Mat3_type const& V = SVD.matrixV();
-	Vec3_type sigma = SVD.singularValues();
+	Mat3_type U = SVD.matrixU(); // det U = +1 or -1
+	Mat3_type V = SVD.matrixV(); // det V = +1 or -1
+	Vec3_type sigma = SVD.singularValues(); // all > 0
+	
+	if (is_tet_inverted) {
+		int min_sig_idx = -1;
+		Scalar_type min_sigular_value = std::numeric_limits<Scalar_type>::max();
+
+		for (int i = 0; i < 3; i++) {
+			if (sigma(i) < min_sigular_value) {
+				min_sigular_value = sigma(i);
+				min_sig_idx = i;
+			}
+		}
+
+		Scalar_type det_U = U.determinant();
+		Scalar_type det_V = V.determinant();
+		if		(det_U < 0) U.col(min_sig_idx) *= -1;
+		else if (det_V < 0) V.col(min_sig_idx) *= -1;
+		else				sigma(min_sig_idx) *= -1; // never reached
+		
+		/* 
+		// why this worked ???
+		sigma(2) *= -1.0f;
+		U.col(2) = -1.0f * U.col(2);
+		*/
+		F = U * sigma.asDiagonal() * V.transpose();
+	}
 	
 	Scalar_type C = this->v_0 * corotated_constraint_energy(F, U * V.transpose());
 	Vector_type<12> C_gradient = this->v_0 * coratated_constraint_gradient(U, sigma, V, this->Dm_inv, C);
