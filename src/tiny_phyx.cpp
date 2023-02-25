@@ -2,6 +2,7 @@
 
 #include <Eigen/Core>
 #include <limits>
+#include <random>
 
 void TinyPhyxSole::register_entity(Entity_ptr entity) {
 	this->entity = entity;
@@ -106,6 +107,10 @@ void TinyPhyxSole_PBD::use() {
 }
 
 std::function<void()> TinyPhyxSole_PBD::get_reset_foo() {
+	static std::random_device rd;
+	static std::mt19937 gen(rd());
+	static std::uniform_real_distribution<> dis(0, 1);//uniform distribution between 0 and 1
+
 	return [this]() {
 		if (!entity || !entity_phymesh) return;
 		/*if (!ui_flags.reset) {
@@ -113,18 +118,16 @@ std::function<void()> TinyPhyxSole_PBD::get_reset_foo() {
 		}*/
 
 		SimPBD::UI_to_params();
+
 		// reset entity
-		entity->vdata() = vdata_ori;
-		//sphere->ndata() = ndata_ori;
+		auto& verts = entity->vdata();
+		verts = vdata_ori;
 		auto gizmo = get_bound_gizmo(entity);
-		if (gizmo) gizmo->odata() = vdata_ori;
-
-
-		
+		if (gizmo) gizmo->odata() = verts;
 
 		// renew phymesh of entity
 		entity_phymesh = std::make_unique<PhyMesh>(
-			entity->vdata_c(), entity->vdata_c().size() / 3,
+			verts, verts.size() / 3,
 			entity->edgedata_c(), entity->edgedata_c().size() / 2,
 			entity->tetdata_c(), entity->tetdata_c().size() / 4,
 			SimPBD::g, SimPBD::m);
@@ -140,6 +143,16 @@ std::function<void()> TinyPhyxSole_PBD::get_reset_foo() {
 		else {
 			entity_phymesh->setup_constraint_Edge_PBD(SimPBD::stiff);
 		}
+
+		if (ui_flags.pbd_.need_squeeze) {
+			for (int i = 0; i < verts.size(); i++) {
+				verts[i] = dis(gen) * 1.0f;
+			}
+			entity_phymesh->setup_position(verts, verts.size() / 3);
+			if (gizmo) gizmo->odata() = verts;
+			ui_flags.pbd_.need_squeeze = false;
+		}
+
 
 		// reset solver
 		pbd_solver->reset(SimPBD::dt, entity_phymesh.get());

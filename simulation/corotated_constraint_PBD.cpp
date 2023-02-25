@@ -36,47 +36,43 @@ void SimPBD::CorotatedConstraint::resolve(VectorX_type& position, const VectorX_
 	auto& v4 = position.block<3, 1>(v4_ind * 3, 0);
 
 	Mat3_type Ds;
-	Ds.col(0) = v2 - v1;
-	Ds.col(1) = v3 - v1;
-	Ds.col(2) = v4 - v1;
+	Ds.col(0) = Vec3_type{ v2 - v1 };
+	Ds.col(1) = Vec3_type{ v3 - v1 };
+	Ds.col(2) = Vec3_type{ v4 - v1 };
 
 	Mat3_type F = Ds * this->Dm_inv;
 
 	Scalar_type det_f = F.determinant();
 	bool const is_tet_inverted = F.determinant() < Scalar_type{ 0 };
 
-
 	Eigen::JacobiSVD<Mat3_type> SVD(F, Eigen::ComputeFullU | Eigen::ComputeFullV);
 	Mat3_type U = SVD.matrixU(); // det U = +1 or -1
 	Mat3_type V = SVD.matrixV(); // det V = +1 or -1
 	Vec3_type sigma = SVD.singularValues(); // all > 0
-	
-	if (is_tet_inverted) {
-		int min_sig_idx = -1;
-		Scalar_type min_sigular_value = std::numeric_limits<Scalar_type>::max();
-
-		for (int i = 0; i < 3; i++) {
-			if (sigma(i) < min_sigular_value) {
-				min_sigular_value = sigma(i);
-				min_sig_idx = i;
-			}
-		}
-
+	// Eigen makes sigma_0 > sigma_1 > sigma_2 >= 0, so
+	// if det_F < 0, either U or V be REFLECTION (instead of ROTATION)
+	if (is_tet_inverted) { // 
 		Scalar_type det_U = U.determinant();
 		Scalar_type det_V = V.determinant();
-		if		(det_U < 0) U.col(min_sig_idx) *= -1;
-		else if (det_V < 0) V.col(min_sig_idx) *= -1;
-		else				sigma(min_sig_idx) *= -1; // never reached
-		
-		/* 
-		// why this worked ???
-		sigma(2) *= -1.0f;
-		U.col(2) = -1.0f * U.col(2);
-		*/
+
+		if		(det_U < 0) { U.col(2) *= -1; sigma(2) *= -1; } // U is reflection, fix it
+		else if (det_V < 0) { V.col(2) *= -1; sigma(2) *= -1; } // V is reflection, fix it
+		else { /*NEVER REACHED*/ }
+		// now U & V are both rotation, invert sigma for invertible FEM
+
+		// assuming only ONE of three direction is inverted
+		// invert F, gain good gradient direction
+		sigma(2) *= -1; // sigma_2 is the smallest one
+	
+		// new F
 		F = U * sigma.asDiagonal() * V.transpose();
 	}
 	
-	Scalar_type C = this->v_0 * corotated_constraint_energy(F, U * V.transpose());
+	Mat3_type F_new = U * sigma.asDiagonal() * V.transpose();
+	
+	Scalar_type C = this->v_0 * corotated_constraint_energy(F_new, U * V.transpose());
+
+	if (std::abs(C) <= small_value) return; // vital !!! or gradient being nonsense
 	Vector_type<12> C_gradient = this->v_0 * coratated_constraint_gradient(U, sigma, V, this->Dm_inv, C);
 
 	// gradient of C wrt v1&v2&v3&v4
@@ -98,7 +94,6 @@ void SimPBD::CorotatedConstraint::resolve(VectorX_type& position, const VectorX_
 		(k1 * grad_C_x1_sq + k2 * grad_C_x2_sq + k3 * grad_C_x3_sq + k4 * grad_C_x4_sq +
 			this->alpha / (dt * dt));
 
-	// delta X & update X
 	v1 += (lambda * k1 * grad_C_x1);
 	v2 += (lambda * k2 * grad_C_x2);
 	v3 += (lambda * k3 * grad_C_x3);

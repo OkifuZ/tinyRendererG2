@@ -46,12 +46,19 @@ void PBD_solver::step() {
 			const auto& f_i = fext.block<3, 1>(i * 3, 0);
 			Scalar_type mass_i = mass[i];
 			y_i = p_i + dt_s * v_i + dt_s * dt_s * f_i / mass_i;
+			// printf("v%2d: (%.3f %.3f %.3f)\n", i, y_i.x(), y_i.y(), y_i.z());
 		}
 
 		// solve constraints
+		// int i = 0;
 		for (auto& constraint : constraints) {
+			/*if (dynamic_cast<SimPBD::CorotatedConstraint*>(constraint.get())) {
+				printf("[%d]\n", i++);
+			}*/
 			constraint->resolve(y, this->phymesh_ptr->inv_mass, this->dt_s);
 		}
+
+		// exit(0);
 
 		// update velocity & position
 		phymesh_ptr->velocity = (y - position) / dt_s;

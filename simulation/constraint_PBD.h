@@ -11,7 +11,7 @@ public:
 	Scalar_type stiffness{};
 	Scalar_type alpha{};
 
-	const Scalar_type small_value = 1e-5f;
+	const Scalar_type small_value = 1e-7f;
 
 	Constraint(std::initializer_list<Index_type> indices, Scalar_type stiff) 
 		: indices(indices), stiffness(stiff) {

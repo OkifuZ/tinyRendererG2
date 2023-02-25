@@ -54,6 +54,7 @@ struct UI_Flags {
 		float dt{ 0.02f };
 		float m{ 0.01f };
 		float g{ 9.8f };
+		bool need_squeeze = false;
 
 		int constraint_type = static_cast<int>(PBD_CONSTRAINT_TYPE::Edge_Volume);
 	} pbd_;

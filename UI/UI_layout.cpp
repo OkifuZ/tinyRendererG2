@@ -90,6 +90,12 @@ void PD_UI_layout() {
 
 void PBD_UI_layout() {
 	if (ImGui::CollapsingHeader("Position Based Dynamics", 0)) {
+		if (ImGui::Button(ui_flags.pbd_.need_squeeze ? "unsqueeze" : "squeeze")) ui_flags.pbd_.need_squeeze = !ui_flags.pbd_.need_squeeze;
+		std::string squeeze_info = ui_flags.pbd_.need_squeeze ?
+			"click [reset] to activate change" : "click to squeeze";
+		ImGui::Text(squeeze_info.c_str());
+
+		ImGui::Separator();
 		ImGui::Text("common parameters");
 		ImGui::DragFloat("g", &(ui_flags.pbd_.g), 0.05f, 0.0f, 100.0f, "%.5f");
 		ImGui::DragFloat("m", &(ui_flags.pbd_.m), 0.005f, 0.0f, 100.0f, "%.5f");
