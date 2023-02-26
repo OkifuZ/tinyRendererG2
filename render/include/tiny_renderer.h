@@ -27,7 +27,6 @@ class TinyRenderer {
 		std::function<void()> _UI_layout_update;
 		std::function<void()> _UI_event_handler;
 		std::function<void()> _physics_tick;
-		std::function<void()> _reset;
 
 	} functions;
 
@@ -82,16 +81,11 @@ public:
 
 			// render UI
 			render_ui(); 
-
-			// if reset
-			// if (functions._reset) functions._reset();
-			
 		}
 	}
 
 	void terminate() { render_terminate(window_global); }
 	void register_physics_tick(std::function<void()> foo) { this->functions._physics_tick = foo; }
-	void register_reset(std::function<void()> foo) { this->functions._reset = foo; }
 	void register_ui_layout_update(std::function<void()> foo) { this->functions._UI_layout_update = foo; }
 	void register_ui_event_handler(std::function<void()> foo) { this->functions._UI_event_handler = foo; }
 

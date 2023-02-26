@@ -6,9 +6,7 @@ set(CMAKE_CUDA_SEPARABLE_COMPILATION ON)
 
 project(tinyRendererG2 LANGUAGES CXX C CUDA)
 
-# add_compile_options("/MP")
-# set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT tinyRendererG2)
-
+set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT tinyRendererG2)
 
 set(CONFIG_IN_DIR "${PROJECT_SOURCE_DIR}/cmake.in")
 configure_file(

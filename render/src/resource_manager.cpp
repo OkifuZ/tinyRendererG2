@@ -14,7 +14,6 @@ const fpath ResourceManager::simulation_path = fpath(PROJECT_ROOT_PATH) / "asset
 
 
 bool init_resource_manager() {
-	printf("%s\n\n", ResourceManager::material_path.string().c_str());
 	// load all shaders
 	struct ShaderChoice {
 		bool vert = false;

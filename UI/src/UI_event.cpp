@@ -53,7 +53,6 @@ void reload_physics_scene(TinyRenderer& renderer, Entity_ptr& sphere, TinyPhyxSo
 		tiny_physics = nullptr;
 
 		renderer.register_physics_tick([]() {});
-		renderer.register_reset([]() {});
 	}
 	else {
 		if (ui_flags.sim_choice == static_cast<int>(UI_Flags::SIM_TYPE::PD))
@@ -65,7 +64,6 @@ void reload_physics_scene(TinyRenderer& renderer, Entity_ptr& sphere, TinyPhyxSo
 
 		tiny_physics->use();
 
-		renderer.register_reset(tiny_physics->get_reset_foo());
 		renderer.register_physics_tick(tiny_physics->get_physics_tick_foo());
 	}
 }
