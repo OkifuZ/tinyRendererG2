@@ -20,14 +20,14 @@ def wirte_objfile(obj_name:str, **kwargs):
     content.append('')
 
     if vertices is not None:
-        content += ['v ' + f'{v[0]} {v[1]} {v[2]}' for v in vertices]
+        content += ['v ' + '{:.5f} {:.5f} {:.5f}'.format(v[0], v[1], v[2]) for v in vertices]
     if vertices is not None: content.append('')
     if triangles is not None:
-        content += ['f ' + f'{t[0]} {t[1]} {t[2]}' for t in triangles]
+        content += ['f ' + '{:d} {:d} {:d}'.format(int(t[0]), int(t[1]), int(t[2])) for t in triangles]
     if triangles is not None: content.append('')
 
     if tetrahedrons is not None:
-        content += ['tet ' + f'{tet[0]} {tet[1]} {tet[2]} {tet[3]}' for tet in tetrahedrons]
+        content += ['tet ' + '{:d} {:d} {:d} {:d}'.format(int(tet[0]), int(tet[1]), int(tet[2]), int(tet[3])) for tet in tetrahedrons]
     if tetrahedrons is not None: content.append('')
 
     with open(out_na, 'w') as fp:

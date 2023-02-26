@@ -642,7 +642,7 @@ bool _load_scene(SceneData_ptr scene, const std::string& fname) {
 	std::string err;
 	json11::Json scene_json = json11::Json::parse(scene_json_str, err, json11::JsonParse::COMMENTS);
 	if (err != "") {
-		printf("[load_scene()] error occurred!\n");
+		printf("[load_scene()] error occurred parsing json!\n");
 		exit(-1);
 	}
 
@@ -654,7 +654,7 @@ Snowflake_type load_scene(const std::filesystem::path& fpath) {
 	SceneData_ptr scene = std::make_shared<SceneData>();
 	bool stat = _load_scene(scene, fpath.string());
 	if (!stat) {
-		printf("[load_scene()] error occured\n");
+		printf("[load_scene()] error occured _load_scene()\n");
 		exit(-1);
 	}
 	return resource_manager_global.add_scene(scene);

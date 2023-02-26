@@ -3,9 +3,9 @@
 
   "entities": [
     {
-      "name": "sphere_tet_entity",
+      "name": "cloth",
       "instance_data": null,
-      "mesh": "sphere_tet_tri.obj",
+      "mesh": "cloth_20x20.obj",
       "material": "simple.json",
       "transform": {
         "quat": [ 1, 0, 0, 0 ],
@@ -16,23 +16,10 @@
       "cullface": true
     },
     {
-      "name": "sphere_just_hint",
-      "instance_data": null,
-      "mesh": "sphere_smooth.obj",
-      "material": "simple.json",
-      "transform": {
-        "quat": [ 1, 0, 0, 0 ],
-        "scale": [ 0.05, 0.05, 0.05 ],
-        "translate": [ 0, 0, 0 ]
-      },
-      "wireframe": null,
-      "cullface": true
-    },
-    {
       "name": "gizmo",
       "instance_data": {
-        "offset": "sphere_tet_entity->vert",
-        "scale": 0.03,
+        "offset": "cloth->vert",
+        "scale": 0.01,
         "color": [ 0.6, 0.2, 0.6 ]
       },
       "mesh": "sphere_smooth.obj",
