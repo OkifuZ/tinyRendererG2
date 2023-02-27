@@ -111,11 +111,16 @@ void PBD_UI_layout() {
 		ImGui::Separator();
 		ImGui::Text("Constraints");
 		const char* constraint_items[] = {
+			"Cloth Edge",
 			"Volume + Edge length",
 			"Corotated + Edge length"
 		};
 		ImGui::Combo("constraint type", &(ui_flags.pbd_.constraint_type), constraint_items, IM_ARRAYSIZE(constraint_items));
 		ImGui::DragFloat("stiff", &(ui_flags.pbd_.stiff), 0.05f, 0.0f, 10000.0f);
+		if (ui_flags.pbd_.constraint_type == static_cast<int>(UI_Flags::PBD_CONSTRAINT_TYPE::ClothEdge)) {
+			ImGui::DragInt("cloth width", &(ui_flags.pbd_.strcture_edge_width), 1.0f, 5, 200);
+			ImGui::DragInt("cloth height", &(ui_flags.pbd_.strcture_edge_height), 1.0f, 5, 200);
+		}
 
 		ImGui::Separator();
 

@@ -4,78 +4,6 @@
 #include <limits>
 #include <random>
 
-void TinyPhyxSole::register_entity(Entity_ptr entity) {
-	this->entity = entity;
-	entity->phy_object = this;
-}
-
-void TinyPhyxSole_PD::use() {
-	if (!entity) return;
-	entity->centerlize_vert(); // deliminate transform
-	vdata_ori = entity->vdata_c();
-	//std::vector<float> ndata_ori = sphere->ndata_c();
-
-	// Physics
-	// model->phymesh
-	entity_phymesh = std::move(std::make_unique<PhyMesh>(
-		entity->vdata_c(), entity->vdata_c().size() / 3,
-		entity->edgedata_c(), entity->edgedata_c().size() / 2,
-		entity->tetdata_c(), entity->tetdata_c().size() / 4,
-		SimPD::g, SimPD::m));
-
-	entity_phymesh->setup_constraint_PD(SimPD::sigma_min, SimPD::sigma_max, SimPD::k);
-
-	// solver
-	pd_solver = std::move(std::make_unique<PD_solver>(SimPD::dt, entity_phymesh.get()));
-	pd_solver->init();
-}
-
-std::function<void()> TinyPhyxSole_PD::get_reset_foo() {
-	// if we need polymorphic, we need std::bind instead of lambda capture
-	return [this]() {
-		if (!entity || !entity_phymesh) return;
-		/*if (!ui_flags.reset) {
-			return;
-		}*/
-		SimPD::UI_to_params();
-		// reset entity
-		entity->vdata() = vdata_ori;
-		//sphere->ndata() = ndata_ori;
-		auto gizmo = get_bound_gizmo(entity);
-		if (gizmo) gizmo->odata() = vdata_ori;
-
-		// renew phymesh of entity
-		entity_phymesh = std::make_unique<PhyMesh>(
-			entity->vdata_c(), entity->vdata_c().size() / 3,
-			entity->edgedata_c(), entity->edgedata_c().size() / 2,
-			entity->tetdata_c(), entity->tetdata_c().size() / 4,
-			SimPD::g, SimPD::m);
-		entity_phymesh->setup_constraint_PD(SimPD::sigma_min, SimPD::sigma_max, SimPD::k);
-		// reset solver
-		pd_solver->reset(SimPD::dt, entity_phymesh.get());
-
-		/*ui_flags.pause = true;
-		ui_flags.reset = false;*/
-	};
-}
-
-std::function<void()> TinyPhyxSole_PD::get_physics_tick_foo() {
-	return  [this]() {
-		if (!entity || !entity_phymesh) return;
-		if (paused) return;
-		pd_solver->step(SimPD::iter_num);
-		update_ent_mesh_vert(entity, entity_phymesh->position.data(), entity_phymesh->position.size());
-	};
-}
-
-void TinyPhyxSole_PD::start_grab(const glm::vec3& intersect_pos) {}
-
-void TinyPhyxSole_PD::move_grab(const glm::vec3& pos) {}
-
-void TinyPhyxSole_PD::end_grab(const glm::vec3& pos) {}
-
-void TinyPhyxSole_PD::choose_point(const glm::vec3& intersect_pos) {}
-
 
 void TinyPhyxSole_PBD::use() {
 	if (!entity) return;
@@ -99,8 +27,9 @@ void TinyPhyxSole_PBD::use() {
 		entity_phymesh->setup_constraint_Edge_PBD(SimPBD::stiff);
 		entity_phymesh->setup_constraint_Corotated_PBD(SimPBD::stiff);
 	}
-	else {
-		entity_phymesh->setup_constraint_Edge_PBD(SimPBD::stiff);
+	else if (ui_flags.pbd_.constraint_type == static_cast<int>(UI_Flags::PBD_CONSTRAINT_TYPE::ClothEdge)) {
+		entity_phymesh->setup_structured_cloth_edges(ui_flags.pbd_.strcture_edge_width, ui_flags.pbd_.strcture_edge_height);
+		entity_phymesh->setup_constraint_Structured_Cloth_Edge_PBD(SimPBD::stiff);
 	}
 	// solver
 	pbd_solver = std::move(std::make_unique<PBD_solver>(SimPBD::dt, SimPBD::substep_num, entity_phymesh.get()));
@@ -178,7 +107,7 @@ std::function<void()> TinyPhyxSole_PBD::get_physics_tick_foo() {
 void TinyPhyxSole_PBD::start_grab(const glm::vec3& intersect_pos) {
 	if (ui_flags.pause) return;
 
-	VectorX_type& verts  = this->entity_phymesh->position;
+	VectorX_type& verts = this->entity_phymesh->position;
 	Size_type N = this->entity_phymesh->vert_size;
 
 	Scalar_type dis_min = std::numeric_limits<Scalar_type>::max();
@@ -263,5 +192,5 @@ void TinyPhyxSole_PBD::choose_point(const glm::vec3& intersect_pos) {
 		printf("choose point: %.3f, %.3f, %.3f; %d\n", closest_v.x(), closest_v.y(), closest_v.z(), closest_vert_id);
 	}
 	// todo: reset this
-	
+
 }

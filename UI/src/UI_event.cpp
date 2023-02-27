@@ -66,7 +66,7 @@ void reload_physics_scene(TinyRenderer& renderer, Entity_ptr& sphere, TinyPhyxSo
 	if (ui_flags.sim_choice == static_cast<int>(UI_Flags::SIM_TYPE::PD) || 
 		ui_flags.sim_choice == static_cast<int>(UI_Flags::SIM_TYPE::PBD)) 
 	{
-		tiny_physics->register_entity(sphere);
+		tiny_physics->bind_entity(sphere);
 		tiny_physics->use();
 		renderer.register_physics_tick(tiny_physics->get_physics_tick_foo());
 	}

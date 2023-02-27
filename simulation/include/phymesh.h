@@ -16,12 +16,14 @@ public:
 	Size_type vert_size;
 	Size_type ele_size;
 	Size_type edge_size;
+	Size_type structured_edge_size;
 	Size_type constraint_PD_size;
 	Size_type constraint_PBD_size;
 
 	VectorX_type position{}; // 3*N
 	Elements4_type elements{}; // 4*M_ele
 	Edges_type edges{}; // 2*M_edge
+	Edges_type structured_edges{}; 
 	VectorX_type f_ext{}; // 3*N
 	VectorX_type velocity{}; // 3*N
 	VectorX_type mass{}; // N
@@ -75,6 +77,58 @@ public:
 		this->edge_size = E;
 	}
 
+	void setup_structured_cloth_edges(Size_type width, Size_type height) {
+		if ((width + 1) * (height + 1) >= this->vert_size) {
+			printf("[ERROR] setup_structured_cloth_edges()\n");
+			return;
+		}
+
+		for (size_t i = 0; i <= height; i++) {
+			for (size_t j = 0; j <= width; j++) {
+				/*
+				1 - 2
+				|   |  => 1,2; 1,3; 1,4; 2,3
+				3 - 4
+				*/
+				size_t id1 = i * (width + 1) + j;
+				size_t id2 = id1 + 1;
+				size_t id3 = (i + 1) * (width + 1) + j;
+				size_t id4 = (i + 1) * (width + 1) + j + 1;
+
+				this->structured_edges.push_back({ id1, id2 });
+				this->structured_edges.push_back({ id1, id3 });
+				this->structured_edges.push_back({ id1, id4 });
+				this->structured_edges.push_back({ id2, id3 });
+			}
+		}
+
+		for (size_t i = 0; i <= height; i+=1) {
+			for (size_t j = 0; j + 2 <= width; j += 1) {
+				/*
+				1 - 2 - 3 => 1,3
+				*/
+				size_t id1 = i * (width + 1) + j;
+				size_t id3 = id1 + 2;
+				this->structured_edges.push_back({ id1, id3 });
+			}
+		}
+
+		for (size_t j = 0; j <= width; j += 1) {
+			for (size_t i = 0; i + 2 <= height; i += 1) {
+				/*
+				1
+				|
+				2 => 1,3
+				|
+				3
+				*/
+				size_t id1 = i * (width + 1) + j;
+				size_t id3 = (i + 2) * (width + 1) + j;
+				this->structured_edges.push_back({ id1, id3 });
+			}
+		}
+	}
+
 	void setup_constraint_PD(Scalar_type sigma_min, Scalar_type sigma_max, Scalar_type k) {
 		for (size_t i = 0; i < ele_size; i++) {
 			auto [v1, v2, v3, v4] = this->elements[i];
@@ -83,6 +137,19 @@ public:
 				k, position, sigma_min, sigma_max);
 			this->constraints_PD.push_back(std::move(constraint));
 			this->constraint_PD_size++;
+		}
+	}
+
+	void setup_constraint_Structured_Cloth_Edge_PBD(Scalar_type stiff) {
+		for (size_t i = 0; i < structured_edge_size; i++) {
+			auto [e1, e2] = this->structured_edges[i];
+			Scalar_type mass_1 = this->mass[e1];
+			Scalar_type mass_2 = this->mass[e2];
+			auto constraint = std::make_unique<SimPBD::EdgeConstraint>(
+				std::initializer_list<Index_type>{e1, e2},
+				stiff, this->position);
+			this->constraints_PBD.push_back(std::move(constraint));
+			this->constraint_PBD_size++;
 		}
 	}
 
@@ -98,6 +165,7 @@ public:
 			this->constraint_PBD_size++;
 		}
 	}
+
 	void setup_constraint_Volume_PBD(Scalar_type stiff) {
 		for (size_t i = 0; i < ele_size; i++) {
 			auto [v1, v2, v3, v4] = this->elements[i];
@@ -112,6 +180,7 @@ public:
 			this->constraint_PBD_size++;
 		}
 	}
+
 	void setup_constraint_Corotated_PBD(Scalar_type stiff) {
 		for (size_t i = 0; i < ele_size; i++) {
 			auto [v1, v2, v3, v4] = this->elements[i];

@@ -38,7 +38,7 @@ public:
 
 	virtual void choose_point(const glm::vec3& intersect_pos) = 0;
 
-	void register_entity(Entity_ptr entity);
+	void bind_entity(Entity_ptr entity);
 };
 
 

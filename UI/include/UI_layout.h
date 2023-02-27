@@ -27,6 +27,7 @@ struct UI_Flags {
 	} file_;
 
 	enum class PBD_CONSTRAINT_TYPE {
+		ClothEdge,
 		Edge_Volume, 
 		Edge_Corotated
 	};
@@ -55,6 +56,8 @@ struct UI_Flags {
 		float m{ 0.01f };
 		float g{ 9.8f };
 		bool need_squeeze = false;
+		int strcture_edge_width = 20;
+		int strcture_edge_height = 20;
 
 		int constraint_type = static_cast<int>(PBD_CONSTRAINT_TYPE::Edge_Volume);
 	} pbd_;
