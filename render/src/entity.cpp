@@ -169,6 +169,7 @@ const std::vector<uint32_t>& Entity::edgedata_c() const {
 }
 
 const AABB_data Entity::get_AABB_no_transform() const {
+    const float small_padding = 1e-3;
     const auto& verts = this->vdata_c();
     size_t N = verts.size() / 3;
     glm::vec3 min_pos{ std::numeric_limits<float>::max() };
@@ -183,7 +184,7 @@ const AABB_data Entity::get_AABB_no_transform() const {
         if (max_pos.y < pos.y) max_pos.y = pos.y;
         if (max_pos.z < pos.z) max_pos.z = pos.z;
     }
-    return AABB_data{min_pos, max_pos};
+    return AABB_data{min_pos - small_padding, max_pos + small_padding};
 }
 
 void update_ent_mesh_vert(Entity_ptr& ent, float* data, size_t size) {

@@ -91,6 +91,6 @@ public:
 
 
 	static Entity_ptr get_entity(const std::string& entity_name) {
-		return resource_manager_global.get_entity_by_name("sphere_tet_entity");
+		return resource_manager_global.get_entity_by_name(entity_name);
 	}
 };

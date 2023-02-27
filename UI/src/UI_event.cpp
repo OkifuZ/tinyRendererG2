@@ -51,19 +51,23 @@ void reload_physics_scene(TinyRenderer& renderer, Entity_ptr& sphere, TinyPhyxSo
 	// clear all physics
 	if (ui_flags.sim_choice == static_cast<int>(UI_Flags::SIM_TYPE::None)) {
 		tiny_physics = nullptr;
-
+		resource_manager_global.grabber->enabled = false;
 		renderer.register_physics_tick([]() {});
 	}
-	else {
-		if (ui_flags.sim_choice == static_cast<int>(UI_Flags::SIM_TYPE::PD))
-			tiny_physics = std::make_unique<TinyPhyxSole_PD>();
-		else if (ui_flags.sim_choice == static_cast<int>(UI_Flags::SIM_TYPE::PBD))
-			tiny_physics = std::make_unique<TinyPhyxSole_PBD>();
-
+	else if (ui_flags.sim_choice == static_cast<int>(UI_Flags::SIM_TYPE::PD)) {
+		resource_manager_global.grabber->enabled = false;
+		tiny_physics = std::make_unique<TinyPhyxSole_PD>();
+	} 
+	else if (ui_flags.sim_choice == static_cast<int>(UI_Flags::SIM_TYPE::PBD)) {
+		resource_manager_global.grabber->enabled = true;
+		tiny_physics = std::make_unique<TinyPhyxSole_PBD>();
+	}
+		
+	if (ui_flags.sim_choice == static_cast<int>(UI_Flags::SIM_TYPE::PD) || 
+		ui_flags.sim_choice == static_cast<int>(UI_Flags::SIM_TYPE::PBD)) 
+	{
 		tiny_physics->register_entity(sphere);
-
 		tiny_physics->use();
-
 		renderer.register_physics_tick(tiny_physics->get_physics_tick_foo());
 	}
 }

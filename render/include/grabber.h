@@ -15,6 +15,8 @@ public:
 	RayCaster_uptr ray_caster = nullptr;
 	Camera_ptr camera = nullptr;
 
+	bool enabled = false;
+
 	Grabber(Camera_ptr cam): ray_caster(std::make_unique<RayCaster>()), camera(cam) {}
 	
 	Entity_ptr grabbed_entity = nullptr;
@@ -25,4 +27,3 @@ public:
 
 };
 
-extern Grabber_rptr grabber_global;

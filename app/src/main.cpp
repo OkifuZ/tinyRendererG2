@@ -17,7 +17,7 @@ int main()
 	Entity_ptr sphere = nullptr;
 	TinyPhyxSole_uptr tiny_physics = nullptr;
 
-	sphere = TinyRenderer::get_entity("sphere_tet_entity");
+	sphere = TinyRenderer::get_entity("cloth");
 	
 	renderer.register_ui_layout_update(get_UI_layout_update());
 	renderer.register_ui_event_handler(get_UI_event_handler(renderer, sphere, tiny_physics));

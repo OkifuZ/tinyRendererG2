@@ -8,7 +8,7 @@
       "mesh": "cloth_20x20.obj",
       "material": "simple.json",
       "transform": {
-        "quat": [ 1, 0, 0, 0 ],
+        "quat": [ 0.866, 0, 0, -0.5 ],
         "scale": [ 1.0, 1.0, 1.0 ],
         "translate": [ 0, 3, 0 ]
       },

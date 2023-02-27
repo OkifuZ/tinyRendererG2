@@ -74,6 +74,7 @@ void TinyPhyxSole_PD::move_grab(const glm::vec3& pos) {}
 
 void TinyPhyxSole_PD::end_grab(const glm::vec3& pos) {}
 
+void TinyPhyxSole_PD::choose_point(const glm::vec3& intersect_pos) {}
 
 
 void TinyPhyxSole_PBD::use() {
@@ -157,6 +158,8 @@ std::function<void()> TinyPhyxSole_PBD::get_reset_foo() {
 		// reset solver
 		pbd_solver->reset(SimPBD::dt, entity_phymesh.get());
 
+		// choose point
+		choosed_verts.clear();
 
 		/*ui_flags.pause = true;
 		ui_flags.reset = false;*/
@@ -173,6 +176,8 @@ std::function<void()> TinyPhyxSole_PBD::get_physics_tick_foo() {
 
 
 void TinyPhyxSole_PBD::start_grab(const glm::vec3& intersect_pos) {
+	if (ui_flags.pause) return;
+
 	VectorX_type& verts  = this->entity_phymesh->position;
 	Size_type N = this->entity_phymesh->vert_size;
 
@@ -205,14 +210,58 @@ void TinyPhyxSole_PBD::start_grab(const glm::vec3& intersect_pos) {
 }
 
 void TinyPhyxSole_PBD::move_grab(const glm::vec3& pos) {
+	if (ui_flags.pause) return;
+
 	if (grabbed_id == -1) return;
 	VectorX_type& verts = this->entity_phymesh->position;
 	verts.block<3, 1>(grabbed_id * 3, 0) = Eigen::Vector3f{ pos.x, pos.y, pos.z };
 }
 
 void TinyPhyxSole_PBD::end_grab(const glm::vec3& pos) {
+	if (ui_flags.pause) return;
+
 	if (grabbed_id == -1) return;
 	this->entity_phymesh->mass[this->grabbed_id] = this->grabbed_mass;
 	this->entity_phymesh->inv_mass[this->grabbed_id] = 1.0f / this->grabbed_mass;
 	this->grabbed_id = -1;
+}
+
+void TinyPhyxSole_PBD::choose_point(const glm::vec3& intersect_pos) {
+	const float small_value = 1e-6f;
+	if (!ui_flags.pause) return;
+
+	VectorX_type& verts = this->entity_phymesh->position;
+	Size_type N = this->entity_phymesh->vert_size;
+
+	const Scalar_type choose_critera = 4e-2f;
+	Index_type closest_vert_id = -1;
+
+	const Vec3_type intersect_v{ intersect_pos.x, intersect_pos.y, intersect_pos.z };
+	Vec3_type v;
+	for (Index_type i = 0; i < N; i++) {
+		v = verts.block<3, 1>(i * 3, 0);
+		Scalar_type dis = (v - intersect_v).norm();
+		if (dis < choose_critera) {
+			closest_vert_id = i;
+		}
+	}
+
+	if (closest_vert_id >= 0) {
+		if (this->choosed_verts.count(closest_vert_id) <= 0) {
+			this->choosed_verts[closest_vert_id] = this->entity_phymesh->mass[closest_vert_id];
+			this->entity_phymesh->mass[closest_vert_id] = std::numeric_limits<Scalar_type>::max();
+			this->entity_phymesh->inv_mass[closest_vert_id] = 0.0f;
+		}
+		else {
+			Scalar_type old_mass = this->choosed_verts.at(closest_vert_id);
+			this->entity_phymesh->mass[closest_vert_id] = old_mass;
+			this->entity_phymesh->inv_mass[closest_vert_id] = 1.0f / old_mass;
+			this->choosed_verts.erase(closest_vert_id);
+		}
+
+		Vec3_type closest_v = verts.block<3, 1>(closest_vert_id * 3, 0);
+		printf("choose point: %.3f, %.3f, %.3f; %d\n", closest_v.x(), closest_v.y(), closest_v.z(), closest_vert_id);
+	}
+	// todo: reset this
+	
 }

@@ -6,6 +6,8 @@
 #include "projective_dynamics.h"
 
 #include <memory>
+#include <unordered_set>
+
 
 class Entity;
 typedef std::shared_ptr<Entity> Entity_ptr;
@@ -34,6 +36,7 @@ public:
 	virtual void move_grab(const glm::vec3& pos) = 0;
 	virtual void end_grab(const glm::vec3& pos) = 0;
 
+	virtual void choose_point(const glm::vec3& intersect_pos) = 0;
 
 	void register_entity(Entity_ptr entity);
 };
@@ -55,6 +58,7 @@ public:
 	void start_grab(const glm::vec3& intersect_pos) override;
 	virtual void move_grab(const glm::vec3& pos) override;
 	virtual void end_grab(const glm::vec3& pos) override;
+	virtual void choose_point(const glm::vec3& intersect_pos) override;
 
 };
 
@@ -77,9 +81,11 @@ public:
 	void start_grab(const glm::vec3& intersect_pos) override;
 	virtual void move_grab(const glm::vec3& pos) override;
 	virtual void end_grab(const glm::vec3& pos) override;
+	virtual void choose_point(const glm::vec3& intersect_pos) override;
 
 private:
 	int grabbed_id = -1;
 	Scalar_type grabbed_mass{};
+	std::unordered_map<int, Scalar_type> choosed_verts{}; // vertID -> vertMass
 
 };
