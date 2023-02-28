@@ -1,8 +1,8 @@
 from tets.utils import read_objfile, wirte_objfile
 
 
-height:int = 20
-width:int = 20
+height:int = 50
+width:int = 50
 square_h:float = 3.0 / height
 square_w:float = 3.0 / width
 

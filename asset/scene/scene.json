@@ -5,7 +5,7 @@
     {
       "name": "cloth",
       "instance_data": null,
-      "mesh": "cloth_20x20.obj",
+      "mesh": "cloth_50x50.obj",
       "material": "simple.json",
       "transform": {
         "quat": [ 0.866, 0, 0, -0.5 ],

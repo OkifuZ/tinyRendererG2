@@ -127,6 +127,7 @@ public:
 				this->structured_edges.push_back({ id1, id3 });
 			}
 		}
+		structured_edge_size = structured_edges.size();
 	}
 
 	void setup_constraint_PD(Scalar_type sigma_min, Scalar_type sigma_max, Scalar_type k) {
