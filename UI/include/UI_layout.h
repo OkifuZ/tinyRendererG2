@@ -62,7 +62,14 @@ struct UI_Flags {
 		int constraint_type = static_cast<int>(PBD_CONSTRAINT_TYPE::Edge_Volume);
 	} pbd_;
 	
-	
+	struct Collision_UI_Flags {
+		bool enabled = true;
+		float ball_radius{ 0.05f };
+		float friction{ 0.5f };
+		float hash_grid_size{ 0.2f };
+		float search_radius{ 0.25f };
+		float hashTable_scale{ 5.0f };
+	} collision_;
 
 };
 extern UI_Flags ui_flags;

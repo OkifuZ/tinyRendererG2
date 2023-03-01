@@ -87,6 +87,19 @@ std::function<void()> TinyPhyxSole_PBD::get_reset_foo() {
 		// reset solver
 		pbd_solver->reset(SimPBD::dt, entity_phymesh.get());
 
+		// collision
+		if (ui_flags.collision_.enabled) {
+			pbd_solver->collision_pbd = std::make_unique<Collision_PBD>();
+			pbd_solver->collision_pbd->init(entity_phymesh.get(), 
+				ui_flags.collision_.friction, ui_flags.collision_.ball_radius, 
+				ui_flags.collision_.hash_grid_size, ui_flags.collision_.search_radius, ui_flags.collision_.hashTable_scale);
+		}
+		else {
+			pbd_solver->collision_pbd = nullptr;
+		}
+
+
+
 		// choose point
 		choosed_verts.clear();
 

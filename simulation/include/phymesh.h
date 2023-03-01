@@ -21,6 +21,7 @@ public:
 	Size_type constraint_PBD_size;
 
 	VectorX_type position{}; // 3*N
+	VectorX_type position_prev{}; // 3*N
 	Elements4_type elements{}; // 4*M_ele
 	Edges_type edges{}; // 2*M_edge
 	Edges_type structured_edges{}; 
@@ -52,11 +53,13 @@ public:
 
 	void setup_position(const std::vector<float>& position, Size_type N) {
 		this->position.resize(N * 3);
+		this->position_prev.resize(N * 3);
 		Vec3_type pos;
 		for (Size_type i = 0; i < N; i++) {
 			pos = { position[i * 3 + 0],position[i * 3 + 1] , position[i * 3 + 2] };
 			this->position.block<3, 1>(i * 3, 0) = pos; // can we make this one line?
 		}
+		this->position_prev = this->position; // deep copy
 		this->vert_size = N;
 	}
 

@@ -30,17 +30,23 @@ void PBD_solver::step() {
 	if (!phymesh_ptr || dt == 0) return;
 
 	const auto& constraints = phymesh_ptr->constraints_PBD;
-	auto&		position = phymesh_ptr->position;
+	auto&       position = phymesh_ptr->position;
+	auto&		position_prev = phymesh_ptr->position_prev;
 	auto&		velocity = phymesh_ptr->velocity;
 	const auto& mass = phymesh_ptr->mass;
 	const auto& fext = phymesh_ptr->f_ext;
 	Size_type N = phymesh_ptr->vert_size;
 
-	VectorX_type y(N * 3); // new position
+	// VectorX_type y(N * 3); // new position
+
+	if (this->collision_pbd) this->collision_pbd->prepare();
+
 	for (int substep = 0; substep < this->substep_num; substep++) {
+		position_prev = position;
+
 		// explicit integration
 		for (size_t i = 0; i < N; i++) {
-			auto&		y_i = y.block<3, 1>(i * 3, 0);
+			auto&		y_i = position.block<3, 1>(i * 3, 0);
 			const auto& p_i = position.block<3, 1>(i * 3, 0);
 			const auto& v_i = velocity.block<3, 1>(i * 3, 0);
 			const auto& f_i = fext.block<3, 1>(i * 3, 0);
@@ -55,14 +61,18 @@ void PBD_solver::step() {
 			/*if (dynamic_cast<SimPBD::CorotatedConstraint*>(constraint.get())) {
 				printf("[%d]\n", i++);
 			}*/
-			constraint->resolve(y, this->phymesh_ptr->inv_mass, this->dt_s);
+			constraint->resolve(position, this->phymesh_ptr->inv_mass, this->dt_s);
 		}
+
+		if (this->collision_pbd) this->collision_pbd->handle();
 
 		// exit(0);
 
 		// update velocity & position
-		phymesh_ptr->velocity = (y - position) / dt_s;
-		position = y;
+		phymesh_ptr->velocity = (position - position_prev) / dt_s;
+		// position = y;
+
+
 
 		// dampen & collision & friction 
 		// put this inside or outside substep-loop or out?

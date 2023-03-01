@@ -78,9 +78,16 @@ void ControllSystem::process_mouse() {
 	MouseState::get_mouse_state(mouse_state);
 
 	// cursor on widget
-	if (!mouse_state.captured_by_app) return;
+	if (!mouse_state.captured_by_app) {
+		// onLeftPointerRelease
+		if (mouse_state.botton_released == MOUSE_BOTTON::LEFT) {
+			const auto& foos = this->event_functions[MOUSE_EVENT::ON_LEFT_POINTER_RELEASE];
+			for (auto& foo : foos) { foo(mouse_state); }
+		}
+
+		return;
+	}
 	
-	// TODO: we can make this callback style: onPointerLeftDown...
 
 	// onLeftPointerDown
 	if (mouse_state.botton_down == MOUSE_BOTTON::LEFT) {

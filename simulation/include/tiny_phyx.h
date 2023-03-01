@@ -59,7 +59,6 @@ public:
 	virtual void move_grab(const glm::vec3& pos) override;
 	virtual void end_grab(const glm::vec3& pos) override;
 	virtual void choose_point(const glm::vec3& intersect_pos) override;
-
 };
 
 

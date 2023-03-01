@@ -6,6 +6,7 @@
 #include "util_physics.h"
 #include "projective_dynamics.h"
 #include "position_based_dynamics.h"
+#include "collision_pbd.h"
 
 #include <memory>
 #include <iostream>
@@ -52,6 +53,7 @@ private:
 
 public:
 
+	Collision_PBD_uptr collision_pbd = nullptr;
 	PhyMesh_rptr phymesh_ptr = nullptr; // which type is better? 
 	// I think it is raw pointer, PD_solver doesn't has phymesh_ptr, it "use" phymesh_ptr.
 	// If type being unique_ptr, the user of PD_solver would has no elegant access to phymesh_ptr

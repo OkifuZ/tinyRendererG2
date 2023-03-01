@@ -1,4 +1,5 @@
 #include "tiny_phyx.h"
+#include "spatial_hash.h"
 
 #include <Eigen/Core>
 #include <limits>
@@ -54,8 +55,6 @@ std::function<void()> TinyPhyxSole_PD::get_reset_foo() {
 		// reset solver
 		pd_solver->reset(SimPD::dt, entity_phymesh.get());
 
-		/*ui_flags.pause = true;
-		ui_flags.reset = false;*/
 	};
 }
 

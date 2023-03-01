@@ -62,6 +62,8 @@ void PD_solver::step(int iter_num) {
 	const auto& fext = phymesh_ptr->f_ext;
 	Size_type N = phymesh_ptr->vert_size;
 
+	phymesh_ptr->position_prev = phymesh_ptr->position;
+
 	// y = q_t + dt*v_t + dt^2 * 1.0/M * fext_t
 	VectorX_type y_inertia(N * 3);
 	for (size_t i = 0; i < N; i++) {

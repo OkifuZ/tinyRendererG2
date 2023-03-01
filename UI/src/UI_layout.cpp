@@ -60,8 +60,29 @@ void save_and_load_block() {
 	ImGui::Separator();
 }
 
+void Collision_layout() {
+	if (!ImGui::CollapsingHeader("Collision Handling", ImGuiTreeNodeFlags_DefaultOpen)) return;
+	
+	if (ImGui::Button(ui_flags.collision_.enabled ? "disable" : "enable")) ui_flags.collision_.enabled = !ui_flags.collision_.enabled;
+	if (!ui_flags.collision_.enabled) return;
+	ImGui::Separator();
+
+	ImGui::Text("Collision parameters");
+	ImGui::DragFloat("ball radius", &(ui_flags.collision_.ball_radius), 0.001f, 0.0f, 1.0f, "%.5f");
+	ImGui::DragFloat("friction", &(ui_flags.collision_.friction), 0.005f, 0.0f, 1.0f, "%.3f");
+	ImGui::Separator();
+
+	ImGui::Text("Spatial hashing");
+	ImGui::DragFloat("hash size scale", &(ui_flags.collision_.hashTable_scale), 0.1f, 1.0f, 10.0f, "%.2f");
+	ImGui::DragFloat("hash grid size", &(ui_flags.collision_.hash_grid_size), 0.01f, 0.0f, 2.0f, "%.3f");
+	ImGui::DragFloat("search radius", &(ui_flags.collision_.search_radius), 0.01f, 0.0f, 2.0f, "%.3f");
+
+	ImGui::Separator();
+
+}
+
 void PD_UI_layout() {
-	if (ImGui::CollapsingHeader("Projective Dynamics", 0)) {
+	if (ImGui::CollapsingHeader("Projective Dynamics", ImGuiTreeNodeFlags_DefaultOpen)) {
 		ImGui::Text("common parameters");
 		ImGui::DragFloat("g", &(ui_flags.pd_.g), 0.05f, 0.0f, 100.0f, "%.5f");
 		ImGui::DragFloat("m", &(ui_flags.pd_.m), 0.005f, 0.0f, 100.0f, "%.5f");
@@ -89,7 +110,7 @@ void PD_UI_layout() {
 
 
 void PBD_UI_layout() {
-	if (ImGui::CollapsingHeader("Position Based Dynamics", 0)) {
+	if (ImGui::CollapsingHeader("Position Based Dynamics", ImGuiTreeNodeFlags_DefaultOpen)) {
 		if (ImGui::Button(ui_flags.pbd_.need_squeeze ? "unsqueeze" : "squeeze")) ui_flags.pbd_.need_squeeze = !ui_flags.pbd_.need_squeeze;
 		std::string squeeze_info = ui_flags.pbd_.need_squeeze ?
 			"click [reset] to activate change" : "click to squeeze";
@@ -147,10 +168,12 @@ void UI_layout_update() {
 		else if (ui_flags.current_choice == static_cast<int>(UI_Flags::SIM_TYPE::PBD)) {
 			play_and_pause_bar();
 			PBD_UI_layout();
+			Collision_layout();
 		}
 		else {
 			// never reached
 		}
+		
 		
 	}
 
