@@ -19,7 +19,7 @@
       "name": "gizmo",
       "instance_data": {
         "offset": "cloth->vert",
-        "scale": 0.01,
+        "scale": 0.015,
         "color": [ 0.6, 0.2, 0.6 ]
       },
       "mesh": "sphere_smooth.obj",

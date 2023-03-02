@@ -78,7 +78,7 @@ namespace SimPD {
 		sigma_min = ui_flags.pd_.sigmas[0];
 		sigma_max = ui_flags.pd_.sigmas[1];
 
-		ui_flags.reset = true;
+		ui_flags.reset_phymesh = true;
 		ui_flags.pause = true;
 	}
 }

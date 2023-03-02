@@ -826,7 +826,7 @@ CODE
  Q&A: Fonts, Text
  ================
 
- Q: How should I handle DPI in my application?
+ Q: How should I handle_with_gridHash DPI in my application?
  Q: How can I load a different font than the default?
  Q: How can I easily use icons in my application?
  Q: How can I load multiple fonts?
@@ -1912,10 +1912,10 @@ ImGuiID ImHashData(const void* data_p, size_t data_size, ImU32 seed)
     return ~crc;
 }
 
-// Zero-terminated string hash, with support for ### to reset back to seed value
+// Zero-terminated string hash, with support for ### to reset_phymesh back to seed value
 // We support a syntax of "label###id" where only "###id" is included in the hash, and only "label" gets displayed.
 // Because this syntax is rarely used we are optimizing for the common case.
-// - If we reach ### in the string we discard the hash so far and reset to the seed.
+// - If we reach ### in the string we discard the hash so far and reset_phymesh to the seed.
 // - We don't do 'current += 2; continue;' after handling ### to keep the code smaller/faster (measured ~10% diff in Debug build)
 // FIXME-OPT: Replace with e.g. FNV1a hash? CRC32 pretty much randomly access 1KB. Need to do proper measurements.
 ImGuiID ImHashStr(const char* data_p, size_t data_size, ImU32 seed)
@@ -1956,7 +1956,7 @@ ImGuiID ImHashStr(const char* data_p, size_t data_size, ImU32 seed)
 ImFileHandle ImFileOpen(const char* filename, const char* mode)
 {
 #if defined(_WIN32) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS) && !defined(__CYGWIN__) && !defined(__GNUC__)
-    // We need a fopen() wrapper because MSVC/Windows fopen doesn't handle UTF-8 filenames.
+    // We need a fopen() wrapper because MSVC/Windows fopen doesn't handle_with_gridHash UTF-8 filenames.
     // Previously we used ImTextCountCharsFromUtf8/ImTextStrFromUtf8 here but we now need to support ImWchar16 and ImWchar32!
     const int filename_wsize = ::MultiByteToWideChar(CP_UTF8, 0, filename, -1, NULL, 0);
     const int mode_wsize = ::MultiByteToWideChar(CP_UTF8, 0, mode, -1, NULL, 0);
@@ -2027,7 +2027,7 @@ IM_MSVC_RUNTIME_CHECKS_OFF
 
 // Convert UTF-8 to 32-bit character, process single character input.
 // A nearly-branchless UTF-8 decoder, based on work of Christopher Wellons (https://github.com/skeeto/branchless-utf8).
-// We handle UTF-8 decoding error by skipping forward.
+// We handle_with_gridHash UTF-8 decoding error by skipping forward.
 int ImTextCharFromUtf8(unsigned int* out_char, const char* in_text, const char* in_text_end)
 {
     static const char lengths[32] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 3, 3, 4, 0 };
@@ -2890,7 +2890,7 @@ static bool ImGuiListClipper_StepInternal(ImGuiListClipper* clipper)
         }
 
         // Convert position ranges to item index ranges
-        // - Very important: when a starting position is after our maximum item, we set Min to (ItemsCount - 1). This allows us to handle most forms of wrapping.
+        // - Very important: when a starting position is after our maximum item, we set Min to (ItemsCount - 1). This allows us to handle_with_gridHash most forms of wrapping.
         // - Due to how Selectable extra padding they tend to be "unaligned" with exact unit in the item list,
         //   which with the flooring/ceiling tend to lead to 2 items instead of one being submitted.
         for (int i = 0; i < data->Ranges.Size; i++)
@@ -3517,7 +3517,7 @@ void ImGui::Initialize()
     ImGuiContext& g = *GImGui;
     IM_ASSERT(!g.Initialized && !g.SettingsLoaded);
 
-    // Add .ini handle for ImGuiWindow and ImGuiTable types
+    // Add .ini handle_with_gridHash for ImGuiWindow and ImGuiTable types
     {
         ImGuiSettingsHandler ini_handler;
         ini_handler.TypeName = "Window";
@@ -4545,7 +4545,7 @@ void ImGui::NewFrame()
     if (g.IO.BackendFlags & ImGuiBackendFlags_RendererHasVtxOffset)
         g.DrawListSharedData.InitialFlags |= ImDrawListFlags_AllowVtxOffset;
 
-    // Mark rendering data as invalid to prevent user who may have a handle on it to use it.
+    // Mark rendering data as invalid to prevent user who may have a handle_with_gridHash on it to use it.
     for (int n = 0; n < g.Viewports.Size; n++)
     {
         ImGuiViewportP* viewport = g.Viewports[n];
@@ -4679,7 +4679,7 @@ void ImGui::NewFrame()
     g.MouseCursor = ImGuiMouseCursor_Arrow;
     g.WantCaptureMouseNextFrame = g.WantCaptureKeyboardNextFrame = g.WantTextInputNextFrame = -1;
 
-    // Platform IME data: reset for the frame
+    // Platform IME data: reset_phymesh for the frame
     g.PlatformImeDataPrev = g.PlatformImeData;
     g.PlatformImeData.WantVisible = false;
 
@@ -4796,7 +4796,7 @@ static void AddDrawListToDrawData(ImVector<ImDrawList*>* out_list, ImDrawList* d
     //   (A) Handle the ImDrawCmd::VtxOffset value in your renderer backend, and set 'io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset'.
     //       Most example backends already support this from 1.71. Pre-1.71 backends won't.
     //       Some graphics API such as GL ES 1/2 don't have a way to offset the starting vertex so it is not supported for them.
-    //   (B) Or handle 32-bit indices in your renderer backend, and uncomment '#define ImDrawIdx unsigned int' line in imconfig.h.
+    //   (B) Or handle_with_gridHash 32-bit indices in your renderer backend, and uncomment '#define ImDrawIdx unsigned int' line in imconfig.h.
     //       Most example backends already support this. For example, the OpenGL example code detect index size at compile-time:
     //         glDrawElements(GL_TRIANGLES, (GLsizei)pcmd->ElemCount, sizeof(ImDrawIdx) == 2 ? GL_UNSIGNED_SHORT : GL_UNSIGNED_INT, idx_buffer_offset);
     //       Your own engine or render API may use different parameters or function calls to specify index sizes.
@@ -5080,7 +5080,7 @@ void ImGui::EndFrame()
     g.WithinFrameScope = false;
     g.FrameCountEnded = g.FrameCount;
 
-    // Initiate moving window + handle left-click and right-click focus
+    // Initiate moving window + handle_with_gridHash left-click and right-click focus
     UpdateMouseMovingWindowEndFrame();
 
     // Update user-facing viewport list (g.Viewports -> g.PlatformIO.Viewports after filtering out some)
@@ -5218,7 +5218,7 @@ static void FindHoveredWindow()
 {
     ImGuiContext& g = *GImGui;
 
-    // Special handling for the window being moved: Ignore the mouse viewport check (because it may reset/lose its viewport during the undocking frame)
+    // Special handling for the window being moved: Ignore the mouse viewport check (because it may reset_phymesh/lose its viewport during the undocking frame)
     ImGuiViewportP* moving_window_viewport = g.MovingWindow ? g.MovingWindow->Viewport : NULL;
     if (g.MovingWindow)
         g.MovingWindow->Viewport = g.MouseViewport;
@@ -5454,7 +5454,7 @@ bool ImGui::BeginChildEx(const char* name, ImGuiID id, const ImVec2& size_arg, b
     child_window->ChildId = id;
     child_window->AutoFitChildAxises = (ImS8)auto_fit_axises;
 
-    // Set the cursor to handle case where the user called SetNextWindowPos()+BeginChild() manually.
+    // Set the cursor to handle_with_gridHash case where the user called SetNextWindowPos()+BeginChild() manually.
     // While this is not really documented/defined, it seems that the expected thing to do.
     if (child_window->BeginCount == 1)
         parent_window->DC.CursorPos = child_window->Pos;
@@ -5990,7 +5990,7 @@ static bool ImGui::UpdateWindowManualResize(ImGuiWindow* window, const ImVec2& s
             ImVec2 accum_floored = ImFloor(g.NavWindowingAccumDeltaSize);
             if (accum_floored.x != 0.0f || accum_floored.y != 0.0f)
             {
-                // FIXME-NAV: Should store and accumulate into a separate size buffer to handle sizing constraints_PD properly, right now a constraint will make us stuck.
+                // FIXME-NAV: Should store and accumulate into a separate size buffer to handle_with_gridHash sizing constraints_PD properly, right now a constraint will make us stuck.
                 size_target = CalcWindowSizeAfterConstraint(window, window->SizeFull + accum_floored);
                 g.NavWindowingAccumDeltaSize -= accum_floored;
             }
@@ -6047,7 +6047,7 @@ static void ImGui::RenderWindowOuterBorders(ImGuiWindow* window)
 }
 
 // Draw background and borders
-// Draw and handle scrollbars
+// Draw and handle_with_gridHash scrollbars
 void ImGui::RenderWindowDecorations(ImGuiWindow* window, const ImRect& title_bar_rect, bool title_bar_is_highlight, bool handle_borders_and_resize_grips, int resize_grip_count, const ImU32 resize_grip_col[4], float resize_grip_draw_size)
 {
     ImGuiContext& g = *GImGui;
@@ -6058,7 +6058,7 @@ void ImGui::RenderWindowDecorations(ImGuiWindow* window, const ImRect& title_bar
     IM_ASSERT(window->BeginCount == 0);
     window->SkipItems = false;
 
-    // Draw window + handle manual resize
+    // Draw window + handle_with_gridHash manual resize
     // As we highlight the title bar when want_focus is set, multiple reappearing windows will have their title bar highlighted on their reappearing frame.
     const float window_rounding = window->WindowRounding;
     const float window_border_size = window->WindowBorderSize;
@@ -6320,7 +6320,7 @@ static ImGuiWindow* ImGui::FindBlockingModal(ImGuiWindow* window)
         ImGuiWindow* popup_window = g.OpenPopupStack.Data[i].Window;
         if (popup_window == NULL || !(popup_window->Flags & ImGuiWindowFlags_Modal))
             continue;
-        if (!popup_window->Active && !popup_window->WasActive)      // Check WasActive, because this code may run before popup renders on current frame, also check Active to handle newly created windows.
+        if (!popup_window->Active && !popup_window->WasActive)      // Check WasActive, because this code may run before popup renders on current frame, also check Active to handle_with_gridHash newly created windows.
             continue;
         if (IsWindowWithinBeginStackOf(window, popup_window))       // Window is rendered over last modal, no render order change needed.
             break;
@@ -6576,7 +6576,7 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
             window->HiddenFramesCannotSkipItems = 1;
 
         // Hide popup/tooltip window when re-opening while we measure size (because we recycle the windows)
-        // We reset Size/ContentSize for reappearing popups/tooltips early in this function, so further code won't be tempted to use the old size.
+        // We reset_phymesh Size/ContentSize for reappearing popups/tooltips early in this function, so further code won't be tempted to use the old size.
         if (window_just_activated_by_user && (flags & (ImGuiWindowFlags_Popup | ImGuiWindowFlags_Tooltip)) != 0)
         {
             window->HiddenFramesCannotSkipItems = 1;
@@ -6651,7 +6651,7 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
         window->DecoOuterSizeY2 = 0.0f;
         window->ScrollbarSizes = ImVec2(0.0f, 0.0f);
 
-        // Calculate auto-fit size, handle automatic resize
+        // Calculate auto-fit size, handle_with_gridHash automatic resize
         const ImVec2 size_auto_fit = CalcWindowAutoFitSize(window, window->ContentSizeIdeal);
         if ((flags & ImGuiWindowFlags_AlwaysAutoResize) && !window->Collapsed)
         {
@@ -6813,7 +6813,7 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
         }
 #endif
 
-        // Decide if we are going to handle borders and resize grips
+        // Decide if we are going to handle_with_gridHash borders and resize grips
         const bool handle_borders_and_resize_grips = (window->DockNodeAsHost || !window->DockIsActive);
 
         // Handle manual resize: Resize Grips, Borders, Gamepad
@@ -7061,7 +7061,7 @@ bool ImGui::Begin(const char* name, bool* p_open, ImGuiWindowFlags flags)
         window->HitTestHoleSize.x = window->HitTestHoleSize.y = 0;
 
         // Pressing CTRL+C while holding on a window copy its content to the clipboard
-        // This works but 1. doesn't handle multiple Begin/End pairs, 2. recursing into another Begin/End pair - so we need to work that out and add better logging scope.
+        // This works but 1. doesn't handle_with_gridHash multiple Begin/End pairs, 2. recursing into another Begin/End pair - so we need to work that out and add better logging scope.
         // Maybe we can support CTRL+C on every element?
         /*
         //if (g.NavWindow == window && g.ActiveId == 0)
@@ -7392,7 +7392,7 @@ void ImGui::FocusTopMostWindowUnderOne(ImGuiWindow* under_this_window, ImGuiWind
                 // FIXME-DOCK: This is failing (lagging by one frame) for docked windows.
                 // If A and B are docked into window and B disappear, at the NewFrame() call site window->NavLastChildNavWindow will still point to B.
                 // We might leverage the tab order implicitly stored in window->DockNodeAsHost->TabBar (essentially the 'most_recently_selected_tab' code in tab bar will do that but on next update)
-                // to tell which is the "previous" window. Or we may leverage 'LastFrameFocused/LastFrameJustFocused' and have this function handle child window itself?
+                // to tell which is the "previous" window. Or we may leverage 'LastFrameFocused/LastFrameJustFocused' and have this function handle_with_gridHash child window itself?
                 ImGuiWindow* focus_window = NavRestoreLastChildNavWindow(window);
                 FocusWindow(focus_window);
                 return;
@@ -8749,12 +8749,12 @@ void ImGui::ResetMouseDragDelta(ImGuiMouseButton button)
 {
     ImGuiContext& g = *GImGui;
     IM_ASSERT(button >= 0 && button < IM_ARRAYSIZE(g.IO.MouseDown));
-    // NB: We don't need to reset g.IO.MouseDragMaxDistanceSqr
+    // NB: We don't need to reset_phymesh g.IO.MouseDragMaxDistanceSqr
     g.IO.MouseClickedPos[button] = g.IO.MousePos;
 }
 
 // Get desired mouse cursor shape.
-// Important: this is meant to be used by a platform backend, it is reset in ImGui::NewFrame(),
+// Important: this is meant to be used by a platform backend, it is reset_phymesh in ImGui::NewFrame(),
 // updated during the frame, and locked in EndFrame()/Render().
 // If you use software rendering by setting io.MouseDrawCursor then Dear ImGui will render those for you
 ImGuiMouseCursor ImGui::GetMouseCursor()
@@ -8921,7 +8921,7 @@ static void ImGui::UpdateMouseInputs()
     else
         io.MouseDelta = ImVec2(0.0f, 0.0f);
 
-    // If mouse moved we re-enable mouse hovering in case it was disabled by gamepad/keyboard. In theory should use a >0.0f threshold but would need to reset in everywhere we set this to true.
+    // If mouse moved we re-enable mouse hovering in case it was disabled by gamepad/keyboard. In theory should use a >0.0f threshold but would need to reset_phymesh in everywhere we set this to true.
     if (io.MouseDelta.x != 0.0f || io.MouseDelta.y != 0.0f)
         g.NavDisableMouseHover = false;
 
@@ -9740,7 +9740,7 @@ void ImGui::ItemSize(const ImVec2& size, float text_baseline_y)
 
     // We increase the height in this function to accommodate for baseline offset.
     // In theory we should be offsetting the starting position (window->DC.CursorPos), that will be the topic of a larger refactor,
-    // but since ItemSize() is not yet an API that moves the cursor (to handle e.g. wrapping) enlarging the height has the same effect.
+    // but since ItemSize() is not yet an API that moves the cursor (to handle_with_gridHash e.g. wrapping) enlarging the height has the same effect.
     const float offset_to_match_baseline_y = (text_baseline_y >= 0) ? ImMax(0.0f, window->DC.CurrLineTextBaseOffset - text_baseline_y) : 0.0f;
 
     const float line_y1 = window->DC.IsSameLine ? window->DC.CursorPosPrevLine.y : window->DC.CursorPos.y;
@@ -10177,7 +10177,7 @@ void ImGui::EndGroup()
     // If the current ActiveId was declared within the boundary of our group, we copy it to LastItemId so IsItemActive(), IsItemDeactivated() etc. will be functional on the entire group.
     // It would be neater if we replaced window.DC.LastItemId by e.g. 'bool LastItemIsActive', but would put a little more burden on individual widgets.
     // Also if you grep for LastItemId you'll notice it is only used in that context.
-    // (The two tests not the same because ActiveIdIsAlive is an ID itself, in order to be able to handle ActiveId being overwritten during the frame.)
+    // (The two tests not the same because ActiveIdIsAlive is an ID itself, in order to be able to handle_with_gridHash ActiveId being overwritten during the frame.)
     const bool group_contains_curr_active_id = (group_data.BackupActiveIdIsAlive != g.ActiveId) && (g.ActiveIdIsAlive == g.ActiveId) && g.ActiveId;
     const bool group_contains_prev_active_id = (group_data.BackupActiveIdPreviousFrameIsAlive == false) && (g.ActiveIdPreviousFrameIsAlive == true);
     if (group_contains_curr_active_id)
@@ -10390,7 +10390,7 @@ void ImGui::SetScrollY(float scroll_y)
 //  - They mostly exist because of legacy API.
 // Following the rules above, when trying to work with scrolling code, consider that:
 //  - SetScrollFromPosY(0.0f) == SetScrollY(0.0f + scroll.y) == has no effect!
-//  - SetScrollFromPosY(-scroll.y) == SetScrollY(-scroll.y + scroll.y) == SetScrollY(0.0f) == reset scroll. Of course writing SetScrollY(0.0f) directly then makes more sense
+//  - SetScrollFromPosY(-scroll.y) == SetScrollY(-scroll.y + scroll.y) == SetScrollY(0.0f) == reset_phymesh scroll. Of course writing SetScrollY(0.0f) directly then makes more sense
 // We store a target position so centering and clamping can occur on the next frame when we are guaranteed to have a known window size
 void ImGui::SetScrollFromPosX(ImGuiWindow* window, float local_x, float center_x_ratio)
 {
@@ -10478,7 +10478,7 @@ void ImGui::BeginTooltipEx(ImGuiTooltipFlags tooltip_flags, ImGuiWindowFlags ext
         if (ImGuiWindow* window = FindWindowByName(window_name))
             if (window->Active)
             {
-                // Hide previous tooltip from being displayed. We can't easily "reset" the content of a window so we create a new one.
+                // Hide previous tooltip from being displayed. We can't easily "reset_phymesh" the content of a window so we create a new one.
                 window->Hidden = true;
                 window->HiddenFramesCanSkipItems = 1; // FIXME: This may not be necessary?
                 ImFormatString(window_name, IM_ARRAYSIZE(window_name), "##Tooltip_%02d", ++g.TooltipOverrideCount);
@@ -10519,7 +10519,7 @@ bool ImGui::IsPopupOpen(ImGuiID id, ImGuiPopupFlags popup_flags)
     if (popup_flags & ImGuiPopupFlags_AnyPopupId)
     {
         // Return true if any popup is open at the current BeginPopup() level of the popup stack
-        // This may be used to e.g. test for another popups already opened to handle popups priorities at the same level.
+        // This may be used to e.g. test for another popups already opened to handle_with_gridHash popups priorities at the same level.
         IM_ASSERT(id == 0);
         if (popup_flags & ImGuiPopupFlags_AnyPopupLevel)
             return g.OpenPopupStack.Size > 0;
@@ -10589,7 +10589,7 @@ void ImGui::OpenPopup(ImGuiID id, ImGuiPopupFlags popup_flags)
 // Mark popup as open (toggle toward open state).
 // Popups are closed when user click outside, or activate a pressable item, or CloseCurrentPopup() is called within a BeginPopup()/EndPopup() block.
 // Popup identifiers are relative to the current ID-stack (so OpenPopup and BeginPopup needs to be at the same level).
-// One open popup per level of the popup hierarchy (NB: when assigning we reset the Window member of ImGuiPopupRef to NULL)
+// One open popup per level of the popup hierarchy (NB: when assigning we reset_phymesh the Window member of ImGuiPopupRef to NULL)
 void ImGui::OpenPopupEx(ImGuiID id, ImGuiPopupFlags popup_flags)
 {
     ImGuiContext& g = *GImGui;
@@ -10616,7 +10616,7 @@ void ImGui::OpenPopupEx(ImGuiID id, ImGuiPopupFlags popup_flags)
     }
     else
     {
-        // Gently handle the user mistakenly calling OpenPopup() every frame. It is a programming mistake! However, if we were to run the regular code path, the ui
+        // Gently handle_with_gridHash the user mistakenly calling OpenPopup() every frame. It is a programming mistake! However, if we were to run the regular code path, the ui
         // would become completely unusable because the popup will always be in hidden-while-calculating-size state _while_ claiming focus. Which would be a very confusing
         // situation for the programmer. Instead, we silently allow the popup to proceed, it will keep reappearing and the programming error will be more obvious to understand.
         if (g.OpenPopupStack[current_stack_size].PopupId == id && g.OpenPopupStack[current_stack_size].OpenFrameCount == g.FrameCount - 1)
@@ -10863,12 +10863,12 @@ void ImGui::OpenPopupOnItemClick(const char* str_id, ImGuiPopupFlags popup_flags
     }
 }
 
-// This is a helper to handle the simplest case of associating one named popup to one given widget.
+// This is a helper to handle_with_gridHash the simplest case of associating one named popup to one given widget.
 // - To create a popup associated to the last item, you generally want to pass a NULL value to str_id.
 // - To create a popup with a specific identifier, pass it in str_id.
 //    - This is useful when using using BeginPopupContextItem() on an item which doesn't have an identifier, e.g. a Text() call.
 //    - This is useful when multiple code locations may want to manipulate/open the same popup, given an explicit id.
-// - You may want to handle the whole on user side if you have specific needs (e.g. tweaking IsItemHovered() parameters).
+// - You may want to handle_with_gridHash the whole on user side if you have specific needs (e.g. tweaking IsItemHovered() parameters).
 //   This is essentially the same as:
 //       id = str_id ? GetID(str_id) : GetItemID();
 //       OpenPopupOnItemClick(str_id, ImGuiPopupFlags_MouseButtonRight);
@@ -12163,7 +12163,7 @@ static void ImGui::NavEndFrame()
         NavUpdateWindowingOverlay();
 
     // Perform wrap-around in menus
-    // FIXME-NAV: Wrap may need to apply a weight bias on the other axis. e.g. 4x4 grid with 2 last items missing on last item won't handle LoopY/WrapY correctly.
+    // FIXME-NAV: Wrap may need to apply a weight bias on the other axis. e.g. 4x4 grid with 2 last items missing on last item won't handle_with_gridHash LoopY/WrapY correctly.
     // FIXME-NAV: Wrap (not Loop) support could be handled by the scoring function and then WrapX would function without an extra frame.
     const ImGuiNavMoveFlags wanted_flags = ImGuiNavMoveFlags_WrapX | ImGuiNavMoveFlags_LoopX | ImGuiNavMoveFlags_WrapY | ImGuiNavMoveFlags_LoopY;
     if (g.NavWindow && NavMoveRequestButNoResultYet() && (g.NavMoveFlags & wanted_flags) && (g.NavMoveFlags & ImGuiNavMoveFlags_Forwarded) == 0)
@@ -12255,7 +12255,7 @@ static void NavUpdateWindowingHighlightWindow(int focus_change_dir)
     ImGuiWindow* window_target = FindWindowNavFocusable(i_current + focus_change_dir, -INT_MAX, focus_change_dir);
     if (!window_target)
         window_target = FindWindowNavFocusable((focus_change_dir < 0) ? (g.WindowsFocusOrder.Size - 1) : 0, i_current, focus_change_dir);
-    if (window_target) // Don't reset windowing target if there's a single window in the list
+    if (window_target) // Don't reset_phymesh windowing target if there's a single window in the list
     {
         g.NavWindowingTarget = g.NavWindowingTargetAnim = window_target;
         g.NavWindowingAccumDeltaPos = g.NavWindowingAccumDeltaSize = ImVec2(0.0f, 0.0f);
@@ -12573,7 +12573,7 @@ bool ImGui::BeginDragDropSource(ImGuiDragDropFlags flags)
                 return false;
             }
 
-            // Magic fallback to handle items with no assigned ID, e.g. Text(), Image()
+            // Magic fallback to handle_with_gridHash items with no assigned ID, e.g. Text(), Image()
             // We build a throwaway ID based on current ID stack + relative AABB of items in window.
             // THE IDENTIFIER WON'T SURVIVE ANY REPOSITIONING/RESIZINGG OF THE WIDGET, so if your widget moves your dragging operation will be canceled.
             // We don't need to maintain/call ClearActiveID() as releasing the button will early out this function and trigger !ActiveIdIsAlive.
@@ -12727,7 +12727,7 @@ bool ImGui::BeginDragDropTargetCustom(const ImRect& bb, ImGuiID id)
 }
 
 // We don't use BeginDragDropTargetCustom() and duplicate its code because:
-// 1) we use LastItemRectHoveredRect which handles items that push a temporarily clip rectangle in their code. Calling BeginDragDropTargetCustom(LastItemRect) would not handle them.
+// 1) we use LastItemRectHoveredRect which handles items that push a temporarily clip rectangle in their code. Calling BeginDragDropTargetCustom(LastItemRect) would not handle_with_gridHash them.
 // 2) and it's faster. as this code may be very frequently called, we want to early out as fast as we can.
 // Also note how the HoveredWindow test is positioned differently in both functions (in both functions we optimize for the cheapest early out case)
 bool ImGui::BeginDragDropTarget()
@@ -13568,7 +13568,7 @@ static bool ImGui::UpdateTryMergeWindowIntoHostViewport(ImGuiWindow* window, ImG
     return true;
 }
 
-// FIXME: handle 0 to N host viewports
+// FIXME: handle_with_gridHash 0 to N host viewports
 static bool ImGui::UpdateTryMergeWindowIntoHostViewports(ImGuiWindow* window)
 {
     ImGuiContext& g = *GImGui;
@@ -13702,7 +13702,7 @@ static void ImGui::UpdateViewportsNewFrame()
         // Update/copy monitor info
         UpdateViewportPlatformMonitor(viewport);
 
-        // Lock down space taken by menu bars and status bars, reset the offset for functions like BeginMainMenuBar() to alter them again.
+        // Lock down space taken by menu bars and status bars, reset_phymesh the offset for functions like BeginMainMenuBar() to alter them again.
         viewport->WorkOffsetMin = viewport->BuildWorkOffsetMin;
         viewport->WorkOffsetMax = viewport->BuildWorkOffsetMax;
         viewport->BuildWorkOffsetMin = viewport->BuildWorkOffsetMax = ImVec2(0.0f, 0.0f);
@@ -13766,7 +13766,7 @@ static void ImGui::UpdateViewportsNewFrame()
     {
         viewport_hovered = g.IO.MouseHoveredViewport ? (ImGuiViewportP*)FindViewportByID(g.IO.MouseHoveredViewport) : NULL;
         if (viewport_hovered && (viewport_hovered->Flags & ImGuiViewportFlags_NoInputs))
-            viewport_hovered = FindHoveredViewportFromPlatformWindowStack(g.IO.MousePos); // Backend failed to handle _NoInputs viewport: revert to our fallback.
+            viewport_hovered = FindHoveredViewportFromPlatformWindowStack(g.IO.MousePos); // Backend failed to handle_with_gridHash _NoInputs viewport: revert to our fallback.
     }
     else
     {
@@ -13865,7 +13865,7 @@ ImGuiViewportP* ImGui::AddUpdateViewport(ImGuiWindow* window, ImGuiID id, const 
         g.Viewports.push_back(viewport);
         IMGUI_DEBUG_LOG_VIEWPORT("[viewport] Add Viewport %08X '%s'\n", id, window ? window->Name : "<NULL>");
 
-        // We normally setup for all viewports in NewFrame() but here need to handle the mid-frame creation of a new viewport.
+        // We normally setup for all viewports in NewFrame() but here need to handle_with_gridHash the mid-frame creation of a new viewport.
         // We need to extend the fullscreen clip rect so the OverlayDrawList clip is correct for that the first frame
         g.DrawListSharedData.ClipRectFullscreen.x = ImMin(g.DrawListSharedData.ClipRectFullscreen.x, viewport->Pos.x);
         g.DrawListSharedData.ClipRectFullscreen.y = ImMin(g.DrawListSharedData.ClipRectFullscreen.y, viewport->Pos.y);
@@ -13929,7 +13929,7 @@ static void ImGui::WindowSelectViewport(ImGuiWindow* window)
     }
     window->ViewportOwned = false;
 
-    // Appearing popups reset their viewport so they can inherit again
+    // Appearing popups reset_phymesh their viewport so they can inherit again
     if ((flags & (ImGuiWindowFlags_Popup | ImGuiWindowFlags_Tooltip)) && window->Appearing)
     {
         window->Viewport = NULL;
@@ -14136,7 +14136,7 @@ void ImGui::WindowSyncOwnedViewport(ImGuiWindow* window, ImGuiWindow* parent_win
 }
 
 // Called by user at the end of the main loop, after EndFrame()
-// This will handle the creation/update of all OS windows via function defined in the ImGuiPlatformIO api.
+// This will handle_with_gridHash the creation/update of all OS windows via function defined in the ImGuiPlatformIO api.
 void ImGui::UpdatePlatformWindows()
 {
     ImGuiContext& g = *GImGui;
@@ -14236,8 +14236,8 @@ void ImGui::UpdatePlatformWindows()
     }
 
     // Update our implicit z-order knowledge of platform windows, which is used when the backend cannot provide io.MouseHoveredViewport.
-    // When setting Platform_GetWindowFocus, it is expected that the platform backend can handle calls without crashing if it doesn't have data stored.
-    // FIXME-VIEWPORT: We should use this information to also set dear imgui-side focus, allowing us to handle os-level alt+tab.
+    // When setting Platform_GetWindowFocus, it is expected that the platform backend can handle_with_gridHash calls without crashing if it doesn't have data stored.
+    // FIXME-VIEWPORT: We should use this information to also set dear imgui-side focus, allowing us to handle_with_gridHash os-level alt+tab.
     if (g.PlatformIO.Platform_GetWindowFocus != NULL)
     {
         ImGuiViewportP* focused_viewport = NULL;
@@ -14262,7 +14262,7 @@ void ImGui::UpdatePlatformWindows()
 }
 
 // This is a default/basic function for performing the rendering/swap of multiple Platform Windows.
-// Custom renderers may prefer to not call this function at all, and instead iterate the publicly exposed platform data and handle rendering/sync themselves.
+// Custom renderers may prefer to not call this function at all, and instead iterate the publicly exposed platform data and handle_with_gridHash rendering/sync themselves.
 // The Render/Swap functions stored in ImGuiPlatformIO are merely here to allow for this helper to exist, but you can do it yourself:
 //
 //    ImGuiPlatformIO& platform_io = ImGui::GetPlatformIO();
@@ -14388,7 +14388,7 @@ void ImGui::DestroyPlatformWindows()
     // to clear any data they may have stored in e.g. PlatformUserData, RendererUserData.
     // It is convenient for the platform backend code to store something in the main viewport, in order for e.g. the mouse handling
     // code to operator a consistent manner.
-    // It is expected that the backend can handle calls to Renderer_DestroyWindow/Platform_DestroyWindow without
+    // It is expected that the backend can handle_with_gridHash calls to Renderer_DestroyWindow/Platform_DestroyWindow without
     // crashing if it doesn't have data stored.
     ImGuiContext& g = *GImGui;
     for (int i = 0; i < g.Viewports.Size; i++)
@@ -14626,7 +14626,7 @@ void ImGui::DockContextInitialize(ImGuiContext* ctx)
 {
     ImGuiContext& g = *ctx;
 
-    // Add .ini handle for persistent docking data
+    // Add .ini handle_with_gridHash for persistent docking data
     ImGuiSettingsHandler ini_handler;
     ini_handler.TypeName = "Docking";
     ini_handler.TypeHash = ImHashStr("Docking");
@@ -17277,7 +17277,7 @@ ImGuiID ImGui::DockSpace(ImGuiID id, const ImVec2& size_arg, ImGuiDockNodeFlags 
 
     IM_ASSERT(node->IsRootNode());
 
-    // We need to handle the rare case were a central node is missing.
+    // We need to handle_with_gridHash the rare case were a central node is missing.
     // This can happen if the node was first created manually with DockBuilderAddNode() but _without_ the ImGuiDockNodeFlags_Dockspace.
     // Doing it correctly would set the _CentralNode flags, which would then propagate according to subsequent split.
     // It would also be ambiguous to attempt to assign a central node while there are split nodes, so we wait until there's a single node remaining.
@@ -17977,7 +17977,7 @@ void ImGui::BeginDockableDragDropTarget(ImGuiWindow* window)
     if (!BeginDragDropTargetCustom(window->Rect(), window->ID))
         return;
 
-    // Peek into the payload before calling AcceptDragDropPayload() so we can handle overlapping dock nodes with filtering
+    // Peek into the payload before calling AcceptDragDropPayload() so we can handle_with_gridHash overlapping dock nodes with filtering
     // (this is a little unusual pattern, normally most code would call AcceptDragDropPayload directly)
     const ImGuiPayload* payload = &g.DragDropPayload;
     if (!payload->IsDataType(IMGUI_PAYLOAD_TYPE_WINDOW) || !DockNodeIsDropAllowed(window, *(ImGuiWindow**)payload->Data))

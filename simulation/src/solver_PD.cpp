@@ -6,7 +6,7 @@ cholesky_decomp_ptr(std::move(std::make_unique <Eigen::SimplicialCholesky<Sparse
 	this->set_dt(dt);
 }
 
-void PD_solver::reset(Scalar_type dt, PhyMesh_rptr phymesh_rptr) {
+void PD_solver::reset_phymesh(Scalar_type dt, PhyMesh_rptr phymesh_rptr) {
 	this->set_dt(dt);
 	this->phymesh_ptr = phymesh_rptr;
 	cholesky_decomp_ptr = std::move(std::make_unique <Eigen::SimplicialCholesky<SparseMat_type>>());

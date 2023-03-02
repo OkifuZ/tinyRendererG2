@@ -1213,7 +1213,7 @@ static void stbi__refill_buffer(stbi__context *s)
 {
    int n = (s->io.read)(s->io_user_data,(char*)s->buffer_start,s->buflen);
    if (n == 0) {
-      // at end of file, treat same as if from memory, but need to handle case
+      // at end of file, treat same as if from memory, but need to handle_with_gridHash case
       // where s->img_buffer isn't pointing to safe memory, e.g. 0-byte file
       s->read_from_callbacks = 0;
       s->img_buffer = s->buffer_start;
@@ -2707,7 +2707,7 @@ static int stbi__process_frame_header(stbi__jpeg *z, int scan)
    int Lf,p,i,q, h_max=1,v_max=1,c;
    Lf = stbi__get16be(s);         if (Lf < 11) return stbi__err("bad SOF len","Corrupt JPEG"); // JPEG
    p  = stbi__get8(s);            if (p != 8) return stbi__err("only 8-bit","JPEG format not supported: 8-bit only"); // JPEG baseline
-   s->img_y = stbi__get16be(s);   if (s->img_y == 0) return stbi__err("no header height", "JPEG format not supported: delayed height"); // Legal, but we don't handle it--but neither does IJG
+   s->img_y = stbi__get16be(s);   if (s->img_y == 0) return stbi__err("no header height", "JPEG format not supported: delayed height"); // Legal, but we don't handle_with_gridHash it--but neither does IJG
    s->img_x = stbi__get16be(s);   if (s->img_x == 0) return stbi__err("0 width","Corrupt JPEG"); // JPEG requires
    c = stbi__get8(s);
    if (c != 3 && c != 1) return stbi__err("bad component count","Corrupt JPEG");    // JFIF requires
@@ -2789,7 +2789,7 @@ static int stbi__process_frame_header(stbi__jpeg *z, int scan)
    return 1;
 }
 
-// use comparisons since in some cases we handle more than one case (e.g. SOF)
+// use comparisons since in some cases we handle_with_gridHash more than one case (e.g. SOF)
 #define stbi__DNL(x)         ((x) == 0xdc)
 #define stbi__SOI(x)         ((x) == 0xd8)
 #define stbi__EOI(x)         ((x) == 0xd9)
@@ -2836,7 +2836,7 @@ static int stbi__decode_jpeg_image(stbi__jpeg *j)
          if (!stbi__process_scan_header(j)) return 0;
          if (!stbi__parse_entropy_coded_data(j)) return 0;
          if (j->marker == STBI__MARKER_none ) {
-            // handle 0s at the end of image data from IP Kamera 9060
+            // handle_with_gridHash 0s at the end of image data from IP Kamera 9060
             while (!stbi__at_eof(j->s)) {
                int x = stbi__get8(j->s);
                if (x == 255) {
@@ -2951,8 +2951,8 @@ static stbi_uc *stbi__resample_row_hv_2_simd(stbi_uc *out, stbi_uc *in_near, stb
 
    t1 = 3*in_near[0] + in_far[0];
    // process groups of 8 pixels for as long as we can.
-   // note we can't handle the last pixel in a row in this loop
-   // because we need to handle the filter boundary conditions.
+   // note we can't handle_with_gridHash the last pixel in a row in this loop
+   // because we need to handle_with_gridHash the filter boundary conditions.
    for (; i < ((w-1) & ~7); i += 8) {
 #if defined(STBI_SSE2)
       // load and perform the vertical filtering pass
@@ -4045,7 +4045,7 @@ static int stbi__create_png_image_raw(stbi__png *a, stbi_uc *raw, stbi__uint32 r
       // if first row, use special filter that doesn't sample previous row
       if (j == 0) filter = first_row_filter[filter];
 
-      // handle first byte explicitly
+      // handle_with_gridHash first byte explicitly
       for (k=0; k < filter_bytes; ++k) {
          switch (filter) {
             case STBI__F_none       : cur[k] = raw[k]; break;
@@ -6734,7 +6734,7 @@ STBIDEF int stbi_info_from_callbacks(stbi_io_callbacks const *c, void *user, int
       0.96    fix detection of invalid v value - particleman@mollyrocket forum
       0.95    during header scan, seek to markers in case of padding
       0.94    STBI_NO_STDIO to disable stdio usage; rename all #defines the same
-      0.93    handle jpegtran output; verbose errors
+      0.93    handle_with_gridHash jpegtran output; verbose errors
       0.92    read 4,8,16,24,32-bit BMP files of several formats
       0.91    output 24-bit Windows 3.0 BMP files
       0.90    fix a few more warnings; bump version number to approach 1.0

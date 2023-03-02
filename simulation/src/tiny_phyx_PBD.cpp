@@ -7,17 +7,30 @@
 
 void TinyPhyxSole_PBD::use() {
 	if (!entity) return;
+	SimPBD::UI_to_params();
+
 	entity->centerlize_vert(); // deliminate transform
 	vdata_ori = entity->vdata_c();
-	//std::vector<float> ndata_ori = sphere->ndata_c();
 
 	// Physics
 	// model->phymesh
-	entity_phymesh = std::move(std::make_unique<PhyMesh>(
+	this->reset_phymesh();
+
+	// solver
+	pbd_solver = std::move(std::make_unique<PBD_solver>(SimPBD::dt, SimPBD::substep_num, entity_phymesh.get()));
+	pbd_solver->init();
+
+	this->reset_collision();
+}
+
+
+void TinyPhyxSole_PBD::reset_phymesh() {
+	// renew phymesh of entity
+	this->entity_phymesh = std::make_unique<PhyMesh>(
 		entity->vdata_c(), entity->vdata_c().size() / 3,
 		entity->edgedata_c(), entity->edgedata_c().size() / 2,
 		entity->tetdata_c(), entity->tetdata_c().size() / 4,
-		SimPBD::g, SimPBD::m));
+		SimPBD::g, SimPBD::m);
 
 	if (ui_flags.pbd_.constraint_type == static_cast<int>(UI_Flags::PBD_CONSTRAINT_TYPE::Edge_Volume)) {
 		entity_phymesh->setup_constraint_Edge_PBD(SimPBD::stiff);
@@ -31,10 +44,26 @@ void TinyPhyxSole_PBD::use() {
 		entity_phymesh->setup_structured_cloth_edges(ui_flags.pbd_.strcture_edge_width, ui_flags.pbd_.strcture_edge_height);
 		entity_phymesh->setup_constraint_Structured_Cloth_Edge_PBD(SimPBD::stiff);
 	}
-	// solver
-	pbd_solver = std::move(std::make_unique<PBD_solver>(SimPBD::dt, SimPBD::substep_num, entity_phymesh.get()));
-	pbd_solver->init();
 }
+
+void TinyPhyxSole_PBD::reset_collision() {
+	if (!this->entity_phymesh) return;
+
+
+	if (ui_flags.collision_.enabled) {
+		this->pbd_solver->collision_hash_acc = ui_flags.collision_.use_hash_acc;
+		collision_pbd = std::make_unique<Collision_PBD>();
+		collision_pbd->init(entity_phymesh.get(),
+			ui_flags.collision_.friction, ui_flags.collision_.ball_radius,
+			ui_flags.collision_.hash_grid_size, ui_flags.collision_.search_radius, ui_flags.collision_.hashTable_scale);
+		pbd_solver->collision_pbd = collision_pbd.get();
+	}
+	else {
+		collision_pbd = nullptr;
+		pbd_solver->collision_pbd = nullptr;
+	}
+}
+
 
 std::function<void()> TinyPhyxSole_PBD::get_reset_foo() {
 	static std::random_device rd;
@@ -42,38 +71,19 @@ std::function<void()> TinyPhyxSole_PBD::get_reset_foo() {
 	static std::uniform_real_distribution<> dis(0, 1);//uniform distribution between 0 and 1
 
 	return [this]() {
-		if (!entity || !entity_phymesh) return;
-		/*if (!ui_flags.reset) {
-			return;
-		}*/
+		if (!entity) return;
 
 		SimPBD::UI_to_params();
 
-		// reset entity
+		// reset_phymesh entity
 		auto& verts = entity->vdata();
 		verts = vdata_ori;
 		auto gizmo = get_bound_gizmo(entity);
 		if (gizmo) gizmo->odata() = verts;
 
-		// renew phymesh of entity
-		entity_phymesh = std::make_unique<PhyMesh>(
-			verts, verts.size() / 3,
-			entity->edgedata_c(), entity->edgedata_c().size() / 2,
-			entity->tetdata_c(), entity->tetdata_c().size() / 4,
-			SimPBD::g, SimPBD::m);
+		reset_phymesh();
 
-		if (ui_flags.pbd_.constraint_type == static_cast<int>(UI_Flags::PBD_CONSTRAINT_TYPE::Edge_Volume)) {
-			entity_phymesh->setup_constraint_Edge_PBD(SimPBD::stiff);
-			entity_phymesh->setup_constraint_Volume_PBD(SimPBD::stiff);
-		}
-		else if (ui_flags.pbd_.constraint_type == static_cast<int>(UI_Flags::PBD_CONSTRAINT_TYPE::Edge_Corotated)) {
-			entity_phymesh->setup_constraint_Edge_PBD(SimPBD::stiff);
-			entity_phymesh->setup_constraint_Corotated_PBD(SimPBD::stiff);
-		}
-		else {
-			entity_phymesh->setup_constraint_Edge_PBD(SimPBD::stiff);
-		}
-
+		// squeeze
 		if (ui_flags.pbd_.need_squeeze) {
 			for (int i = 0; i < verts.size(); i++) {
 				verts[i] = dis(gen) * 1.0f;
@@ -83,28 +93,21 @@ std::function<void()> TinyPhyxSole_PBD::get_reset_foo() {
 			ui_flags.pbd_.need_squeeze = false;
 		}
 
+		// reset_phymesh solver
+		pbd_solver->reset_phymesh(SimPBD::dt, entity_phymesh.get());
 
-		// reset solver
-		pbd_solver->reset(SimPBD::dt, entity_phymesh.get());
-
-		// collision
-		if (ui_flags.collision_.enabled) {
-			pbd_solver->collision_pbd = std::make_unique<Collision_PBD>();
-			pbd_solver->collision_pbd->init(entity_phymesh.get(), 
-				ui_flags.collision_.friction, ui_flags.collision_.ball_radius, 
-				ui_flags.collision_.hash_grid_size, ui_flags.collision_.search_radius, ui_flags.collision_.hashTable_scale);
-		}
-		else {
-			pbd_solver->collision_pbd = nullptr;
-		}
-
-
+		reset_collision();
 
 		// choose point
 		choosed_verts.clear();
 
-		/*ui_flags.pause = true;
-		ui_flags.reset = false;*/
+		if (pbd_solver && pbd_solver->collision_pbd) {
+			Entity_ptr gizmo_ent = get_bound_gizmo(entity);
+			if (!old_instance_color.empty()) {
+				gizmo_ent->instance_data.color = old_instance_color;
+				gizmo_ent->instance_data.color_dirty = true;
+			}
+		}
 	};
 }
 
@@ -113,6 +116,21 @@ std::function<void()> TinyPhyxSole_PBD::get_physics_tick_foo() {
 		if (paused) return;
 		pbd_solver->step();
 		update_ent_mesh_vert(entity, entity_phymesh->position.data(), entity_phymesh->position.size());
+
+		// draw gizmo color FOR COLLISION
+		if (pbd_solver && pbd_solver->collision_pbd) {
+			Entity_ptr gizmo_ent = get_bound_gizmo(entity);
+			if (old_instance_color.empty()) {
+				old_instance_color = gizmo_ent->instance_data.color;
+			}
+			gizmo_ent->instance_data.color = old_instance_color;
+			gizmo_ent->instance_data.color_dirty = true;
+			auto& collision_ids = pbd_solver->collision_pbd->collision_ids;
+			for (auto id : collision_ids) {
+				set_instance_color_by_ID(gizmo_ent, id, glm::vec3{ 0.8f, 0.2f, 0.2f });
+			}
+		}
+
 	};
 }
 
@@ -204,6 +222,6 @@ void TinyPhyxSole_PBD::choose_point(const glm::vec3& intersect_pos) {
 		Vec3_type closest_v = verts.block<3, 1>(closest_vert_id * 3, 0);
 		printf("choose point: %.3f, %.3f, %.3f; %d\n", closest_v.x(), closest_v.y(), closest_v.z(), closest_vert_id);
 	}
-	// todo: reset this
+	// todo: reset_phymesh this
 
 }

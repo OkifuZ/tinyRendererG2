@@ -31,7 +31,7 @@ public:
 	
 	PD_solver(Scalar_type dt, PhyMesh_rptr phymesh_rptr);
 
-	void reset(Scalar_type dt, PhyMesh_rptr phymesh_rptr);
+	void reset_phymesh(Scalar_type dt, PhyMesh_rptr phymesh_rptr);
 
 	void set_dt(Scalar_type dt);
 
@@ -53,14 +53,15 @@ private:
 
 public:
 
-	Collision_PBD_uptr collision_pbd = nullptr;
+	bool collision_hash_acc = true;
+	Collision_PBD_rptr collision_pbd = nullptr;
 	PhyMesh_rptr phymesh_ptr = nullptr; // which type is better? 
 	// I think it is raw pointer, PD_solver doesn't has phymesh_ptr, it "use" phymesh_ptr.
 	// If type being unique_ptr, the user of PD_solver would has no elegant access to phymesh_ptr
 
 	PBD_solver(Scalar_type dt, int substep_num, PhyMesh_rptr phymesh_rptr);
 
-	void reset(Scalar_type dt, PhyMesh_rptr phymesh_rptr);
+	void reset_phymesh(Scalar_type dt, PhyMesh_rptr phymesh_rptr);
 
 	void set_dt(Scalar_type dt);
 

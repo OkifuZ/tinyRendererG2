@@ -4,8 +4,11 @@
 #include "phymesh.h"
 #include "memory"
 
+#include <unordered_set>
+
 class Collision_PBD;
 using Collision_PBD_uptr = std::unique_ptr<Collision_PBD>;
+using Collision_PBD_rptr = Collision_PBD*;
 
 
 class Collision_PBD {
@@ -18,18 +21,21 @@ public:
 	float search_radius{0.25f}; // TODO: derive this from max_velocity * dt
 	// TODO: float max_velocity = r / dt; // avoid peneration
 
-	std::vector<Scalar_type> rest_pos;
+	VectorX_type rest_pos{};
 
 	PhyMesh_rptr phymesh = nullptr;
 	GridHash_uptr grid_hash = nullptr;
+
+	std::unordered_set<int> collision_ids{};
 
 	Collision_PBD() {}
 
 	void init(PhyMesh_rptr phymesh, Scalar_type friction, Scalar_type radius, 
 		Scalar_type grid_size, Scalar_type search_radius, Scalar_type hash_scale);
 
-	void prepare();
+	void prepare(bool use_hash = true);
 
-	void handle();
+	void handle_with_gridHash();
+	void handle_with_bruteforce();
 
 };

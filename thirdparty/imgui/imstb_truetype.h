@@ -1839,7 +1839,7 @@ static int stbtt__GetGlyphShapeTT(const stbtt_fontinfo *info, int glyph_index, s
             }
          }
          else {
-            // @TODO handle matching point
+            // @TODO handle_with_gridHash matching point
             STBTT_assert(0);
          }
          if (flags & (1<<3)) { // WE_HAVE_A_SCALE
@@ -4889,7 +4889,7 @@ static int stbtt__matchpair(stbtt_uint8 *fc, stbtt_uint32 nm, stbtt_uint8 *name,
             }
          }
 
-         // @TODO handle other encodings
+         // @TODO handle_with_gridHash other encodings
       }
    }
    return 0;

@@ -72,7 +72,7 @@ extern "C" {
  *
  *  These macros select which of the native access functions that are declared
  *  and which platform-specific headers to include.  It is then up your (by
- *  definition platform-specific) code to handle which of these should be
+ *  definition platform-specific) code to handle_with_gridHash which of these should be
  *  defined.
  */
 

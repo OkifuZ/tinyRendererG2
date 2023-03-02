@@ -14,7 +14,7 @@ struct UI_Flags {
 	int current_choice = 0;
 
 	bool pause = true;
-	bool reset = false;
+	bool reset_phymesh = false;
 
 	struct File_UI_Flags
 	{
@@ -64,8 +64,9 @@ struct UI_Flags {
 	
 	struct Collision_UI_Flags {
 		bool enabled = true;
-		float ball_radius{ 0.05f };
-		float friction{ 0.5f };
+		float ball_radius{ 0.075f };
+		float friction{ 0.15f };
+		bool use_hash_acc = true;
 		float hash_grid_size{ 0.2f };
 		float search_radius{ 0.25f };
 		float hashTable_scale{ 5.0f };

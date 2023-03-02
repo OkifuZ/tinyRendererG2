@@ -40,7 +40,7 @@ void reload_physics_scene(TinyRenderer& renderer, Entity_ptr& sphere, TinyPhyxSo
 {
 	// Dangerous: level 0 caution of lifecycle of tiny_physics && sphere!!!
 
-	// reset render scene
+	// reset_phymesh render scene
 	if (tiny_physics) {
 		sphere->vdata() = tiny_physics->vdata_ori;
 		//sphere->ndata() = ndata_ori;
@@ -98,16 +98,16 @@ void load_params()
 		ui_flags.file_.show_str_load = "ERROR: loading failed " + load_path.lexically_normal().string();
 	}
 	ui_flags.file_.to_load_params = false;
-	ui_flags.reset = true;
+	ui_flags.reset_phymesh = true;
 }
 
 std::function<void()> get_UI_event_handler(TinyRenderer& renderer, Entity_ptr& sphere, TinyPhyxSole_uptr& tiny_physics) {
 	return [&renderer, &sphere, &tiny_physics]() {
-		// need reset
-		if (ui_flags.reset) {
+		// need reset_phymesh
+		if (ui_flags.reset_phymesh) {
 			if (tiny_physics) tiny_physics->get_reset_foo()();
 
-			ui_flags.reset = false;
+			ui_flags.reset_phymesh = false;
 			ui_flags.pause = true;
 		}
 

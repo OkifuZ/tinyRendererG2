@@ -5,7 +5,7 @@ PBD_solver::PBD_solver(Scalar_type dt, int substep_num, PhyMesh_rptr phymesh_rpt
 	this->set_dt(dt);
 }
 
-void PBD_solver::reset(Scalar_type dt, PhyMesh_rptr phymesh_rptr) {
+void PBD_solver::reset_phymesh(Scalar_type dt, PhyMesh_rptr phymesh_rptr) {
 	this->set_dt(dt);
 	this->phymesh_ptr = phymesh_rptr;
 	this->init();
@@ -39,7 +39,7 @@ void PBD_solver::step() {
 
 	// VectorX_type y(N * 3); // new position
 
-	if (this->collision_pbd) this->collision_pbd->prepare();
+	if (this->collision_pbd) this->collision_pbd->prepare(this->collision_hash_acc);
 
 	for (int substep = 0; substep < this->substep_num; substep++) {
 		position_prev = position;
@@ -58,13 +58,13 @@ void PBD_solver::step() {
 		// solve constraints
 		// int i = 0;
 		for (auto& constraint : constraints) {
-			/*if (dynamic_cast<SimPBD::CorotatedConstraint*>(constraint.get())) {
-				printf("[%d]\n", i++);
-			}*/
 			constraint->resolve(position, this->phymesh_ptr->inv_mass, this->dt_s);
 		}
 
-		if (this->collision_pbd) this->collision_pbd->handle();
+		if (this->collision_pbd) {
+			if (collision_hash_acc)	 this->collision_pbd->handle_with_gridHash();
+			else this->collision_pbd->handle_with_bruteforce();
+		}
 
 		// exit(0);
 

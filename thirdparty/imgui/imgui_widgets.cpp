@@ -436,7 +436,7 @@ void ImGui::BulletTextV(const char* fmt, va_list args)
 //-------------------------------------------------------------------------
 
 // The ButtonBehavior() function is key to many interactions and used by many/most widgets.
-// Because we handle so many cases (keyboard/gamepad navigation, drag and drop) and many specific behavior (via ImGuiButtonFlags_),
+// Because we handle_with_gridHash so many cases (keyboard/gamepad navigation, drag and drop) and many specific behavior (via ImGuiButtonFlags_),
 // this code is a little complex.
 // By far the most common path is interacting with the Mouse using the default ImGuiButtonFlags_PressedOnClickRelease button behavior.
 // See the series of events below and the corresponding state reported by dear imgui:
@@ -926,9 +926,9 @@ void ImGui::Scrollbar(ImGuiAxis axis)
 
 // Vertical/Horizontal scrollbar
 // The entire piece of code below is rather confusing because:
-// - We handle absolute seeking (when first clicking outside the grab) and relative manipulation (afterward or when clicking inside the grab)
+// - We handle_with_gridHash absolute seeking (when first clicking outside the grab) and relative manipulation (afterward or when clicking inside the grab)
 // - We store values as normalized ratio and in a form that allows the window content to change while we are holding on a scrollbar
-// - We handle both horizontal and vertical scrollbars, which makes the terminology not ideal.
+// - We handle_with_gridHash both horizontal and vertical scrollbars, which makes the terminology not ideal.
 // Still, the code should probably be made simpler..
 bool ImGui::ScrollbarEx(const ImRect& bb_frame, ImGuiID id, ImGuiAxis axis, ImS64* p_scroll_v, ImS64 size_avail_v, ImS64 size_contents_v, ImDrawFlags flags)
 {
@@ -2268,7 +2268,7 @@ bool ImGui::DragBehaviorT(ImGuiDataType data_type, TYPE* v, float v_speed, const
     if (v_cur == (TYPE)-0)
         v_cur = (TYPE)0;
 
-    // Clamp values (+ handle overflow/wrap-around for integer types)
+    // Clamp values (+ handle_with_gridHash overflow/wrap-around for integer types)
     if (*v != v_cur && is_clamped)
     {
         if (v_cur < v_min || (v_cur > *v && adjust_delta < 0.0f && !is_floating_point))
@@ -3505,7 +3505,7 @@ bool ImGui::InputFloat4(const char* label, float v[4], const char* format, ImGui
 
 bool ImGui::InputInt(const char* label, int* v, int step, int step_fast, ImGuiInputTextFlags flags)
 {
-    // Hexadecimal input provided as a convenience but the flag name is awkward. Typically you'd use InputText() to parse your own data, if you want to handle prefixes.
+    // Hexadecimal input provided as a convenience but the flag name is awkward. Typically you'd use InputText() to parse your own data, if you want to handle_with_gridHash prefixes.
     const char* format = (flags & ImGuiInputTextFlags_CharsHexadecimal) ? "%08X" : "%d";
     return InputScalar(label, ImGuiDataType_S32, (void*)v, (void*)(step > 0 ? &step : NULL), (void*)(step_fast > 0 ? &step_fast : NULL), format, flags);
 }
@@ -4919,7 +4919,7 @@ bool ImGui::ColorEdit3(const char* label, float col[3], ImGuiColorEditFlags flag
 static void ColorEditRestoreHS(const float* col, float* H, float* S, float* V)
 {
     // This check is optional. Suppose we have two color widgets side by side, both widgets display different colors, but both colors have hue and/or saturation undefined.
-    // With color check: hue/saturation is preserved in one widget. Editing color in one widget would reset hue/saturation in another one.
+    // With color check: hue/saturation is preserved in one widget. Editing color in one widget would reset_phymesh hue/saturation in another one.
     // Without color check: common hue/saturation would be displayed in all widgets that have hue/saturation undefined.
     // g.ColorEditLastColor is stored as ImU32 RGB value: this essentially gives us color equality check with reduced precision.
     // Tiny external color changes would not be detected and this check would still pass. This is OK, since we only restore hue/saturation _only_ if they are undefined,
@@ -5322,7 +5322,7 @@ bool ImGui::ColorPicker4(const char* label, float col[4], ImGuiColorEditFlags fl
             S = ImSaturate((io.MousePos.x - picker_pos.x) / (sv_picker_size - 1));
             V = 1.0f - ImSaturate((io.MousePos.y - picker_pos.y) / (sv_picker_size - 1));
 
-            // Greatly reduces hue jitter and reset to 0 when hue == 255 and color is rapidly modified using SV square.
+            // Greatly reduces hue jitter and reset_phymesh to 0 when hue == 255 and color is rapidly modified using SV square.
             if (g.ColorEditLastColor == ColorConvertFloat4ToU32(ImVec4(col[0], col[1], col[2], 0)))
                 H = g.ColorEditLastHue;
             value_changed = value_changed_sv = true;

@@ -34,7 +34,7 @@ void play_and_pause_bar() {
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Checkbox("pause", &ui_flags.pause);
 		ImGui::TableSetColumnIndex(1);
-		if (ImGui::Button("reset")) ui_flags.reset = true;
+		if (ImGui::Button("reset")) ui_flags.reset_phymesh = true;
 		ImGui::EndTable();
 	}
 	ImGui::Separator();
@@ -72,10 +72,17 @@ void Collision_layout() {
 	ImGui::DragFloat("friction", &(ui_flags.collision_.friction), 0.005f, 0.0f, 1.0f, "%.3f");
 	ImGui::Separator();
 
-	ImGui::Text("Spatial hashing");
-	ImGui::DragFloat("hash size scale", &(ui_flags.collision_.hashTable_scale), 0.1f, 1.0f, 10.0f, "%.2f");
-	ImGui::DragFloat("hash grid size", &(ui_flags.collision_.hash_grid_size), 0.01f, 0.0f, 2.0f, "%.3f");
-	ImGui::DragFloat("search radius", &(ui_flags.collision_.search_radius), 0.01f, 0.0f, 2.0f, "%.3f");
+	if (ImGui::Button(ui_flags.collision_.use_hash_acc ? "use brute force" : "use hash acceleration")) 
+		ui_flags.collision_.use_hash_acc = !ui_flags.collision_.use_hash_acc;
+	if (ui_flags.collision_.use_hash_acc) {
+		ImGui::Text("Spatial hashing");
+		ImGui::DragFloat("hash size scale", &(ui_flags.collision_.hashTable_scale), 0.1f, 1.0f, 10.0f, "%.2f");
+		ImGui::DragFloat("hash grid size", &(ui_flags.collision_.hash_grid_size), 0.01f, 0.0f, 2.0f, "%.3f");
+		ImGui::DragFloat("search radius", &(ui_flags.collision_.search_radius), 0.01f, 0.0f, 2.0f, "%.3f");
+	}
+	else {
+		ImGui::Text("Brute Force");
+	}
 
 	ImGui::Separator();
 

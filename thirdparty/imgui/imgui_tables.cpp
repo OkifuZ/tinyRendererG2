@@ -37,7 +37,7 @@ Index of this file:
 // - BeginTable()                               user begin into a table
 //    | BeginChild()                            - (if ScrollX/ScrollY is set)
 //    | TableBeginInitMemory()                  - first time table is used
-//    | TableResetSettings()                    - on settings reset
+//    | TableResetSettings()                    - on settings reset_phymesh
 //    | TableLoadSettings()                     - on settings load
 //    | TableBeginApplyRequests()               - apply queued resizing/reordering/hiding requests
 //    | - TableSetColumnWidth()                 - apply resizing width (for mouse resize, often requested by previous frame)
@@ -374,7 +374,7 @@ bool    ImGui::BeginTableEx(const char* name, ImGuiID id, int columns_count, ImG
             override_content_size.y = FLT_MIN;
 
         // Ensure specified width (when not specified, Stretched columns will act as if the width == OuterWidth and
-        // never lead to any scrolling). We don't handle inner_width < 0.0f, we could potentially use it to right-align
+        // never lead to any scrolling). We don't handle_with_gridHash inner_width < 0.0f, we could potentially use it to right-align
         // based on the right side of the child window work rect, which would require knowing ahead if we are going to
         // have decoration taking horizontal spaces (typically a vertical scrollbar).
         if ((flags & ImGuiTableFlags_ScrollX) && inner_width > 0.0f)
@@ -631,7 +631,7 @@ void ImGui::TableBeginApplyRequests(ImGuiTable* table)
         table->HeldHeaderColumn = -1;
         if (table->ReorderColumn != -1 && table->ReorderColumnDir != 0)
         {
-            // We need to handle reordering across hidden columns.
+            // We need to handle_with_gridHash reordering across hidden columns.
             // In the configuration below, moving C to the right of E will lead to:
             //    ... C [D] E  --->  ... [D] E  C   (Column name/index)
             //    ... 2  3  4        ...  2  3  4   (Display order)
@@ -657,7 +657,7 @@ void ImGui::TableBeginApplyRequests(ImGuiTable* table)
         }
     }
 
-    // Handle display order reset request
+    // Handle display order reset_phymesh request
     if (table->IsResetDisplayOrderRequest)
     {
         for (int n = 0; n < table->ColumnsCount; n++)
@@ -1032,7 +1032,7 @@ void ImGui::TableUpdateLayout(ImGuiTable* table)
         column->ClipRect.ClipWithFull(host_clip_rect);
 
         // Mark column as Clipped (not in sight)
-        // Note that scrolling tables (where inner_window != outer_window) handle Y clipped earlier in BeginTable() so IsVisibleY really only applies to non-scrolling tables.
+        // Note that scrolling tables (where inner_window != outer_window) handle_with_gridHash Y clipped earlier in BeginTable() so IsVisibleY really only applies to non-scrolling tables.
         // FIXME-TABLE: Because InnerClipRect.Max.y is conservatively ==outer_window->ClipRect.Max.y, we never can mark columns _Above_ the scroll line as not IsVisibleY.
         // Taking advantage of LastOuterHeight would yield good results there...
         // FIXME-TABLE: Y clipping is disabled because it effectively means not submitting will reduce contents width which is fed to outer_window->DC.CursorMaxPos.x,
@@ -1101,7 +1101,7 @@ void ImGui::TableUpdateLayout(ImGuiTable* table)
         table->Flags &= ~ImGuiTableFlags_Resizable;
 
     // [Part 8] Lock actual OuterRect/WorkRect right-most position.
-    // This is done late to handle the case of fixed-columns tables not claiming more widths that they need.
+    // This is done late to handle_with_gridHash the case of fixed-columns tables not claiming more widths that they need.
     // Because of this we are careful with uses of WorkRect and InnerClipRect before this point.
     if (table->RightMostStretchedColumn != -1)
         table->Flags &= ~ImGuiTableFlags_NoHostExtendX;
@@ -2201,7 +2201,7 @@ void ImGui::TableSetColumnWidthAutoAll(ImGuiTable* table)
     for (int column_n = 0; column_n < table->ColumnsCount; column_n++)
     {
         ImGuiTableColumn* column = &table->Columns[column_n];
-        if (!column->IsEnabled && !(column->Flags & ImGuiTableColumnFlags_WidthStretch)) // Cannot reset weight of hidden stretch column
+        if (!column->IsEnabled && !(column->Flags & ImGuiTableColumnFlags_WidthStretch)) // Cannot reset_phymesh weight of hidden stretch column
             continue;
         column->CannotSkipItemsQueue = (1 << 0);
         column->AutoFitQueue = (1 << 1);
@@ -4028,7 +4028,7 @@ void ImGui::EndColumns()
     if (!(flags & ImGuiOldColumnFlags_GrowParentContentsSize))
         window->DC.CursorMaxPos.x = columns->HostCursorMaxPosX;  // Restore cursor max pos, as columns don't grow parent
 
-    // Draw columns borders and handle resize
+    // Draw columns borders and handle_with_gridHash resize
     // The IsBeingResized flag ensure we preserve pre-resize columns width so back-and-forth are not lossy
     bool is_being_resized = false;
     if (!(flags & ImGuiOldColumnFlags_NoBorder) && !window->SkipItems)

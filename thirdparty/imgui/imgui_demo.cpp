@@ -5147,7 +5147,7 @@ static void ShowDemoWindowTables()
     }
 
     // Demonstrate using Sorting facilities
-    // This is a simplified version of the "Advanced" example, where we mostly focus on the code necessary to handle sorting.
+    // This is a simplified version of the "Advanced" example, where we mostly focus on the code necessary to handle_with_gridHash sorting.
     // Note that the "Advanced" example also showcase manually triggering a sort (e.g. if item quantities have been modified)
     static const char* template_items_names[] =
     {
@@ -7051,7 +7051,7 @@ struct ExampleAppLog
                 // on your side is recommended. Using ImGuiListClipper requires
                 // - A) random access into your data
                 // - B) items all being the  same height,
-                // both of which we can handle since we have an array pointing to the beginning of each line of text.
+                // both of which we can handle_with_gridHash since we have an array pointing to the beginning of each line of text.
                 // When using the filter (in the block of code above) we don't have random access into the data to display
                 // anymore, which is why we don't use the clipper. Storing or skimming through the search result would make
                 // it possible (and would be recommended if you want to search through tens of thousands of entries).
@@ -7676,8 +7676,8 @@ static void ShowExampleAppCustomRendering(bool* p_open)
             draw_list->AddRectFilled(ImVec2(x, y), ImVec2(x + sz, y + sz), col, 10.0f, corners_tl_br);              x += sz + spacing;  // Square with two rounded corners
             draw_list->AddTriangleFilled(ImVec2(x+sz*0.5f,y), ImVec2(x+sz, y+sz-0.5f), ImVec2(x, y+sz-0.5f), col);  x += sz + spacing;  // Triangle
             //draw_list->AddTriangleFilled(ImVec2(x+sz*0.2f,y), ImVec2(x, y+sz-0.5f), ImVec2(x+sz*0.4f, y+sz-0.5f), col); x += sz*0.4f + spacing; // Thin triangle
-            draw_list->AddRectFilled(ImVec2(x, y), ImVec2(x + sz, y + thickness), col);                             x += sz + spacing;  // Horizontal line (faster than AddLine, but only handle integer thickness)
-            draw_list->AddRectFilled(ImVec2(x, y), ImVec2(x + thickness, y + sz), col);                             x += spacing * 2.0f;// Vertical line (faster than AddLine, but only handle integer thickness)
+            draw_list->AddRectFilled(ImVec2(x, y), ImVec2(x + sz, y + thickness), col);                             x += sz + spacing;  // Horizontal line (faster than AddLine, but only handle_with_gridHash integer thickness)
+            draw_list->AddRectFilled(ImVec2(x, y), ImVec2(x + thickness, y + sz), col);                             x += spacing * 2.0f;// Vertical line (faster than AddLine, but only handle_with_gridHash integer thickness)
             draw_list->AddRectFilled(ImVec2(x, y), ImVec2(x + 1, y + 1), col);                                      x += sz;            // Pixel (faster than AddLine)
             draw_list->AddRectFilledMultiColor(ImVec2(x, y), ImVec2(x + sz, y + sz), IM_COL32(0, 0, 0, 255), IM_COL32(255, 0, 0, 255), IM_COL32(255, 255, 0, 255), IM_COL32(0, 255, 0, 255));
 
@@ -7865,7 +7865,7 @@ void ShowExampleAppDockSpace(bool* p_open)
     }
 
     // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
-    // and handle the pass-thru hole, so we ask Begin() to not render a background.
+    // and handle_with_gridHash the pass-thru hole, so we ask Begin() to not render a background.
     if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
         window_flags |= ImGuiWindowFlags_NoBackground;
 

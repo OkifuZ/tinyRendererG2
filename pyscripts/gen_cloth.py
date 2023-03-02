@@ -1,10 +1,10 @@
 from tets.utils import read_objfile, wirte_objfile
 
 
-height:int = 50
-width:int = 50
-square_h:float = 3.0 / height
-square_w:float = 3.0 / width
+height:int = 30
+width:int = 30
+square_h:float = 1.5 / height
+square_w:float = 1.5 / width
 
 
 if __name__ == "__main__":

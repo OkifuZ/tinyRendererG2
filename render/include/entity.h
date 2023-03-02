@@ -29,7 +29,7 @@ public:
     std::string bound_entity = "";
 
     size_t instance_num = 0;
-    bool used() { return !offset.empty() || !color.empty() || !scale.empty(); }
+    bool used() { return !offset.empty() && !color.empty() && !scale.empty(); }
 };
 
 struct AABB_data {
@@ -85,6 +85,7 @@ std::vector<float> transformed_data(Entity_const_ptr entity);
 
 Entity_ptr get_bound_gizmo(Entity_const_ptr entity);
 Entity_ptr get_bound_entity_for_gizmo(Entity_const_ptr gizmo);
+bool set_instance_color_by_ID(Entity_ptr entity, size_t id, glm::vec3& color);
 
 void update_ent_mesh_vert(Entity_ptr& ent, float* data, size_t size);
 

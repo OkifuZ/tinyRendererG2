@@ -49,7 +49,7 @@
 //  2019-03-12: Misc: Preserve DisplayFramebufferScale when main window is minimized.
 //  2018-11-30: Misc: Setting up io.BackendPlatformName so it can be displayed in the About Window.
 //  2018-11-07: Inputs: When installing our GLFW callbacks, we save user's previously installed ones - if any - and chain call them.
-//  2018-08-01: Inputs: Workaround for Emscripten which doesn't seem to handle focus related calls.
+//  2018-08-01: Inputs: Workaround for Emscripten which doesn't seem to handle_with_gridHash focus related calls.
 //  2018-06-29: Inputs: Added support for the ImGuiMouseCursor_Hand cursor.
 //  2018-06-08: Misc: Extracted imgui_impl_glfw.cpp/.h away from the old combined GLFW+OpenGL/Vulkan examples.
 //  2018-03-20: Misc: Setup io.BackendFlags ImGuiBackendFlags_HasMouseCursors flag + honor ImGuiConfigFlags_NoMouseCursorChange flag.
@@ -151,7 +151,7 @@ struct ImGui_ImplGlfw_Data
 // FIXME: multi-context support is not well tested and probably dysfunctional in this backend.
 // - Because glfwPollEvents() process all windows and some events may be called outside of it, you will need to register your own callbacks
 //   (passing install_callbacks=false in ImGui_ImplGlfw_InitXXX functions), set the current dear imgui context and then call our callbacks.
-// - Otherwise we may need to store a GLFWWindow* -> ImGuiContext* map and handle this in the backend, adding a little bit of extra complexity to it.
+// - Otherwise we may need to store a GLFWWindow* -> ImGuiContext* map and handle_with_gridHash this in the backend, adding a little bit of extra complexity to it.
 // FIXME: some shared resources (mouse cursor shape, gamepad) are mishandled when using multi-context.
 static ImGui_ImplGlfw_Data* ImGui_ImplGlfw_GetBackendData()
 {
@@ -651,7 +651,7 @@ static void ImGui_ImplGlfw_UpdateMouseData()
         // If ImGuiBackendFlags_HasMouseHoveredViewport is not set by the backend, Dear imGui will ignore this field and infer the information using its flawed heuristic.
         // - [X] GLFW >= 3.3 backend ON WINDOWS ONLY does correctly ignore viewports with the _NoInputs flag.
         // - [!] GLFW <= 3.2 backend CANNOT correctly ignore viewports with the _NoInputs flag, and CANNOT reported Hovered Viewport because of mouse capture.
-        //       Some backend are not able to handle that correctly. If a backend report an hovered viewport that has the _NoInputs flag (e.g. when dragging a window
+        //       Some backend are not able to handle_with_gridHash that correctly. If a backend report an hovered viewport that has the _NoInputs flag (e.g. when dragging a window
         //       for docking, the viewport has the _NoInputs flag in order to allow us to find the viewport under), then Dear ImGui is forced to ignore the value reported
         //       by the backend, and use its flawed heuristic to guess the viewport behind.
         // - [X] GLFW backend correctly reports this regardless of another viewport behind focused and dragged from (we need this to find a useful drag and drop target).
@@ -821,7 +821,7 @@ void ImGui_ImplGlfw_NewFrame()
 
 //--------------------------------------------------------------------------------------------------------
 // MULTI-VIEWPORT / PLATFORM INTERFACE SUPPORT
-// This is an _advanced_ and _optional_ feature, allowing the backend to create and handle multiple viewports simultaneously.
+// This is an _advanced_ and _optional_ feature, allowing the backend to create and handle_with_gridHash multiple viewports simultaneously.
 // If you are new to dear imgui or creating a new binding for dear imgui, it is recommended that you completely ignore this section first..
 //--------------------------------------------------------------------------------------------------------
 
@@ -1040,7 +1040,7 @@ static void ImGui_ImplGlfw_SetWindowSize(ImGuiViewport* viewport, ImVec2 size)
 #if __APPLE__ && !GLFW_HAS_OSX_WINDOW_POS_FIX
     // Native OS windows are positioned from the bottom-left corner on macOS, whereas on other platforms they are
     // positioned from the upper-left corner. GLFW makes an effort to convert macOS style coordinates, however it
-    // doesn't handle it when changing size. We are manually moving the window in order for changes of size to be based
+    // doesn't handle_with_gridHash it when changing size. We are manually moving the window in order for changes of size to be based
     // on the upper-left corner.
     int x, y, width, height;
     glfwGetWindowPos(vd->Window, &x, &y);
@@ -1162,7 +1162,7 @@ static void ImGui_ImplGlfw_InitPlatformInterface()
     platform_io.Platform_CreateVkSurface = ImGui_ImplGlfw_CreateVkSurface;
 #endif
 
-    // Register main window handle (which is owned by the main application, not by us)
+    // Register main window handle_with_gridHash (which is owned by the main application, not by us)
     // This is mostly for simplicity and consistency, so that our code (e.g. mouse handling etc.) can use same logic for main and secondary viewports.
     ImGuiViewport* main_viewport = ImGui::GetMainViewport();
     ImGui_ImplGlfw_ViewportData* vd = IM_NEW(ImGui_ImplGlfw_ViewportData)();

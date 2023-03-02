@@ -45,7 +45,7 @@
 //  2019-09-22: OpenGL: Detect default GL loader using __has_include compiler facility.
 //  2019-09-16: OpenGL: Tweak initialization code to allow application calling ImGui_ImplOpenGL3_CreateFontsTexture() before the first NewFrame() call.
 //  2019-05-29: OpenGL: Desktop GL only: Added support for large mesh (64K+ vertices), enable ImGuiBackendFlags_RendererHasVtxOffset flag.
-//  2019-04-30: OpenGL: Added support for special ImDrawCallback_ResetRenderState callback to reset render state.
+//  2019-04-30: OpenGL: Added support for special ImDrawCallback_ResetRenderState callback to reset_phymesh render state.
 //  2019-03-29: OpenGL: Not calling glBindBuffer more than necessary in the render loop.
 //  2019-03-15: OpenGL: Added a GL call + comments in ImGui_ImplOpenGL3_Init() to detect uninitialized GL function loaders early.
 //  2019-03-03: OpenGL: Fix support for ES 2.0 (WebGL 1.0).
@@ -550,7 +550,7 @@ void    ImGui_ImplOpenGL3_RenderDrawData(ImDrawData* draw_data)
             if (pcmd->UserCallback != nullptr)
             {
                 // User callback, registered via ImDrawList::AddCallback()
-                // (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the renderer to reset render state.)
+                // (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the renderer to reset_phymesh render state.)
                 if (pcmd->UserCallback == ImDrawCallback_ResetRenderState)
                     ImGui_ImplOpenGL3_SetupRenderState(draw_data, fb_width, fb_height, vertex_array_object);
                 else
@@ -666,38 +666,38 @@ void ImGui_ImplOpenGL3_DestroyFontsTexture()
 }
 
 // If you get an error please report on github. You may try different GL context version or GLSL version. See GL<>GLSL version table at the top of this file.
-static bool CheckShader(GLuint handle, const char* desc)
+static bool CheckShader(GLuint handle_with_gridHash, const char* desc)
 {
     ImGui_ImplOpenGL3_Data* bd = ImGui_ImplOpenGL3_GetBackendData();
     GLint status = 0, log_length = 0;
-    glGetShaderiv(handle, GL_COMPILE_STATUS, &status);
-    glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &log_length);
+    glGetShaderiv(handle_with_gridHash, GL_COMPILE_STATUS, &status);
+    glGetShaderiv(handle_with_gridHash, GL_INFO_LOG_LENGTH, &log_length);
     if ((GLboolean)status == GL_FALSE)
         fprintf(stderr, "ERROR: ImGui_ImplOpenGL3_CreateDeviceObjects: failed to compile %s! With GLSL: %s\n", desc, bd->GlslVersionString);
     if (log_length > 1)
     {
         ImVector<char> buf;
         buf.resize((int)(log_length + 1));
-        glGetShaderInfoLog(handle, log_length, nullptr, (GLchar*)buf.begin());
+        glGetShaderInfoLog(handle_with_gridHash, log_length, nullptr, (GLchar*)buf.begin());
         fprintf(stderr, "%s\n", buf.begin());
     }
     return (GLboolean)status == GL_TRUE;
 }
 
 // If you get an error please report on GitHub. You may try different GL context version or GLSL version.
-static bool CheckProgram(GLuint handle, const char* desc)
+static bool CheckProgram(GLuint handle_with_gridHash, const char* desc)
 {
     ImGui_ImplOpenGL3_Data* bd = ImGui_ImplOpenGL3_GetBackendData();
     GLint status = 0, log_length = 0;
-    glGetProgramiv(handle, GL_LINK_STATUS, &status);
-    glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &log_length);
+    glGetProgramiv(handle_with_gridHash, GL_LINK_STATUS, &status);
+    glGetProgramiv(handle_with_gridHash, GL_INFO_LOG_LENGTH, &log_length);
     if ((GLboolean)status == GL_FALSE)
         fprintf(stderr, "ERROR: ImGui_ImplOpenGL3_CreateDeviceObjects: failed to link %s! With GLSL %s\n", desc, bd->GlslVersionString);
     if (log_length > 1)
     {
         ImVector<char> buf;
         buf.resize((int)(log_length + 1));
-        glGetProgramInfoLog(handle, log_length, nullptr, (GLchar*)buf.begin());
+        glGetProgramInfoLog(handle_with_gridHash, log_length, nullptr, (GLchar*)buf.begin());
         fprintf(stderr, "%s\n", buf.begin());
     }
     return (GLboolean)status == GL_TRUE;
@@ -902,7 +902,7 @@ void    ImGui_ImplOpenGL3_DestroyDeviceObjects()
 
 //--------------------------------------------------------------------------------------------------------
 // MULTI-VIEWPORT / PLATFORM INTERFACE SUPPORT
-// This is an _advanced_ and _optional_ feature, allowing the backend to create and handle multiple viewports simultaneously.
+// This is an _advanced_ and _optional_ feature, allowing the backend to create and handle_with_gridHash multiple viewports simultaneously.
 // If you are new to dear imgui or creating a new binding for dear imgui, it is recommended that you completely ignore this section first..
 //--------------------------------------------------------------------------------------------------------
 

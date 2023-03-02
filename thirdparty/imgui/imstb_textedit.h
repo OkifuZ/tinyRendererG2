@@ -2,7 +2,7 @@
 // This is a slightly modified version of stb_textedit.h 1.14.
 // Those changes would need to be pushed into nothings/stb:
 // - Fix in stb_textedit_discard_redo (see https://github.com/nothings/stb/issues/321)
-// - Fix in stb_textedit_find_charpos to handle last line (see https://github.com/ocornut/imgui/issues/6000)
+// - Fix in stb_textedit_find_charpos to handle_with_gridHash last line (see https://github.com/ocornut/imgui/issues/6000)
 // Grep for [DEAR IMGUI] to find the changes.
 
 // stb_textedit.h - v1.14  - public domain - Sean Barrett
@@ -218,7 +218,7 @@
 //
 //      click:
 //          call this with the mouse x,y on a mouse down; it will update the cursor
-//          and reset the selection start/end to the cursor point. the x,y must
+//          and reset_phymesh the selection start/end to the cursor point. the x,y must
 //          be relative to the text widget, with (0,0) being the top left.
 //
 //      drag:
@@ -457,7 +457,7 @@ static int stb_text_locate_coord(STB_TEXTEDIT_STRING *str, float x, float y)
       return i+r.num_chars;
 }
 
-// API click: on mouse down, move the cursor to the clicked location, and reset the selection
+// API click: on mouse down, move the cursor to the clicked location, and reset_phymesh the selection
 static void stb_textedit_click(STB_TEXTEDIT_STRING *str, STB_TexteditState *state, float x, float y)
 {
    // In single-line mode, just always make y = 0. This lets the drag keep working if the mouse
@@ -1354,7 +1354,7 @@ static void stb_text_makeundo_replace(STB_TEXTEDIT_STRING *str, STB_TexteditStat
    }
 }
 
-// reset the state to default
+// reset_phymesh the state to default
 static void stb_textedit_clear_state(STB_TexteditState *state, int is_single_line)
 {
    state->undostate.undo_point = 0;

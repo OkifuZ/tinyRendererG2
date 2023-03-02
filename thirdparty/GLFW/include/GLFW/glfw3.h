@@ -1260,7 +1260,7 @@ typedef void (* GLFWwindowposfun)(GLFWwindow* window, int xpos, int ypos);
  *  @sa @ref glfwSetWindowSizeCallback
  *
  *  @since Added in version 1.0.
- *  @glfw3 Added window handle parameter.
+ *  @glfw3 Added window handle_with_gridHash parameter.
  *
  *  @ingroup window
  */
@@ -1280,7 +1280,7 @@ typedef void (* GLFWwindowsizefun)(GLFWwindow* window, int width, int height);
  *  @sa @ref glfwSetWindowCloseCallback
  *
  *  @since Added in version 2.5.
- *  @glfw3 Added window handle parameter.
+ *  @glfw3 Added window handle_with_gridHash parameter.
  *
  *  @ingroup window
  */
@@ -1300,7 +1300,7 @@ typedef void (* GLFWwindowclosefun)(GLFWwindow* window);
  *  @sa @ref glfwSetWindowRefreshCallback
  *
  *  @since Added in version 2.5.
- *  @glfw3 Added window handle parameter.
+ *  @glfw3 Added window handle_with_gridHash parameter.
  *
  *  @ingroup window
  */
@@ -1431,7 +1431,7 @@ typedef void (* GLFWwindowcontentscalefun)(GLFWwindow* window, float xscale, flo
  *  @sa @ref glfwSetMouseButtonCallback
  *
  *  @since Added in version 1.0.
- *  @glfw3 Added window handle and modifier mask parameters.
+ *  @glfw3 Added window handle_with_gridHash and modifier mask parameters.
  *
  *  @ingroup input
  */
@@ -1522,7 +1522,7 @@ typedef void (* GLFWscrollfun)(GLFWwindow* window, double xoffset, double yoffse
  *  @sa @ref glfwSetKeyCallback
  *
  *  @since Added in version 1.0.
- *  @glfw3 Added window handle, scancode and modifier mask parameters.
+ *  @glfw3 Added window handle_with_gridHash, scancode and modifier mask parameters.
  *
  *  @ingroup input
  */
@@ -1543,7 +1543,7 @@ typedef void (* GLFWkeyfun)(GLFWwindow* window, int key, int scancode, int actio
  *  @sa @ref glfwSetCharCallback
  *
  *  @since Added in version 2.4.
- *  @glfw3 Added window handle parameter.
+ *  @glfw3 Added window handle_with_gridHash parameter.
  *
  *  @ingroup input
  */
@@ -1835,7 +1835,7 @@ GLFWAPI void glfwTerminate(void);
  *
  *  This function sets hints for the next initialization of GLFW.
  *
- *  The values you set hints to are never reset by GLFW, but they only take
+ *  The values you set hints to are never reset_phymesh by GLFW, but they only take
  *  effect during initialization.  Once GLFW has been initialized, any values
  *  you set will be ignored until the library is terminated and initialized
  *  again.
@@ -2597,7 +2597,7 @@ GLFWAPI void glfwWindowHintString(int hint, const char* value);
  *  windowed mode.
  *  @param[in] share The window whose context to share resources with, or `NULL`
  *  to not share resources.
- *  @return The handle of the created window, or `NULL` if an
+ *  @return The handle_with_gridHash of the created window, or `NULL` if an
  *  [error](@ref error_handling) occurred.
  *
  *  @errors Possible errors include @ref GLFW_NOT_INITIALIZED, @ref
@@ -2781,7 +2781,7 @@ GLFWAPI void glfwSetWindowShouldClose(GLFWwindow* window, int value);
  *  @sa @ref window_title
  *
  *  @since Added in version 1.0.
- *  @glfw3 Added window handle parameter.
+ *  @glfw3 Added window handle_with_gridHash parameter.
  *
  *  @ingroup window
  */
@@ -2895,7 +2895,7 @@ GLFWAPI void glfwGetWindowPos(GLFWwindow* window, int* xpos, int* ypos);
  *  @sa @ref glfwGetWindowPos
  *
  *  @since Added in version 1.0.
- *  @glfw3 Added window handle parameter.
+ *  @glfw3 Added window handle_with_gridHash parameter.
  *
  *  @ingroup window
  */
@@ -2925,7 +2925,7 @@ GLFWAPI void glfwSetWindowPos(GLFWwindow* window, int xpos, int ypos);
  *  @sa @ref glfwSetWindowSize
  *
  *  @since Added in version 1.0.
- *  @glfw3 Added window handle parameter.
+ *  @glfw3 Added window handle_with_gridHash parameter.
  *
  *  @ingroup window
  */
@@ -3052,7 +3052,7 @@ GLFWAPI void glfwSetWindowAspectRatio(GLFWwindow* window, int numer, int denom);
  *  @sa @ref glfwSetWindowMonitor
  *
  *  @since Added in version 1.0.
- *  @glfw3 Added window handle parameter.
+ *  @glfw3 Added window handle_with_gridHash parameter.
  *
  *  @ingroup window
  */
@@ -3238,7 +3238,7 @@ GLFWAPI void glfwSetWindowOpacity(GLFWwindow* window, float opacity);
  *  @sa @ref glfwMaximizeWindow
  *
  *  @since Added in version 2.1.
- *  @glfw3 Added window handle parameter.
+ *  @glfw3 Added window handle_with_gridHash parameter.
  *
  *  @ingroup window
  */
@@ -3265,7 +3265,7 @@ GLFWAPI void glfwIconifyWindow(GLFWwindow* window);
  *  @sa @ref glfwMaximizeWindow
  *
  *  @since Added in version 2.1.
- *  @glfw3 Added window handle parameter.
+ *  @glfw3 Added window handle_with_gridHash parameter.
  *
  *  @ingroup window
  */
@@ -3418,7 +3418,7 @@ GLFWAPI void glfwRequestWindowAttention(GLFWwindow* window);
 
 /*! @brief Returns the monitor that the window uses for full screen mode.
  *
- *  This function returns the handle of the monitor that the specified window is
+ *  This function returns the handle_with_gridHash of the monitor that the specified window is
  *  in full screen on.
  *
  *  @param[in] window The window to query.
@@ -3673,7 +3673,7 @@ GLFWAPI GLFWwindowposfun glfwSetWindowPosCallback(GLFWwindow* window, GLFWwindow
  *  @sa @ref window_size
  *
  *  @since Added in version 1.0.
- *  @glfw3 Added window handle parameter and return value.
+ *  @glfw3 Added window handle_with_gridHash parameter and return value.
  *
  *  @ingroup window
  */
@@ -3713,7 +3713,7 @@ GLFWAPI GLFWwindowsizefun glfwSetWindowSizeCallback(GLFWwindow* window, GLFWwind
  *  @sa @ref window_close
  *
  *  @since Added in version 2.5.
- *  @glfw3 Added window handle parameter and return value.
+ *  @glfw3 Added window handle_with_gridHash parameter and return value.
  *
  *  @ingroup window
  */
@@ -3749,7 +3749,7 @@ GLFWAPI GLFWwindowclosefun glfwSetWindowCloseCallback(GLFWwindow* window, GLFWwi
  *  @sa @ref window_refresh
  *
  *  @since Added in version 2.5.
- *  @glfw3 Added window handle parameter and return value.
+ *  @glfw3 Added window handle_with_gridHash parameter and return value.
  *
  *  @ingroup window
  */
@@ -4308,7 +4308,7 @@ GLFWAPI int glfwGetKeyScancode(int key);
  *  @sa @ref input_key
  *
  *  @since Added in version 1.0.
- *  @glfw3 Added window handle parameter.
+ *  @glfw3 Added window handle_with_gridHash parameter.
  *
  *  @ingroup input
  */
@@ -4337,7 +4337,7 @@ GLFWAPI int glfwGetKey(GLFWwindow* window, int key);
  *  @sa @ref input_mouse_button
  *
  *  @since Added in version 1.0.
- *  @glfw3 Added window handle parameter.
+ *  @glfw3 Added window handle_with_gridHash parameter.
  *
  *  @ingroup input
  */
@@ -4438,7 +4438,7 @@ GLFWAPI void glfwSetCursorPos(GLFWwindow* window, double xpos, double ypos);
  *  @param[in] image The desired cursor image.
  *  @param[in] xhot The desired x-coordinate, in pixels, of the cursor hotspot.
  *  @param[in] yhot The desired y-coordinate, in pixels, of the cursor hotspot.
- *  @return The handle of the created cursor, or `NULL` if an
+ *  @return The handle_with_gridHash of the created cursor, or `NULL` if an
  *  [error](@ref error_handling) occurred.
  *
  *  @errors Possible errors include @ref GLFW_NOT_INITIALIZED and @ref
@@ -4580,7 +4580,7 @@ GLFWAPI void glfwSetCursor(GLFWwindow* window, GLFWcursor* cursor);
  *  @sa @ref input_key
  *
  *  @since Added in version 1.0.
- *  @glfw3 Added window handle parameter and return value.
+ *  @glfw3 Added window handle_with_gridHash parameter and return value.
  *
  *  @ingroup input
  */
@@ -4623,7 +4623,7 @@ GLFWAPI GLFWkeyfun glfwSetKeyCallback(GLFWwindow* window, GLFWkeyfun callback);
  *  @sa @ref input_char
  *
  *  @since Added in version 2.4.
- *  @glfw3 Added window handle parameter and return value.
+ *  @glfw3 Added window handle_with_gridHash parameter and return value.
  *
  *  @ingroup input
  */
@@ -4702,7 +4702,7 @@ GLFWAPI GLFWcharmodsfun glfwSetCharModsCallback(GLFWwindow* window, GLFWcharmods
  *  @sa @ref input_mouse_button
  *
  *  @since Added in version 1.0.
- *  @glfw3 Added window handle parameter and return value.
+ *  @glfw3 Added window handle_with_gridHash parameter and return value.
  *
  *  @ingroup input
  */
@@ -5531,7 +5531,7 @@ GLFWAPI GLFWwindow* glfwGetCurrentContext(void);
  *  @sa @ref glfwSwapInterval
  *
  *  @since Added in version 1.0.
- *  @glfw3 Added window handle parameter.
+ *  @glfw3 Added window handle_with_gridHash parameter.
  *
  *  @ingroup window
  */
@@ -5566,7 +5566,7 @@ GLFWAPI void glfwSwapBuffers(GLFWwindow* window);
  *  @remark This function is not called during context creation, leaving the
  *  swap interval set to whatever is the default on that platform.  This is done
  *  because some swap interval extensions used by GLFW do not allow the swap
- *  interval to be reset to zero once it has been set to a non-zero value.
+ *  interval to be reset_phymesh to zero once it has been set to a non-zero value.
  *
  *  @remark Some GPU drivers do not honor the requested swap interval, either
  *  because of a user setting that overrides the application's request or due to
@@ -5843,7 +5843,7 @@ GLFWAPI int glfwGetPhysicalDevicePresentationSupport(VkInstance instance, VkPhys
  *  @param[in] window The window to create the surface for.
  *  @param[in] allocator The allocator to use, or `NULL` to use the default
  *  allocator.
- *  @param[out] surface Where to store the handle of the surface.  This is set
+ *  @param[out] surface Where to store the handle_with_gridHash of the surface.  This is set
  *  to `VK_NULL_HANDLE` if an error occurred.
  *  @return `VK_SUCCESS` if successful, or a Vulkan error code if an
  *  [error](@ref error_handling) occurred.

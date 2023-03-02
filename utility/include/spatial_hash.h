@@ -47,22 +47,28 @@ class GridHash {
 		};
 	}
 
+	std::tuple<int, int, int> int_coord(float x, float y, float z) {
+		return {
+			// make sure both xi & yi & zi > 0 (clamp)
+			static_cast<int>(std::max(0.0f, std::floor((x - this->min_x) / this->grid_size))),
+			static_cast<int>(std::max(0.0f, std::floor((y - this->min_y) / this->grid_size))),
+			static_cast<int>(std::max(0.0f, std::floor((z - this->min_z) / this->grid_size)))
+		};
+	}
+
 public:
 	GridHash(float grid_size, size_t num_particles, float scale = 3.0f) : 
 		grid_size(grid_size), table_size(size_t(scale * num_particles)), num_particles(num_particles) 
 	{
-		particle_ids.resize(this->num_particles, -1);
+		particle_ids.resize(this->num_particles, 0);
 		grid_hashTable.resize(this->table_size + 1, 0);
 		set_hash_foo_fantasy();
 	}
 
+
 	size_t hash_pos(float x, float y, float z) {
-		return hash_coord2tableID(
-			// make sure both xi & yi & zi > 0
-			std::floor(x - this->min_x / this->grid_size),
-			std::floor(y - this->min_y / this->grid_size),
-			std::floor(z - this->min_z / this->grid_size)
-		);
+		auto& [xi, yi, zi] = int_coord(x, y, z);
+		return hash_coord2tableID(xi, yi, zi);
 	}
 
 	void construct(const float* verts_pos, size_t verts_size) {
@@ -71,8 +77,8 @@ public:
 			return;
 		}
 
-		this->grid_hashTable.clear();
-		this->particle_ids.clear();
+		this->grid_hashTable.assign(this->grid_hashTable.size(), 0);
+		this->particle_ids.assign(this->particle_ids.size(), 0);
 
 		this->min_x = std::numeric_limits<float>::max();
 		this->min_y = std::numeric_limits<float>::max();
@@ -124,14 +130,10 @@ public:
 	}
 
 	std::vector<size_t> find_range_vertIDs(float x, float y, float z, float max_range) {
+		if (max_range < 0) max_range = -max_range;
 
-		int x0 = std::floor(x - max_range);
-		int y0 = std::floor(y - max_range);
-		int z0 = std::floor(z - max_range);
-
-		int x1 = std::floor(x + max_range);
-		int y1 = std::floor(y + max_range);
-		int z1 = std::floor(z + max_range);
+		auto& [x0, y0, z0] = int_coord(x - max_range, y - max_range, z - max_range);
+		auto& [x1, y1, z1] = int_coord(x + max_range, y + max_range, z + max_range);
 
 		std::vector<size_t> ids{};
 

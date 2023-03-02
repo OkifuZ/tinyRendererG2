@@ -4,6 +4,7 @@
 #include "phymesh.h"
 #include "solver.h"
 #include "projective_dynamics.h"
+#include "collision_pbd.h"
 
 #include <memory>
 #include <unordered_set>
@@ -66,15 +67,21 @@ class TinyPhyxSole_PBD : public TinyPhyxSole {
 
 public:
 
+	// Debug
+	std::vector<float> old_instance_color{};
+
 	// PD
 	PBD_solver_uptr pbd_solver;
+	Collision_PBD_uptr collision_pbd = nullptr;
 
 	void use() override;
+
+	void reset_phymesh();
+	void reset_collision();
 
 	std::function<void()> get_reset_foo() override;
 
 	std::function<void()> get_physics_tick_foo() override;
-
 
 
 	void start_grab(const glm::vec3& intersect_pos) override;

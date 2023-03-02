@@ -35,11 +35,11 @@ std::function<void()> TinyPhyxSole_PD::get_reset_foo() {
 	// if we need polymorphic, we need std::bind instead of lambda capture
 	return [this]() {
 		if (!entity || !entity_phymesh) return;
-		/*if (!ui_flags.reset) {
+		/*if (!ui_flags.reset_phymesh) {
 			return;
 		}*/
 		SimPD::UI_to_params();
-		// reset entity
+		// reset_phymesh entity
 		entity->vdata() = vdata_ori;
 		//sphere->ndata() = ndata_ori;
 		auto gizmo = get_bound_gizmo(entity);
@@ -52,8 +52,8 @@ std::function<void()> TinyPhyxSole_PD::get_reset_foo() {
 			entity->tetdata_c(), entity->tetdata_c().size() / 4,
 			SimPD::g, SimPD::m);
 		entity_phymesh->setup_constraint_PD(SimPD::sigma_min, SimPD::sigma_max, SimPD::k);
-		// reset solver
-		pd_solver->reset(SimPD::dt, entity_phymesh.get());
+		// reset_phymesh solver
+		pd_solver->reset_phymesh(SimPD::dt, entity_phymesh.get());
 
 	};
 }

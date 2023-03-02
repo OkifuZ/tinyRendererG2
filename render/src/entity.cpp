@@ -42,6 +42,16 @@ Entity_ptr get_bound_entity_for_gizmo(Entity_const_ptr gizmo) {
     return resource_manager_global.get_entity_by_name(gizmo->instance_data.bound_entity);
 }
 
+bool set_instance_color_by_ID(Entity_ptr entity, size_t id, glm::vec3& color) {
+    if (!entity || !entity->instance_data.used()) return false;
+
+    entity->instance_data.color[id * 3 + 0] = color.x;
+    entity->instance_data.color[id * 3 + 1] = color.y;
+    entity->instance_data.color[id * 3 + 2] = color.z;
+    entity->instance_data.color_dirty = true;
+    return true;
+}
+
 void Entity::centerlize_transform() {
     MeshDataContainer_ptr mesh = resource_manager_global.get_mesh_by_uuid(this->mesh_uuid);
     if (!mesh) return;

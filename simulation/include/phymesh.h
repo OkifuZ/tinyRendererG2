@@ -81,13 +81,13 @@ public:
 	}
 
 	void setup_structured_cloth_edges(Size_type width, Size_type height) {
-		if ((width + 1) * (height + 1) >= this->vert_size) {
-			printf("[ERROR] setup_structured_cloth_edges()\n");
+		if ((width + 1) * (height + 1) > this->vert_size) {
+			printf("[ERROR] setup_structured_cloth_edges(), vert_size: %d\n", this->vert_size);
 			return;
 		}
 
-		for (size_t i = 0; i <= height; i++) {
-			for (size_t j = 0; j <= width; j++) {
+		for (size_t i = 0; i < height; i++) {
+			for (size_t j = 0; j < width; j++) {
 				/*
 				1 - 2
 				|   |  => 1,2; 1,3; 1,4; 2,3
@@ -105,7 +105,7 @@ public:
 			}
 		}
 
-		for (size_t i = 0; i <= height; i+=1) {
+		for (size_t i = 0; i <= height; i += 1) {
 			for (size_t j = 0; j + 2 <= width; j += 1) {
 				/*
 				1 - 2 - 3 => 1,3
